@@ -1,10 +1,18 @@
-import { useState } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useState, useEffect } from "react";
 import { useAuth } from "@/store/auth";
+import { useAvailability, useUpdateAvailability } from "@/hooks/availability";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
-import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectTrigger,
+  SelectContent,
+  SelectItem,
+  SelectValue,
+} from "@/components/ui/select";
+import { ErrorMessage } from "@/components/ui/error-message";
+import type { WorkingHour } from "@/api/availability";
 
 type Day = "mon" | "tue" | "wed" | "thu" | "fri" | "sat" | "sun";
 
@@ -24,7 +32,7 @@ const TIME_SLOTS = Array.from({ length: 19 }, (_, i) => {
   return `${String(h).padStart(2, "0")}:${m}`;
 });
 
-interface WorkingHour {
+interface ScheduleItem {
   dayOfWeek: Day;
   startTime: string;
   endTime: string;
@@ -34,7 +42,9 @@ interface WorkingHour {
 const DEFAULT_START = "09:00";
 const DEFAULT_END = "18:00";
 
-function buildInitial(workingHours: { dayOfWeek: Day; startTime: string; endTime: string }[]): WorkingHour[] {
+function buildInitial(
+  workingHours: WorkingHour[],
+): ScheduleItem[] {
   return DAYS.map(({ key }) => {
     const existing = workingHours.find((wh) => wh.dayOfWeek === key);
     return {
@@ -46,42 +56,56 @@ function buildInitial(workingHours: { dayOfWeek: Day; startTime: string; endTime
   });
 }
 
+function defaultSchedule(): ScheduleItem[] {
+  return DAYS.map(({ key }) => ({
+    dayOfWeek: key,
+    startTime: DEFAULT_START,
+    endTime: DEFAULT_END,
+    enabled: key !== "sat" && key !== "sun",
+  }));
+}
+
 export function AdminAvailabilityPage() {
   const { user } = useAuth();
-  const queryClient = useQueryClient();
+  const adminId = user?.id ?? "";
 
-  const { data, isLoading } = useQuery({
-    queryKey: ["availability"],
-    queryFn: () =>
-      fetch(`/api/admins/${user?.id}/availability`).then((r) => r.json()),
-  });
+  const {
+    data,
+    isLoading,
+    isError,
+    error,
+  } = useAvailability(adminId);
+  const mutation = useUpdateAvailability(adminId);
 
-  const [schedule, setSchedule] = useState<WorkingHour[]>(() =>
-    data ? buildInitial(data.workingHours) : DAYS.map(({ key }) => ({
-      dayOfWeek: key,
-      startTime: DEFAULT_START,
-      endTime: DEFAULT_END,
-      enabled: key !== "sat" && key !== "sun",
-    })),
-  );
+  const [schedule, setSchedule] = useState<ScheduleItem[]>(defaultSchedule);
+  const [initialized, setInitialized] = useState(false);
 
-  const mutation = useMutation({
-    mutationFn: (wh: WorkingHour[]) =>
-      fetch(`/api/admins/${user?.id}/availability`, {
-        method: "PUT",
-        body: JSON.stringify({
-          workingHours: wh.filter((w) => w.enabled).map(({ dayOfWeek, startTime, endTime }) => ({
-            dayOfWeek, startTime, endTime,
-          })),
-        }),
-      }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["availability"] });
-    },
-  });
+  useEffect(() => {
+    if (data && !initialized) {
+      setSchedule(buildInitial(data.workingHours));
+      setInitialized(true);
+    }
+  }, [data, initialized]);
 
   if (isLoading) {
-    return <div className="py-10 text-center text-sm text-zinc-400">Загрузка...</div>;
+    return (
+      <div className="py-10 text-center text-sm text-zinc-400">
+        Загрузка...
+      </div>
+    );
+  }
+
+  if (isError) {
+    return (
+      <div>
+        <h1 className="mb-6 text-2xl font-bold text-zinc-900">
+          График работы
+        </h1>
+        <ErrorMessage
+          message={error?.message ?? "Ошибка загрузки графика"}
+        />
+      </div>
+    );
   }
 
   return (
@@ -114,7 +138,9 @@ export function AdminAvailabilityPage() {
                   )
                 }
               />
-              <Label htmlFor={day.dayOfWeek}>{DAYS.find((d) => d.key === day.dayOfWeek)?.label}</Label>
+              <Label htmlFor={day.dayOfWeek}>
+                {DAYS.find((d) => d.key === day.dayOfWeek)?.label}
+              </Label>
             </div>
 
             <Select
@@ -123,7 +149,9 @@ export function AdminAvailabilityPage() {
               onValueChange={(val) =>
                 setSchedule((prev) =>
                   prev.map((d) =>
-                    d.dayOfWeek === day.dayOfWeek ? { ...d, startTime: val } : d,
+                    d.dayOfWeek === day.dayOfWeek
+                      ? { ...d, startTime: val }
+                      : d,
                   ),
                 )
               }
@@ -146,7 +174,9 @@ export function AdminAvailabilityPage() {
               onValueChange={(val) =>
                 setSchedule((prev) =>
                   prev.map((d) =>
-                    d.dayOfWeek === day.dayOfWeek ? { ...d, endTime: val } : d,
+                    d.dayOfWeek === day.dayOfWeek
+                      ? { ...d, endTime: val }
+                      : d,
                   ),
                 )
               }
@@ -168,7 +198,17 @@ export function AdminAvailabilityPage() {
 
       <Button
         className="mt-6"
-        onClick={() => mutation.mutate(schedule)}
+        onClick={() =>
+          mutation.mutate({
+            workingHours: schedule
+              .filter((w) => w.enabled)
+              .map(({ dayOfWeek, startTime, endTime }) => ({
+                dayOfWeek,
+                startTime,
+                endTime,
+              })),
+          })
+        }
         disabled={mutation.isPending}
       >
         {mutation.isPending ? "Сохранение..." : "Сохранить"}
@@ -176,6 +216,14 @@ export function AdminAvailabilityPage() {
 
       {mutation.isSuccess && (
         <p className="mt-2 text-sm text-green-600">График сохранён</p>
+      )}
+
+      {mutation.isError && (
+        <div className="mt-2">
+          <ErrorMessage
+            message={mutation.error?.message ?? "Ошибка сохранения"}
+          />
+        </div>
       )}
     </div>
   );

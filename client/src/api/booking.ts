@@ -1,21 +1,17 @@
-export async function request<T>(url: string, options?: RequestInit): Promise<T> {
-  const res = await fetch(url, options);
-  if (!res.ok) {
-    throw new Error(`API Error: ${res.status} ${res.statusText}`);
-  }
-  return res.json();
-}
+import { request } from "./client";
+export { request, ApiRequestError } from "./client";
 
 export interface Admin {
   id: string;
   name: string;
   email: string;
+  createdAt: string;
 }
 
 export interface MeetingType {
   id: number;
   duration: 15 | 30;
-  category: string;
+  category: "single" | "group" | "private";
 }
 
 export interface Slot {
@@ -42,7 +38,7 @@ export interface MeetResult {
   startTime: string;
   endTime: string;
   theme: string;
-  status: string;
+  status: "confirmed" | "cancelled";
   inviteLink: string;
   createdAt: string;
   updatedAt: string;

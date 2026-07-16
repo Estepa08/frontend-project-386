@@ -1,4 +1,4 @@
-.PHONY: dev build lint format typecheck test
+.PHONY: dev build lint format typecheck test generate-api
 
 dev:
 	npm run dev --prefix client
@@ -17,3 +17,6 @@ typecheck:
 
 test:
 	npm run test --prefix client
+
+generate-api:
+	npx openapi-typescript server/openapi.json -o client/src/api/generated/schema.d.ts

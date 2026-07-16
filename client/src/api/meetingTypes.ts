@@ -1,4 +1,4 @@
-import { request } from "./booking";
+import { request } from "./client";
 
 export interface MeetingType {
   id: number;

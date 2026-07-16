@@ -112,9 +112,20 @@ model ApiError {
 
 // ===================== Operations =====================
 
+@route("/auth")
+interface Auth {
+  @post
+  @route("/login")
+  login(
+    @body input: { email: string; password: string }
+  ): { token: string; user: Admin | User } | ApiError;
+}
+
 @route("/admins")
 interface Admins {
   @post create(@body input: AdminCreate): Admin | ApiError;
+
+  @get list(): Admin[];
 
   @get get(@path id: string): Admin | ApiError;
 
@@ -135,7 +146,7 @@ interface Admins {
   getAvailableDates(
     @path id: string,
     @query month: string,
-    @query meetingTypeId: int32
+    @query meetingTypeId?: int32
   ): AvailableDates;
 
   @get
@@ -143,12 +154,16 @@ interface Admins {
   getSlots(
     @path id: string,
     @query date: plainDate,
-    @query meetingTypeId: int32
+    @query meetingTypeId?: int32
   ): Slots;
 
   @get
   @route("/{id}/meets")
-  listMeets(@path id: string): Meet[];
+  listMeets(
+    @path id: string,
+    @query status?: "confirmed" | "cancelled",
+    @query date?: plainDate
+  ): Meet[];
 
   @post
   @route("/{id}/meeting-types")
@@ -174,6 +189,8 @@ interface MeetingTypes {
 interface Users {
   @post create(@body input: UserCreate): User | ApiError;
 
+  @get list(): User[];
+
   @get get(@path id: string): User | ApiError;
 
   @patch update(@path id: string, @body input: UserCreate): User | ApiError;
@@ -182,7 +199,11 @@ interface Users {
 
   @get
   @route("/{id}/meets")
-  listMeets(@path id: string): Meet[];
+  listMeets(
+    @path id: string,
+    @query status?: "confirmed" | "cancelled",
+    @query date?: plainDate
+  ): Meet[];
 }
 
 @route("/meets")

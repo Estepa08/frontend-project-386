@@ -1,4 +1,4 @@
-import { request } from "./booking";
+import { request } from "./client";
 
 export interface MeetResult {
   id: number;
@@ -8,7 +8,7 @@ export interface MeetResult {
   startTime: string;
   endTime: string;
   theme: string;
-  status: string;
+  status: "confirmed" | "cancelled";
   inviteLink: string;
   comment?: string;
   guestEmails?: string[];
@@ -19,7 +19,7 @@ export interface MeetResult {
 }
 
 export interface MeetFilters {
-  status?: string;
+  status?: "confirmed" | "cancelled";
   date?: string;
 }
 
@@ -29,7 +29,7 @@ export function fetchMeets(
   filters?: MeetFilters,
 ): Promise<MeetResult[]> {
   const params = new URLSearchParams();
-  if (filters?.status && filters.status !== "all") {
+  if (filters?.status) {
     params.set("status", filters.status);
   }
   if (filters?.date) {

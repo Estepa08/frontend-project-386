@@ -23,7 +23,7 @@ function formatDate(iso: string) {
 
 export function AdminMeetsPage() {
   const { role, user } = useAuth();
-  const [statusFilter, setStatusFilter] = useState("all");
+  const [statusFilter, setStatusFilter] = useState<"all" | "confirmed" | "cancelled">("all");
   const [dateFilter, setDateFilter] = useState("");
 
   const { data: meets, isLoading, isError, error } = useMeets(
