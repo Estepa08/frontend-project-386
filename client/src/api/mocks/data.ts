@@ -1,3 +1,6 @@
+import { ONE_MINUTE_MS } from "@/lib/utils";
+import type { components } from "@/api/generated/schema";
+
 export const workingHours = [
   { dayOfWeek: "mon" as const, startTime: "09:00", endTime: "18:00" },
   { dayOfWeek: "tue" as const, startTime: "09:00", endTime: "18:00" },
@@ -6,14 +9,7 @@ export const workingHours = [
   { dayOfWeek: "fri" as const, startTime: "09:00", endTime: "18:00" },
 ];
 
-export interface MeetType {
-  id: number;
-  adminId: string;
-  duration: number;
-  category: string;
-  visible: boolean;
-  allowGuestInvite: boolean;
-}
+export type MeetType = components["schemas"]["MeetingType"];
 
 const initialTypes: MeetType[] = [
   { id: 1, adminId: "1", duration: 15, category: "single", visible: true, allowGuestInvite: false },
@@ -22,19 +18,7 @@ const initialTypes: MeetType[] = [
 
 export const meetingTypes: MeetType[] = [...initialTypes];
 
-export interface Meet {
-  id: number;
-  adminId: string;
-  userId: string;
-  meetingTypeId: number;
-  startTime: string;
-  endTime: string;
-  theme: string;
-  status: string;
-  inviteLink: string;
-  createdAt: string;
-  updatedAt: string;
-}
+export type Meet = components["schemas"]["Meet"];
 
 export const meets: Meet[] = [
   {
@@ -43,7 +27,7 @@ export const meets: Meet[] = [
     userId: "2",
     meetingTypeId: 1,
     startTime: new Date().toISOString(),
-    endTime: new Date(Date.now() + 15 * 60000).toISOString(),
+    endTime: new Date(Date.now() + 15 * ONE_MINUTE_MS).toISOString(),
     theme: "Брифинг",
     status: "confirmed",
     inviteLink: "https://meetly.app/invite/abc123",
@@ -56,7 +40,7 @@ export const meets: Meet[] = [
     userId: "2",
     meetingTypeId: 2,
     startTime: new Date().toISOString(),
-    endTime: new Date(Date.now() + 30 * 60000).toISOString(),
+    endTime: new Date(Date.now() + 30 * ONE_MINUTE_MS).toISOString(),
     theme: "Консультация",
     status: "cancelled",
     inviteLink: "https://meetly.app/invite/def456",

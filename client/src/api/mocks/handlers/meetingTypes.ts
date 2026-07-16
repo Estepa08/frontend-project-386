@@ -8,11 +8,11 @@ export const meetingTypesHandlers = [
 
   http.post("/api/admins/:id/meeting-types", async ({ request }) => {
     const body = (await request.json()) as { duration: number; category: string };
-    const newType = {
+    const newType: MeetType = {
       id: meetingTypes.length + 1,
       adminId: "1",
-      duration: body.duration,
-      category: body.category,
+      duration: body.duration as 15 | 30,
+      category: body.category as "single" | "group" | "private",
       visible: true,
       allowGuestInvite: false,
     };
@@ -22,7 +22,7 @@ export const meetingTypesHandlers = [
 
   http.patch("/api/meeting-types/:id", async ({ params, request }) => {
     const body = (await request.json()) as Partial<MeetType>;
-    const index = meetingTypes.findIndex((t) => t.id === Number(params.id));
+    const index = meetingTypes.findIndex((typeItem) => typeItem.id === Number(params.id));
     if (index === -1) {
       return HttpResponse.json({ error: "Not found" }, { status: 404 });
     }
@@ -31,7 +31,7 @@ export const meetingTypesHandlers = [
   }),
 
   http.delete("/api/meeting-types/:id", ({ params }) => {
-    const index = meetingTypes.findIndex((t) => t.id === Number(params.id));
+    const index = meetingTypes.findIndex((typeItem) => typeItem.id === Number(params.id));
     if (index !== -1) meetingTypes.splice(index, 1);
     return HttpResponse.json(null, { status: 204 });
   }),

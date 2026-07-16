@@ -8,7 +8,7 @@ export const bookingFormSchema = z.object({
 
 export type BookingFormData = z.infer<typeof bookingFormSchema>;
 
-const CATEGORY_LABELS: Record<string, string> = {
+export const CATEGORY_LABELS: Record<string, string> = {
   single: "Single",
   group: "Group",
   private: "Private",

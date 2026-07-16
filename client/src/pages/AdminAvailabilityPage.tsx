@@ -2,19 +2,13 @@ import { useState, useEffect } from "react";
 import { useAuth } from "@/store/auth";
 import { useAvailability, useUpdateAvailability } from "@/hooks/availability";
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectTrigger,
-  SelectContent,
-  SelectItem,
-  SelectValue,
-} from "@/components/ui/select";
 import { ErrorMessage } from "@/components/ui/error-message";
-import type { WorkingHour } from "@/api/availability";
+import { ScheduleItemRow } from "@/components/availability/ScheduleItemRow";
+import { DEFAULT_START, DEFAULT_END } from "@/api/availability";
+import type { components } from "@/api/generated/schema";
 
 type Day = "mon" | "tue" | "wed" | "thu" | "fri" | "sat" | "sun";
+type WorkingHour = components["schemas"]["WorkingHour"];
 
 const DAYS: { key: Day; label: string }[] = [
   { key: "mon", label: "Пн" },
@@ -26,12 +20,6 @@ const DAYS: { key: Day; label: string }[] = [
   { key: "sun", label: "Вс" },
 ];
 
-const TIME_SLOTS = Array.from({ length: 19 }, (_, i) => {
-  const h = Math.floor(i / 2) + 9;
-  const m = i % 2 === 0 ? "00" : "30";
-  return `${String(h).padStart(2, "0")}:${m}`;
-});
-
 interface ScheduleItem {
   dayOfWeek: Day;
   startTime: string;
@@ -39,12 +27,7 @@ interface ScheduleItem {
   enabled: boolean;
 }
 
-const DEFAULT_START = "09:00";
-const DEFAULT_END = "18:00";
-
-function buildInitial(
-  workingHours: WorkingHour[],
-): ScheduleItem[] {
+function buildInitial(workingHours: WorkingHour[]): ScheduleItem[] {
   return DAYS.map(({ key }) => {
     const existing = workingHours.find((wh) => wh.dayOfWeek === key);
     return {
@@ -119,81 +102,46 @@ export function AdminAvailabilityPage() {
           <span>Конец</span>
         </div>
 
-        {schedule.map((day) => (
-          <div
-            key={day.dayOfWeek}
-            className="grid grid-cols-[auto_1fr_1fr] gap-4 border-b border-zinc-50 px-6 py-3 last:border-0"
-          >
-            <div className="flex items-center gap-3">
-              <Checkbox
-                id={day.dayOfWeek}
-                checked={day.enabled}
-                onCheckedChange={(checked) =>
-                  setSchedule((prev) =>
-                    prev.map((d) =>
-                      d.dayOfWeek === day.dayOfWeek
-                        ? { ...d, enabled: checked === true }
-                        : d,
-                    ),
-                  )
-                }
-              />
-              <Label htmlFor={day.dayOfWeek}>
-                {DAYS.find((d) => d.key === day.dayOfWeek)?.label}
-              </Label>
-            </div>
-
-            <Select
-              value={day.enabled ? day.startTime : ""}
-              disabled={!day.enabled}
-              onValueChange={(val) =>
+        {schedule.map((day) => {
+          const dayLabel = DAYS.find((d) => d.key === day.dayOfWeek)?.label ?? "";
+          return (
+            <ScheduleItemRow
+              key={day.dayOfWeek}
+              dayKey={day.dayOfWeek}
+              label={dayLabel}
+              enabled={day.enabled}
+              startTime={day.startTime}
+              endTime={day.endTime}
+              onToggle={(checked) =>
                 setSchedule((prev) =>
-                  prev.map((d) =>
-                    d.dayOfWeek === day.dayOfWeek
-                      ? { ...d, startTime: val }
-                      : d,
+                  prev.map((item) =>
+                    item.dayOfWeek === day.dayOfWeek
+                      ? { ...item, enabled: checked }
+                      : item,
                   ),
                 )
               }
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="--" />
-              </SelectTrigger>
-              <SelectContent>
-                {TIME_SLOTS.map((t) => (
-                  <SelectItem key={t} value={t}>
-                    {t}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-
-            <Select
-              value={day.enabled ? day.endTime : ""}
-              disabled={!day.enabled}
-              onValueChange={(val) =>
+              onStartTimeChange={(value) =>
                 setSchedule((prev) =>
-                  prev.map((d) =>
-                    d.dayOfWeek === day.dayOfWeek
-                      ? { ...d, endTime: val }
-                      : d,
+                  prev.map((item) =>
+                    item.dayOfWeek === day.dayOfWeek
+                      ? { ...item, startTime: value }
+                      : item,
                   ),
                 )
               }
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="--" />
-              </SelectTrigger>
-              <SelectContent>
-                {TIME_SLOTS.map((t) => (
-                  <SelectItem key={t} value={t}>
-                    {t}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-        ))}
+              onEndTimeChange={(value) =>
+                setSchedule((prev) =>
+                  prev.map((item) =>
+                    item.dayOfWeek === day.dayOfWeek
+                      ? { ...item, endTime: value }
+                      : item,
+                  ),
+                )
+              }
+            />
+          );
+        })}
       </div>
 
       <Button

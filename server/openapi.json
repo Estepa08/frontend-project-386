@@ -33,9 +33,10 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "required": ["token", "user"],
+                  "required": ["token", "user", "role"],
                   "properties": {
                     "token": { "type": "string" },
+                    "role": { "type": "string", "enum": ["admin", "user"] },
                     "user": {
                       "oneOf": [
                         { "$ref": "#/components/schemas/Admin" },

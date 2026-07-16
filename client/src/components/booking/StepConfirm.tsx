@@ -8,7 +8,8 @@ import { useCreateMeet } from "@/hooks/booking";
 import { categoryLabel, bookingFormSchema } from "@/lib/booking";
 import { Input } from "@/components/ui/input";
 import { ErrorMessage } from "@/components/ui/error-message";
-import { Plus, X, ArrowLeft, Loader2 } from "lucide-react";
+import { StepNav } from "./StepNav";
+import { Plus, X } from "lucide-react";
 
 export function StepConfirm() {
   const { user } = useAuth();
@@ -41,13 +42,18 @@ export function StepConfirm() {
     }
     setSubmitError(null);
 
+    if (!admin || !user || !meetingType || !date || !slot) {
+      setSubmitError("Не все данные заполнены");
+      return;
+    }
+
     mutation.mutate(
       {
-        adminId: admin!.id,
-        userId: user!.id,
-        meetingTypeId: meetingType!.id,
-        startTime: combineDateAndTime(date!, slot!.startTime),
-        endTime: combineDateAndTime(date!, slot!.endTime),
+        adminId: admin.id,
+        userId: user.id,
+        meetingTypeId: meetingType.id,
+        startTime: combineDateAndTime(date, slot.startTime),
+        endTime: combineDateAndTime(date, slot.endTime),
         theme: parsed.data.theme,
         comment: parsed.data.comment || undefined,
         guestEmails: parsed.data.guests.filter((email) => email.trim() !== ""),
@@ -112,18 +118,18 @@ export function StepConfirm() {
             Гости
           </label>
           <div className="space-y-2">
-            {guests.map((email, i) => (
-              <div key={i} className="flex items-center gap-2">
+            {guests.map((email, index) => (
+              <div key={index} className="flex items-center gap-2">
                 <Input
                   value={email}
-                  onChange={(e) => updateGuest(i, e.target.value)}
+                  onChange={(e) => updateGuest(index, e.target.value)}
                   placeholder="email@example.com"
                   type="email"
                   inputMode="email"
                   pattern="[^\s@]+@[^\s@]+\.[^\s@]+"
                 />
                 <button
-                  onClick={() => removeGuest(i)}
+                  onClick={() => removeGuest(index)}
                   className="shrink-0 text-sm text-zinc-400 hover:text-red-500"
                 >
                   <X className="h-4 w-4" />
@@ -141,23 +147,13 @@ export function StepConfirm() {
         </div>
       </div>
 
-      <div className="mt-8 flex items-center justify-between">
-        <button
-          onClick={() => setStep(2)}
-          className="inline-flex items-center gap-1.5 rounded-lg border border-zinc-200 px-4 py-2 text-sm text-zinc-600 hover:bg-zinc-50"
-        >
-          <ArrowLeft className="h-4 w-4" />
-          Назад
-        </button>
-        <button
-          onClick={handleSubmit}
-          disabled={mutation.isPending}
-          className="inline-flex items-center gap-1.5 rounded-lg bg-zinc-900 px-6 py-2 text-sm font-medium text-white hover:bg-zinc-800 disabled:opacity-50"
-        >
-          {mutation.isPending && <Loader2 className="h-4 w-4 animate-spin" />}
-          {mutation.isPending ? "Бронирование..." : "Забронировать"}
-        </button>
-      </div>
+      <StepNav
+        onBack={() => setStep(2)}
+        onNext={handleSubmit}
+        isNextDisabled={mutation.isPending}
+        nextLabel="Забронировать"
+        isSubmitting={mutation.isPending}
+      />
     </div>
   );
 }

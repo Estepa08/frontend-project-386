@@ -1,55 +1,17 @@
 import { request } from "./client";
+import type { components } from "@/api/generated/schema";
+
+export type Admin = components["schemas"]["Admin"];
+export type MeetingType = components["schemas"]["MeetingType"];
+export type Slot = components["schemas"]["Slot"];
+export type MeetInput = components["schemas"]["MeetInput"];
+export type Meet = components["schemas"]["Meet"];
+
 export { request, ApiRequestError } from "./client";
 
-export interface Admin {
-  id: string;
-  name: string;
-  email: string;
-  createdAt: string;
-}
-
-export interface MeetingType {
-  id: number;
-  duration: 15 | 30;
-  category: "single" | "group" | "private";
-}
-
-export interface Slot {
-  startTime: string;
-  endTime: string;
-}
-
-export interface CreateMeetBody {
-  adminId: string;
-  userId: string;
-  meetingTypeId: number;
-  startTime: string;
-  endTime: string;
-  theme: string;
-  comment?: string;
-  guestEmails?: string[];
-}
-
-export interface MeetResult {
-  id: number;
-  adminId: string;
-  userId: string;
-  meetingTypeId: number;
-  startTime: string;
-  endTime: string;
-  theme: string;
-  status: "confirmed" | "cancelled";
-  inviteLink: string;
-  createdAt: string;
-  updatedAt: string;
-}
-
-interface AvailableDatesResponse {
-  dates: string[];
-}
-
-interface SlotsResponse {
-  slots: Slot[];
+export interface MeetResult extends Meet {
+  adminName?: string;
+  userName?: string;
 }
 
 export function fetchAdmins(): Promise<Admin[]> {
@@ -64,10 +26,10 @@ export function fetchAvailableDates(
   adminId: string,
   month: string,
   meetingTypeId?: number,
-): Promise<AvailableDatesResponse> {
+): Promise<components["schemas"]["AvailableDates"]> {
   const params = new URLSearchParams({ month });
   if (meetingTypeId) params.set("meetingTypeId", String(meetingTypeId));
-  return request<AvailableDatesResponse>(
+  return request<components["schemas"]["AvailableDates"]>(
     `/api/admins/${adminId}/available-dates?${params}`,
   );
 }
@@ -76,13 +38,13 @@ export function fetchSlots(
   adminId: string,
   date: string,
   meetingTypeId?: number,
-): Promise<SlotsResponse> {
+): Promise<components["schemas"]["Slots"]> {
   const params = new URLSearchParams({ date });
   if (meetingTypeId) params.set("meetingTypeId", String(meetingTypeId));
-  return request<SlotsResponse>(`/api/admins/${adminId}/slots?${params}`);
+  return request<components["schemas"]["Slots"]>(`/api/admins/${adminId}/slots?${params}`);
 }
 
-export function createMeet(body: CreateMeetBody): Promise<MeetResult> {
+export function createMeet(body: MeetInput): Promise<MeetResult> {
   return request<MeetResult>("/api/meets", {
     method: "POST",
     body: JSON.stringify(body),
@@ -90,8 +52,8 @@ export function createMeet(body: CreateMeetBody): Promise<MeetResult> {
 }
 
 export function combineDateAndTime(date: Date, time: string): string {
-  const [h, m] = time.split(":").map(Number);
-  const dt = new Date(date);
-  dt.setHours(h, m, 0, 0);
-  return dt.toISOString();
+  const [hour, minute] = time.split(":").map(Number);
+  const result = new Date(date);
+  result.setHours(hour, minute, 0, 0);
+  return result.toISOString();
 }

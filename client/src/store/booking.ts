@@ -1,20 +1,13 @@
 import { create } from "zustand";
+import type { components } from "@/api/generated/schema";
 
-interface Admin {
-  id: string;
-  name: string;
-  email: string;
-}
+type Admin = components["schemas"]["Admin"];
+type Slot = components["schemas"]["Slot"];
 
 interface MeetingType {
   id: number;
   duration: 15 | 30;
   category: string;
-}
-
-interface Slot {
-  startTime: string;
-  endTime: string;
 }
 
 interface BookingState {
@@ -30,7 +23,7 @@ interface BookingState {
 
   setStep: (step: 1 | 2 | 3 | 4) => void;
   setAdmin: (admin: Admin) => void;
-  setMeetingType: (mt: MeetingType) => void;
+  setMeetingType: (meetingType: MeetingType) => void;
   setDate: (date: Date | null) => void;
   setSlot: (slot: Slot | null) => void;
   setTheme: (theme: string) => void;
@@ -64,7 +57,7 @@ export const useBooking = create<BookingState>((set) => ({
   setSlot: (slot) => set({ slot }),
   setTheme: (theme) => set({ theme }),
   setComment: (comment) => set({ comment }),
-  addGuest: () => set((s) => ({ guests: [...s.guests, ""] })),
+  addGuest: () => set((state) => ({ guests: [...state.guests, ""] })),
   removeGuest: (index) => set((state) => ({ guests: state.guests.filter((_, idx) => idx !== index) })),
   updateGuest: (index, value) =>
     set((state) => {

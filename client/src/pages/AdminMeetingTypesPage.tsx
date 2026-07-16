@@ -2,40 +2,24 @@ import { useState } from "react";
 import { useAuth } from "@/store/auth";
 import {
   useMeetingTypes,
-  useCreateMeetingType,
   useUpdateMeetingType,
   useDeleteMeetingType,
 } from "@/hooks/meetingTypes";
-import { Button } from "@/components/ui/button";
+import { CreateMeetingTypeDialog } from "@/components/meeting-types/CreateMeetingTypeDialog";
 import { Switch } from "@/components/ui/switch";
-import { Label } from "@/components/ui/label";
-import {
-  Dialog,
-  DialogTrigger,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogClose,
-} from "@/components/ui/dialog";
 import { ErrorMessage } from "@/components/ui/error-message";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { Trash2 } from "lucide-react";
-import type { MeetingType } from "@/api/meetingTypes";
+import { CATEGORY_LABELS } from "@/lib/booking";
+import type { components } from "@/api/generated/schema";
 
-const CATEGORY_LABEL: Record<string, string> = {
-  single: "Single",
-  group: "Group",
-  private: "Private",
-};
+type MeetingType = components["schemas"]["MeetingType"];
 
 export function AdminMeetingTypesPage() {
   const { user } = useAuth();
   const adminId = user?.id ?? "";
 
-  const [dialogOpen, setDialogOpen] = useState(false);
-  const [form, setForm] = useState({
-    duration: 15 as 15 | 30,
-    category: "single" as string,
-  });
+  const [deleteTarget, setDeleteTarget] = useState<MeetingType | null>(null);
 
   const {
     data: types,
@@ -43,11 +27,10 @@ export function AdminMeetingTypesPage() {
     isError,
     error,
   } = useMeetingTypes(adminId);
-  const createMutation = useCreateMeetingType(adminId);
   const updateMutation = useUpdateMeetingType(adminId);
   const deleteMutation = useDeleteMeetingType(adminId);
 
-  const items = (types as MeetingType[]) ?? [];
+  const items: MeetingType[] = Array.isArray(types) ? types : [];
 
   if (isLoading) {
     return (
@@ -74,93 +57,7 @@ export function AdminMeetingTypesPage() {
     <div>
       <div className="mb-6 flex items-center justify-between">
         <h1 className="text-2xl font-bold text-zinc-900">Типы встреч</h1>
-
-        <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-          <DialogTrigger asChild>
-            <Button>Создать</Button>
-          </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Создать тип встречи</DialogTitle>
-            </DialogHeader>
-
-            <div className="space-y-4">
-              {createMutation.isError && (
-                <ErrorMessage
-                  message={
-                    createMutation.error?.message ?? "Ошибка при создании"
-                  }
-                />
-              )}
-
-              <div>
-                <Label className="mb-2 block">Длительность</Label>
-                <div className="flex gap-4">
-                  <label className="flex items-center gap-2 text-sm">
-                    <input
-                      type="radio"
-                      name="duration"
-                      checked={form.duration === 15}
-                      onChange={() =>
-                        setForm((f) => ({ ...f, duration: 15 }))
-                      }
-                    />
-                    15 мин
-                  </label>
-                  <label className="flex items-center gap-2 text-sm">
-                    <input
-                      type="radio"
-                      name="duration"
-                      checked={form.duration === 30}
-                      onChange={() =>
-                        setForm((f) => ({ ...f, duration: 30 }))
-                      }
-                    />
-                    30 мин
-                  </label>
-                </div>
-              </div>
-
-              <div>
-                <Label className="mb-2 block">Категория</Label>
-                <div className="flex gap-4">
-                  {["single", "group", "private"].map((cat) => (
-                    <label key={cat} className="flex items-center gap-2 text-sm">
-                      <input
-                        type="radio"
-                        name="category"
-                        checked={form.category === cat}
-                        onChange={() =>
-                          setForm((f) => ({ ...f, category: cat }))
-                        }
-                      />
-                      {CATEGORY_LABEL[cat]}
-                    </label>
-                  ))}
-                </div>
-              </div>
-
-              <div className="flex justify-end gap-3 pt-2">
-                <DialogClose asChild>
-                  <Button variant="outline">Отмена</Button>
-                </DialogClose>
-                <Button
-                  onClick={() =>
-                    createMutation.mutate(form, {
-                      onSuccess: () => {
-                        setDialogOpen(false);
-                        setForm({ duration: 15, category: "single" });
-                      },
-                    })
-                  }
-                  disabled={createMutation.isPending}
-                >
-                  {createMutation.isPending ? "Создание..." : "Создать"}
-                </Button>
-              </div>
-            </div>
-          </DialogContent>
-        </Dialog>
+        <CreateMeetingTypeDialog adminId={adminId} />
       </div>
 
       {items.length === 0 && (
@@ -168,16 +65,13 @@ export function AdminMeetingTypesPage() {
           <p className="mb-4 text-sm text-zinc-400">
             Нет типов встреч. Создайте первый.
           </p>
-          <Button onClick={() => setDialogOpen(true)}>Создать</Button>
         </div>
       )}
 
       {deleteMutation.isError && (
         <div className="mb-4">
           <ErrorMessage
-            message={
-              deleteMutation.error?.message ?? "Ошибка при удалении"
-            }
+            message={deleteMutation.error?.message ?? "Ошибка при удалении"}
           />
         </div>
       )}
@@ -195,17 +89,13 @@ export function AdminMeetingTypesPage() {
                     {type.duration} мин
                   </span>
                   <span className="ml-2 rounded bg-zinc-100 px-2 py-0.5 text-xs text-zinc-600">
-                    {CATEGORY_LABEL[type.category]}
+                    {CATEGORY_LABELS[type.category]}
                   </span>
                 </div>
                 <button
                   className="text-zinc-400 hover:text-red-500 disabled:opacity-50"
                   disabled={deleteMutation.isPending}
-                  onClick={() => {
-                    if (window.confirm("Удалить тип встречи?")) {
-                      deleteMutation.mutate(type.id);
-                    }
-                  }}
+                  onClick={() => setDeleteTarget(type)}
                 >
                   <Trash2 className="h-4 w-4" />
                 </button>
@@ -243,6 +133,20 @@ export function AdminMeetingTypesPage() {
           ))}
         </div>
       )}
+
+      <ConfirmDialog
+        open={!!deleteTarget}
+        onOpenChange={(open) => { if (!open) setDeleteTarget(null); }}
+        title="Удалить тип встречи?"
+        description="Это действие нельзя отменить."
+        confirmLabel="Удалить"
+        onConfirm={() => {
+          if (deleteTarget) {
+            deleteMutation.mutate(deleteTarget.id);
+            setDeleteTarget(null);
+          }
+        }}
+      />
     </div>
   );
 }

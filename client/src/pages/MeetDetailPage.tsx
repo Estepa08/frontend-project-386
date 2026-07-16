@@ -3,7 +3,9 @@ import { useParams, useNavigate } from "react-router-dom";
 import { Check, Copy, ArrowLeft, AlertCircle } from "lucide-react";
 import { useMeet, useCancelMeet } from "@/hooks/meets";
 import { Button } from "@/components/ui/button";
+import { StatusBadge } from "@/components/ui/status-badge";
 import { ErrorMessage } from "@/components/ui/error-message";
+import { CLIPBOARD_FEEDBACK_DURATION } from "@/lib/utils";
 
 export function MeetDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -19,9 +21,9 @@ export function MeetDetailPage() {
     try {
       await navigator.clipboard.writeText(meet.inviteLink);
       setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    } catch {
-      // clipboard not available
+      setTimeout(() => setCopied(false), CLIPBOARD_FEEDBACK_DURATION);
+    } catch (clipboardError) {
+      console.warn("Failed to copy invite link:", clipboardError);
     }
   };
 
@@ -68,15 +70,7 @@ export function MeetDetailPage() {
       <div className="space-y-4 rounded-lg border border-zinc-200 p-5">
         <div className="flex items-center justify-between">
           <span className="text-sm text-zinc-500">Статус</span>
-          <span
-            className={`inline-block rounded-full px-2.5 py-0.5 text-xs font-medium ${
-              meet.status === "confirmed"
-                ? "bg-green-100 text-green-700"
-                : "bg-red-100 text-red-700"
-            }`}
-          >
-            {meet.status === "confirmed" ? "Подтверждено" : "Отменено"}
-          </span>
+          <StatusBadge status={meet.status} />
         </div>
 
         <div className="h-px bg-zinc-100" />

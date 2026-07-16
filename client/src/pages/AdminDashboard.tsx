@@ -4,15 +4,21 @@ import { Plus, Clock, Calendar } from "lucide-react";
 import { useAuth } from "@/store/auth";
 import { useMeets } from "@/hooks/meets";
 import { ErrorMessage } from "@/components/ui/error-message";
+import { StatusBadge } from "@/components/ui/status-badge";
 import { Button } from "@/components/ui/button";
-import type { MeetResult } from "@/api/meets";
+import type { components } from "@/api/generated/schema";
+
+type Meet = components["schemas"]["Meet"] & {
+  adminName?: string;
+  userName?: string;
+};
 
 function formatTime(iso: string) {
   return format(parseISO(iso), "HH:mm");
 }
 
 export function AdminDashboard() {
-  const { role, user } = useAuth();
+  const { user } = useAuth();
 
   const todayString = format(new Date(), "yyyy-MM-dd");
 
@@ -21,15 +27,15 @@ export function AdminDashboard() {
     isLoading: allLoading,
     isError: allError,
     error: allErrorObj,
-  } = useMeets(role as "admin", user?.id ?? "");
+  } = useMeets("admin", user?.id ?? "");
 
   const {
     data: todayMeets,
     isLoading: todayLoading,
-  } = useMeets(role as "admin", user?.id ?? "", { date: todayString });
+  } = useMeets("admin", user?.id ?? "", { date: todayString });
 
-  const items = (allMeets as MeetResult[]) ?? [];
-  const todayItems = (todayMeets as MeetResult[]) ?? [];
+  const items: Meet[] = Array.isArray(allMeets) ? allMeets : [];
+  const todayItems: Meet[] = Array.isArray(todayMeets) ? todayMeets : [];
 
   const now = new Date();
   const weekStart = startOfWeek(now, { weekStartsOn: 1 });
@@ -37,17 +43,17 @@ export function AdminDashboard() {
 
   const stats = {
     today: items.filter(
-      (m) => m.status === "confirmed" && isToday(parseISO(m.startTime)),
+      (meet) => meet.status === "confirmed" && isToday(parseISO(meet.startTime)),
     ).length,
     week: items.filter(
-      (m) =>
-        m.status === "confirmed" &&
-        isWithinInterval(parseISO(m.startTime), { start: weekStart, end: weekEnd }),
+      (meet) =>
+        meet.status === "confirmed" &&
+        isWithinInterval(parseISO(meet.startTime), { start: weekStart, end: weekEnd }),
     ).length,
     cancelled: items.filter(
-      (m) =>
-        m.status === "cancelled" &&
-        isWithinInterval(parseISO(m.startTime), { start: weekStart, end: weekEnd }),
+      (meet) =>
+        meet.status === "cancelled" &&
+        isWithinInterval(parseISO(meet.startTime), { start: weekStart, end: weekEnd }),
     ).length,
   };
 
@@ -123,15 +129,7 @@ export function AdminDashboard() {
                 <span className="text-sm text-zinc-600">{meet.theme}</span>
                 <span className="text-sm text-zinc-400">{meet.userName}</span>
                 <span className="ml-auto">
-                  <span
-                    className={`inline-block rounded-full px-2.5 py-0.5 text-xs font-medium ${
-                      meet.status === "confirmed"
-                        ? "bg-green-100 text-green-700"
-                        : "bg-red-100 text-red-700"
-                    }`}
-                  >
-                    {meet.status === "confirmed" ? "Подтверждено" : "Отменено"}
-                  </span>
+                  <StatusBadge status={meet.status} />
                 </span>
               </div>
             ))}

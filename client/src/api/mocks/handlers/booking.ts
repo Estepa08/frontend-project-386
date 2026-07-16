@@ -13,8 +13,8 @@ export const bookingHandlers = [
   http.get("/api/admins/:id/available-dates", () => {
     const now = new Date();
     const dates: string[] = [];
-    for (let d = 1; d <= 28; d++) {
-      const candidate = new Date(now.getFullYear(), now.getMonth(), d);
+    for (let day = 1; day <= 28; day++) {
+      const candidate = new Date(now.getFullYear(), now.getMonth(), day);
       if (candidate.getDay() !== 0 && candidate.getDay() !== 6) {
         dates.push(candidate.toISOString().slice(0, 10));
       }
@@ -24,9 +24,9 @@ export const bookingHandlers = [
 
   http.get("/api/admins/:id/slots", () => {
     const slots: { startTime: string; endTime: string }[] = [];
-    for (let h = 9; h <= 17; h++) {
-      const start = `${String(h).padStart(2, "0")}:00`;
-      const end = `${String(h + 1).padStart(2, "0")}:00`;
+    for (let hour = 9; hour <= 17; hour++) {
+      const start = `${String(hour).padStart(2, "0")}:00`;
+      const end = `${String(hour + 1).padStart(2, "0")}:00`;
       slots.push({ startTime: start, endTime: end });
     }
     return HttpResponse.json({ slots });
@@ -48,7 +48,7 @@ export const bookingHandlers = [
       startTime: body.startTime,
       endTime: body.endTime,
       theme: body.theme,
-      status: "confirmed",
+      status: "confirmed" as const,
       inviteLink: "https://meetly.app/invite/xyz789",
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),

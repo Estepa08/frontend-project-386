@@ -118,7 +118,7 @@ interface Auth {
   @route("/login")
   login(
     @body input: { email: string; password: string }
-  ): { token: string; user: Admin | User } | ApiError;
+  ): { token: string; role: "admin" | "user"; user: Admin | User } | ApiError;
 }
 
 @route("/admins")

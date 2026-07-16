@@ -5,17 +5,22 @@ import {
   fetchAvailableDates,
   fetchSlots,
   createMeet,
-  type CreateMeetBody,
+  type MeetInput,
 } from "@/api/booking";
+import type { UseQueryResult, UseMutationResult } from "@tanstack/react-query";
+import type { components } from "@/api/generated/schema";
 
-export function useAdmins() {
+type Admin = components["schemas"]["Admin"];
+type MeetingType = components["schemas"]["MeetingType"];
+
+export function useAdmins(): UseQueryResult<Admin[]> {
   return useQuery({
     queryKey: ["admins"],
     queryFn: fetchAdmins,
   });
 }
 
-export function useMeetingTypes(adminId?: string) {
+export function useMeetingTypes(adminId?: string): UseQueryResult<MeetingType[]> {
   return useQuery({
     queryKey: ["meeting-types", adminId],
     queryFn: () => fetchMeetingTypes(adminId!),
@@ -27,7 +32,7 @@ export function useAvailableDates(
   adminId?: string,
   meetingTypeId?: number,
   month?: string,
-) {
+): UseQueryResult<components["schemas"]["AvailableDates"]> {
   return useQuery({
     queryKey: ["available-dates", adminId, meetingTypeId, month],
     queryFn: () => fetchAvailableDates(adminId!, month!, meetingTypeId),
@@ -39,7 +44,7 @@ export function useSlots(
   adminId?: string,
   meetingTypeId?: number,
   date?: string,
-) {
+): UseQueryResult<components["schemas"]["Slots"]> {
   return useQuery({
     queryKey: ["slots", adminId, date, meetingTypeId],
     queryFn: () => fetchSlots(adminId!, date!, meetingTypeId),
@@ -47,8 +52,10 @@ export function useSlots(
   });
 }
 
-export function useCreateMeet() {
+import type { MeetResult } from "@/api/booking";
+
+export function useCreateMeet(): UseMutationResult<MeetResult, Error, MeetInput> {
   return useMutation({
-    mutationFn: (body: CreateMeetBody) => createMeet(body),
+    mutationFn: (body: MeetInput) => createMeet(body),
   });
 }

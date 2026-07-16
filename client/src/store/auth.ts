@@ -1,14 +1,9 @@
 import { create } from "zustand";
 import { setToken, clearToken } from "@/api/client";
+import type { components } from "@/api/generated/schema";
 
 type Role = "admin" | "user" | null;
-
-interface User {
-  id: string;
-  name: string;
-  email: string;
-  createdAt: string;
-}
+type User = components["schemas"]["Admin"] | components["schemas"]["User"];
 
 interface AuthState {
   role: Role;

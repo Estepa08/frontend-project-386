@@ -4,22 +4,25 @@ import {
   fetchMeetById,
   cancelMeet,
   type MeetFilters,
+  type MeetResult,
 } from "@/api/meets";
+import type { UseQueryResult, UseMutationResult } from "@tanstack/react-query";
+import { REFETCH_INTERVAL } from "@/lib/utils";
 
 export function useMeets(
   role: "admin" | "user",
   userId: string,
   filters?: MeetFilters,
-) {
+): UseQueryResult<MeetResult[]> {
   return useQuery({
     queryKey: ["meets", role, userId, filters],
     queryFn: () => fetchMeets(role, userId, filters),
     enabled: !!role && !!userId,
-    refetchInterval: 30_000,
+    refetchInterval: REFETCH_INTERVAL,
   });
 }
 
-export function useMeet(id?: number) {
+export function useMeet(id?: number): UseQueryResult<MeetResult> {
   return useQuery({
     queryKey: ["meet", id],
     queryFn: () => fetchMeetById(id!),
@@ -27,7 +30,7 @@ export function useMeet(id?: number) {
   });
 }
 
-export function useCancelMeet() {
+export function useCancelMeet(): UseMutationResult<MeetResult, Error, number> {
   const queryClient = useQueryClient();
 
   return useMutation({

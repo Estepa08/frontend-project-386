@@ -1,21 +1,11 @@
 import { request } from "./client";
+import type { components } from "@/api/generated/schema";
 
-export interface MeetResult {
-  id: number;
-  adminId: string;
-  userId: string;
-  meetingTypeId: number;
-  startTime: string;
-  endTime: string;
-  theme: string;
-  status: "confirmed" | "cancelled";
-  inviteLink: string;
-  comment?: string;
-  guestEmails?: string[];
+export type Meet = components["schemas"]["Meet"];
+
+export interface MeetResult extends Meet {
   adminName?: string;
   userName?: string;
-  createdAt: string;
-  updatedAt: string;
 }
 
 export interface MeetFilters {
@@ -35,8 +25,8 @@ export function fetchMeets(
   if (filters?.date) {
     params.set("date", filters.date);
   }
-  const qs = params.toString();
-  const endpoint = `/api/${role}s/${userId}/meets${qs ? `?${qs}` : ""}`;
+  const queryString = params.toString();
+  const endpoint = `/api/${role}s/${userId}/meets${queryString ? `?${queryString}` : ""}`;
   return request<MeetResult[]>(endpoint);
 }
 

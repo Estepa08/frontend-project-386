@@ -4,8 +4,9 @@ import {
   updateAvailability,
   type Availability,
 } from "@/api/availability";
+import type { UseQueryResult, UseMutationResult } from "@tanstack/react-query";
 
-export function useAvailability(adminId: string) {
+export function useAvailability(adminId: string): UseQueryResult<Availability> {
   return useQuery({
     queryKey: ["availability", adminId],
     queryFn: () => fetchAvailability(adminId),
@@ -13,11 +14,11 @@ export function useAvailability(adminId: string) {
   });
 }
 
-export function useUpdateAvailability(adminId: string) {
-  const qc = useQueryClient();
+export function useUpdateAvailability(adminId: string): UseMutationResult<Availability, Error, Availability> {
+  const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (body: Availability) => updateAvailability(adminId, body),
     onSuccess: () =>
-      qc.invalidateQueries({ queryKey: ["availability", adminId] }),
+      queryClient.invalidateQueries({ queryKey: ["availability", adminId] }),
   });
 }

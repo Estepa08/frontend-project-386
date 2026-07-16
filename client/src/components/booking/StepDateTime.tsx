@@ -14,6 +14,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { ErrorMessage } from "@/components/ui/error-message";
+import { StepNav } from "./StepNav";
 
 export function StepDateTime() {
   const { admin, meetingType, date, slot, setMeetingType, setDate, setSlot, setStep } =
@@ -83,19 +84,19 @@ export function StepDateTime() {
           <DayPicker
             mode="single"
             selected={date ?? undefined}
-            onSelect={(d) => setDate(d ?? null)}
+            onSelect={(selectedDate) => setDate(selectedDate ?? null)}
             locale={ru}
             month={month}
             startMonth={new Date()}
             modifiers={{
-              available: (d) => availableDatesSet.has(format(d, "yyyy-MM-dd")),
+              available: (day) => availableDatesSet.has(format(day, "yyyy-MM-dd")),
             }}
             modifiersStyles={{
               available: { fontWeight: 600 },
             }}
-            disabled={(d) =>
-              d < new Date(new Date().toDateString()) ||
-              !availableDatesSet.has(format(d, "yyyy-MM-dd"))
+            disabled={(day) =>
+              day < new Date(new Date().toDateString()) ||
+              !availableDatesSet.has(format(day, "yyyy-MM-dd"))
             }
             showOutsideDays={false}
           />
@@ -134,20 +135,10 @@ export function StepDateTime() {
             )}
 
             {slot && (
-              <div className="mt-6 flex gap-3">
-                <button
-                  onClick={() => setStep(1)}
-                  className="rounded-lg border border-zinc-200 px-4 py-2 text-sm text-zinc-600 hover:bg-zinc-50"
-                >
-                  Назад
-                </button>
-                <button
-                  onClick={() => setStep(3)}
-                  className="rounded-lg bg-zinc-900 px-4 py-2 text-sm font-medium text-white hover:bg-zinc-800"
-                >
-                  Далее
-                </button>
-              </div>
+              <StepNav
+                onBack={() => setStep(1)}
+                onNext={() => setStep(3)}
+              />
             )}
           </div>
         </div>

@@ -4,9 +4,13 @@ import { useBooking } from "@/store/booking";
 export function StepSuccess() {
   const { confirmedMeet, reset } = useBooking();
 
-  const handleCopy = () => {
+  const handleCopy = async () => {
     if (confirmedMeet?.inviteLink) {
-      navigator.clipboard.writeText(confirmedMeet.inviteLink);
+      try {
+        await navigator.clipboard.writeText(confirmedMeet.inviteLink);
+      } catch (clipboardError) {
+        console.warn("Failed to copy invite link:", clipboardError);
+      }
     }
   };
 

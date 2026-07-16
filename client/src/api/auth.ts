@@ -1,7 +1,4 @@
 import { request } from "./client";
-import type { components } from "@/api/generated/schema";
-
-type AdminOrUser = components["schemas"]["Admin"] | components["schemas"]["User"];
 
 export interface LoginBody {
   email: string;
@@ -10,8 +7,13 @@ export interface LoginBody {
 
 export interface LoginResult {
   token: string;
-  user: AdminOrUser;
   role: "admin" | "user";
+  user: {
+    id: string;
+    name: string;
+    email: string;
+    createdAt: string;
+  };
 }
 
 export function login(body: LoginBody): Promise<LoginResult> {

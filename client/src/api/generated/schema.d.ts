@@ -407,6 +407,8 @@ export interface operations {
                 content: {
                     "application/json": {
                         token: string;
+                        /** @enum {string} */
+                        role: "admin" | "user";
                         user: components["schemas"]["Admin"] | components["schemas"]["User"];
                     };
                 };

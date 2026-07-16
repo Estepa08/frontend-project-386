@@ -16,9 +16,9 @@ function filterMeets(
   const status = url.searchParams.get("status");
   const date = url.searchParams.get("date");
 
-  return list.filter((m) => {
-    if (status && m.status !== status) return false;
-    if (date && !m.startTime.startsWith(date)) return false;
+  return list.filter((meet) => {
+    if (status && meet.status !== status) return false;
+    if (date && !meet.startTime.startsWith(date)) return false;
     return true;
   });
 }
@@ -37,7 +37,7 @@ export const meetsHandlers = [
   }),
 
   http.get("/api/meets/:id", ({ params }) => {
-    const meet = meets.find((m) => m.id === Number(params.id));
+    const meet = meets.find((meetItem) => meetItem.id === Number(params.id));
     if (!meet) {
       return HttpResponse.json({ error: "Not found" }, { status: 404 });
     }
@@ -45,8 +45,8 @@ export const meetsHandlers = [
   }),
 
   http.patch("/api/meets/:id", async ({ params, request }) => {
-    const body = (await request.json()) as { status: string };
-    const meet = meets.find((m) => m.id === Number(params.id));
+    const body = (await request.json()) as { status: "confirmed" | "cancelled" };
+    const meet = meets.find((meetItem) => meetItem.id === Number(params.id));
     if (meet) {
       meet.status = body.status;
       meet.updatedAt = new Date().toISOString();
