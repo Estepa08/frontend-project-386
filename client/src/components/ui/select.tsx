@@ -1,0 +1,72 @@
+import { cn } from "@/lib/utils";
+import * as SelectPrimitive from "@radix-ui/react-select";
+import { ChevronDown } from "lucide-react";
+
+function Select({ ...props }: SelectPrimitive.SelectProps) {
+  return <SelectPrimitive.Root {...props} />;
+}
+
+function SelectTrigger({
+  className,
+  children,
+  ...props
+}: SelectPrimitive.SelectTriggerProps) {
+  return (
+    <SelectPrimitive.Trigger
+      className={cn(
+        "flex h-9 w-full items-center justify-between rounded-md border border-zinc-200 bg-white px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-1 focus:ring-zinc-400 disabled:cursor-not-allowed disabled:opacity-50",
+        className,
+      )}
+      {...props}
+    >
+      {children}
+      <ChevronDown className="h-4 w-4 text-zinc-500" />
+    </SelectPrimitive.Trigger>
+  );
+}
+
+function SelectContent({
+  className,
+  children,
+  ...props
+}: SelectPrimitive.SelectContentProps) {
+  return (
+    <SelectPrimitive.Portal>
+      <SelectPrimitive.Content
+        className={cn(
+          "relative z-50 max-h-64 min-w-[8rem] overflow-hidden rounded-md border border-zinc-200 bg-white shadow-md",
+          className,
+        )}
+        {...props}
+      >
+        <SelectPrimitive.Viewport className="p-1">
+          {children}
+        </SelectPrimitive.Viewport>
+      </SelectPrimitive.Content>
+    </SelectPrimitive.Portal>
+  );
+}
+
+function SelectItem({
+  className,
+  children,
+  ...props
+}: SelectPrimitive.SelectItemProps) {
+  return (
+    <SelectPrimitive.Item
+      className={cn(
+        "relative flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none focus:bg-zinc-100 data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
+        className,
+      )}
+      {...props}
+    >
+      <SelectPrimitive.ItemText>{children}</SelectPrimitive.ItemText>
+    </SelectPrimitive.Item>
+  );
+}
+
+function SelectValue({ ...props }: SelectPrimitive.SelectValueProps) {
+  return <SelectPrimitive.Value {...props} />;
+}
+
+export { Select, SelectTrigger, SelectContent, SelectItem, SelectValue };
