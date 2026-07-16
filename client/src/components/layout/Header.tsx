@@ -22,7 +22,7 @@ export function Header() {
           {role === "admin" && (
             <nav className="flex items-center gap-4 text-sm">
               <Link to="/admin" className="text-zinc-600 hover:text-zinc-900">
-                Dashboard
+                Обзор
               </Link>
               <Link to="/admin/meeting-types" className="text-zinc-600 hover:text-zinc-900">
                 Типы встреч
@@ -41,7 +41,7 @@ export function Header() {
               <Link to="/booking" className="text-zinc-600 hover:text-zinc-900">
                 Забронировать
               </Link>
-              <Link to="/user" className="text-zinc-600 hover:text-zinc-900">
+              <Link to="/user/meets" className="text-zinc-600 hover:text-zinc-900">
                 Мои встречи
               </Link>
             </nav>

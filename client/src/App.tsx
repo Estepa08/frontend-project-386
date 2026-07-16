@@ -7,7 +7,7 @@ import {
   AdminAvailabilityPage,
   AdminMeetingTypesPage,
   AdminMeetsPage,
-  UserDashboard,
+  UserMeetsPage,
   BookingPage,
   MeetDetailPage,
   NotFoundPage,
@@ -25,7 +25,8 @@ export default function App() {
           <Route path="admin/availability" element={<AdminAvailabilityPage />} />
           <Route path="admin/meeting-types" element={<AdminMeetingTypesPage />} />
           <Route path="admin/meets" element={<AdminMeetsPage />} />
-          <Route path="user" element={<UserDashboard />} />
+          <Route path="user" element={<Navigate to="/user/meets" replace />} />
+          <Route path="user/meets" element={<UserMeetsPage />} />
           <Route path="booking" element={<BookingPage />} />
           <Route path="meets/:id" element={<MeetDetailPage />} />
         </Route>

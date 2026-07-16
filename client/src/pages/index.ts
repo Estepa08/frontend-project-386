@@ -3,7 +3,7 @@ export { AdminDashboard } from "./AdminDashboard";
 export { AdminAvailabilityPage } from "./AdminAvailabilityPage";
 export { AdminMeetingTypesPage } from "./AdminMeetingTypesPage";
 export { AdminMeetsPage } from "./AdminMeetsPage";
-export { UserDashboard } from "./UserDashboard";
+export { UserMeetsPage } from "./UserMeetsPage";
 export { BookingPage } from "./BookingPage";
 export { MeetDetailPage } from "./MeetDetailPage";
 export { NotFoundPage } from "./NotFoundPage";

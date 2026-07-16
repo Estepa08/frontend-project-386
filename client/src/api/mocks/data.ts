@@ -20,7 +20,7 @@ const initialTypes: MeetType[] = [
   { id: 2, adminId: "1", duration: 30, category: "group", visible: true, allowGuestInvite: true },
 ];
 
-export let meetingTypes: MeetType[] = [...initialTypes];
+export const meetingTypes: MeetType[] = [...initialTypes];
 
 export interface Meet {
   id: number;
@@ -36,7 +36,7 @@ export interface Meet {
   updatedAt: string;
 }
 
-export let meets: Meet[] = [
+export const meets: Meet[] = [
   {
     id: 1,
     adminId: "1",

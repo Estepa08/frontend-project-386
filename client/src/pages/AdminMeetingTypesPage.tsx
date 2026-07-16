@@ -1,6 +1,11 @@
 import { useState } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/store/auth";
+import {
+  useMeetingTypes,
+  useCreateMeetingType,
+  useUpdateMeetingType,
+  useDeleteMeetingType,
+} from "@/hooks/meetingTypes";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
@@ -12,14 +17,9 @@ import {
   DialogTitle,
   DialogClose,
 } from "@/components/ui/dialog";
-
-interface MeetingType {
-  id: number;
-  duration: 15 | 30;
-  category: "single" | "group" | "private";
-  visible: boolean;
-  allowGuestInvite: boolean;
-}
+import { ErrorMessage } from "@/components/ui/error-message";
+import { Trash2 } from "lucide-react";
+import type { MeetingType } from "@/api/meetingTypes";
 
 const CATEGORY_LABEL: Record<string, string> = {
   single: "Single",
@@ -29,42 +29,46 @@ const CATEGORY_LABEL: Record<string, string> = {
 
 export function AdminMeetingTypesPage() {
   const { user } = useAuth();
-  const queryClient = useQueryClient();
+  const adminId = user?.id ?? "";
+
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [form, setForm] = useState({ duration: 15 as 15 | 30, category: "single" as string });
-
-  const { data: types, isLoading } = useQuery({
-    queryKey: ["meeting-types"],
-    queryFn: () =>
-      fetch(`/api/admins/${user?.id}/meeting-types`).then((r) => r.json()),
+  const [form, setForm] = useState({
+    duration: 15 as 15 | 30,
+    category: "single" as string,
   });
 
-  const createMutation = useMutation({
-    mutationFn: (body: { duration: number; category: string }) =>
-      fetch(`/api/admins/${user?.id}/meeting-types`, {
-        method: "POST",
-        body: JSON.stringify(body),
-      }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["meeting-types"] });
-      setDialogOpen(false);
-      setForm({ duration: 15, category: "single" });
-    },
-  });
-
-  const deleteMutation = useMutation({
-    mutationFn: (id: number) =>
-      fetch(`/api/meeting-types/${id}`, { method: "DELETE" }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["meeting-types"] });
-    },
-  });
-
-  if (isLoading) {
-    return <div className="py-10 text-center text-sm text-zinc-400">Загрузка...</div>;
-  }
+  const {
+    data: types,
+    isLoading,
+    isError,
+    error,
+  } = useMeetingTypes(adminId);
+  const createMutation = useCreateMeetingType(adminId);
+  const updateMutation = useUpdateMeetingType(adminId);
+  const deleteMutation = useDeleteMeetingType(adminId);
 
   const items = (types as MeetingType[]) ?? [];
+
+  if (isLoading) {
+    return (
+      <div className="py-10 text-center text-sm text-zinc-400">
+        Загрузка...
+      </div>
+    );
+  }
+
+  if (isError) {
+    return (
+      <div>
+        <h1 className="mb-6 text-2xl font-bold text-zinc-900">
+          Типы встреч
+        </h1>
+        <ErrorMessage
+          message={error?.message ?? "Ошибка загрузки типов встреч"}
+        />
+      </div>
+    );
+  }
 
   return (
     <div>
@@ -81,6 +85,14 @@ export function AdminMeetingTypesPage() {
             </DialogHeader>
 
             <div className="space-y-4">
+              {createMutation.isError && (
+                <ErrorMessage
+                  message={
+                    createMutation.error?.message ?? "Ошибка при создании"
+                  }
+                />
+              )}
+
               <div>
                 <Label className="mb-2 block">Длительность</Label>
                 <div className="flex gap-4">
@@ -89,7 +101,9 @@ export function AdminMeetingTypesPage() {
                       type="radio"
                       name="duration"
                       checked={form.duration === 15}
-                      onChange={() => setForm((f) => ({ ...f, duration: 15 }))}
+                      onChange={() =>
+                        setForm((f) => ({ ...f, duration: 15 }))
+                      }
                     />
                     15 мин
                   </label>
@@ -98,7 +112,9 @@ export function AdminMeetingTypesPage() {
                       type="radio"
                       name="duration"
                       checked={form.duration === 30}
-                      onChange={() => setForm((f) => ({ ...f, duration: 30 }))}
+                      onChange={() =>
+                        setForm((f) => ({ ...f, duration: 30 }))
+                      }
                     />
                     30 мин
                   </label>
@@ -114,7 +130,9 @@ export function AdminMeetingTypesPage() {
                         type="radio"
                         name="category"
                         checked={form.category === cat}
-                        onChange={() => setForm((f) => ({ ...f, category: cat }))}
+                        onChange={() =>
+                          setForm((f) => ({ ...f, category: cat }))
+                        }
                       />
                       {CATEGORY_LABEL[cat]}
                     </label>
@@ -127,7 +145,14 @@ export function AdminMeetingTypesPage() {
                   <Button variant="outline">Отмена</Button>
                 </DialogClose>
                 <Button
-                  onClick={() => createMutation.mutate(form)}
+                  onClick={() =>
+                    createMutation.mutate(form, {
+                      onSuccess: () => {
+                        setDialogOpen(false);
+                        setForm({ duration: 15, category: "single" });
+                      },
+                    })
+                  }
                   disabled={createMutation.isPending}
                 >
                   {createMutation.isPending ? "Создание..." : "Создать"}
@@ -139,47 +164,85 @@ export function AdminMeetingTypesPage() {
       </div>
 
       {items.length === 0 && (
-        <p className="py-10 text-center text-sm text-zinc-400">
-          Нет типов встреч. Создайте первый.
-        </p>
+        <div className="py-10 text-center">
+          <p className="mb-4 text-sm text-zinc-400">
+            Нет типов встреч. Создайте первый.
+          </p>
+          <Button onClick={() => setDialogOpen(true)}>Создать</Button>
+        </div>
       )}
 
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-        {items.map((type) => (
-          <div
-            key={type.id}
-            className="rounded-lg border border-zinc-200 bg-white p-4"
-          >
-            <div className="mb-3 flex items-start justify-between">
-              <div>
-                <span className="text-lg font-semibold text-zinc-900">
-                  {type.duration} мин
-                </span>
-                <span className="ml-2 rounded bg-zinc-100 px-2 py-0.5 text-xs text-zinc-600">
-                  {CATEGORY_LABEL[type.category]}
-                </span>
-              </div>
-              <button
-                className="text-sm text-zinc-400 hover:text-red-500"
-                onClick={() => deleteMutation.mutate(type.id)}
-              >
-                ✕
-              </button>
-            </div>
+      {deleteMutation.isError && (
+        <div className="mb-4">
+          <ErrorMessage
+            message={
+              deleteMutation.error?.message ?? "Ошибка при удалении"
+            }
+          />
+        </div>
+      )}
 
-            <div className="space-y-2 text-sm">
-              <div className="flex items-center justify-between">
-                <span className="text-zinc-500">Видимость</span>
-                <Switch checked={type.visible} />
+      {items.length > 0 && (
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          {items.map((type) => (
+            <div
+              key={type.id}
+              className="rounded-lg border border-zinc-200 bg-white p-4"
+            >
+              <div className="mb-3 flex items-start justify-between">
+                <div>
+                  <span className="text-lg font-semibold text-zinc-900">
+                    {type.duration} мин
+                  </span>
+                  <span className="ml-2 rounded bg-zinc-100 px-2 py-0.5 text-xs text-zinc-600">
+                    {CATEGORY_LABEL[type.category]}
+                  </span>
+                </div>
+                <button
+                  className="text-zinc-400 hover:text-red-500 disabled:opacity-50"
+                  disabled={deleteMutation.isPending}
+                  onClick={() => {
+                    if (window.confirm("Удалить тип встречи?")) {
+                      deleteMutation.mutate(type.id);
+                    }
+                  }}
+                >
+                  <Trash2 className="h-4 w-4" />
+                </button>
               </div>
-              <div className="flex items-center justify-between">
-                <span className="text-zinc-500">Гостевые инвайты</span>
-                <Switch checked={type.allowGuestInvite} />
+
+              <div className="space-y-2 text-sm">
+                <div className="flex items-center justify-between">
+                  <span className="text-zinc-500">Видимость</span>
+                  <Switch
+                    checked={type.visible}
+                    onCheckedChange={(checked) =>
+                      updateMutation.mutate({
+                        id: type.id,
+                        visible: checked,
+                      })
+                    }
+                    disabled={updateMutation.isPending}
+                  />
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-zinc-500">Гостевые инвайты</span>
+                  <Switch
+                    checked={type.allowGuestInvite}
+                    onCheckedChange={(checked) =>
+                      updateMutation.mutate({
+                        id: type.id,
+                        allowGuestInvite: checked,
+                      })
+                    }
+                    disabled={updateMutation.isPending}
+                  />
+                </div>
               </div>
             </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

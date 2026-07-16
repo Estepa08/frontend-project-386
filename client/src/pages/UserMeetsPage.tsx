@@ -21,13 +21,13 @@ function formatDate(iso: string) {
   });
 }
 
-export function AdminMeetsPage() {
+export function UserMeetsPage() {
   const { role, user } = useAuth();
   const [statusFilter, setStatusFilter] = useState("all");
   const [dateFilter, setDateFilter] = useState("");
 
   const { data: meets, isLoading, isError, error } = useMeets(
-    role as "admin",
+    role as "user",
     user?.id ?? "",
     {
       status: statusFilter === "all" ? undefined : statusFilter,
@@ -41,7 +41,7 @@ export function AdminMeetsPage() {
 
   return (
     <div>
-      <h1 className="mb-6 text-2xl font-bold text-zinc-900">Все встречи</h1>
+      <h1 className="mb-6 text-2xl font-bold text-zinc-900">Мои встречи</h1>
 
       <div className="mb-4 flex flex-wrap items-center gap-3">
         <div className="flex gap-1 rounded-lg border border-zinc-200 p-0.5">
@@ -95,7 +95,7 @@ export function AdminMeetsPage() {
             <thead className="bg-zinc-50">
               <tr>
                 <th className="px-4 py-3 text-left font-medium text-zinc-500">Дата / время</th>
-                <th className="px-4 py-3 text-left font-medium text-zinc-500">Клиент</th>
+                <th className="px-4 py-3 text-left font-medium text-zinc-500">Администратор</th>
                 <th className="px-4 py-3 text-left font-medium text-zinc-500">Тема</th>
                 <th className="px-4 py-3 text-left font-medium text-zinc-500">Статус</th>
                 <th className="px-4 py-3" />
@@ -105,7 +105,7 @@ export function AdminMeetsPage() {
               {items.map((meet) => (
                 <tr key={meet.id} className="border-t border-zinc-100">
                   <td className="px-4 py-3 text-zinc-900">{formatDate(meet.startTime)}</td>
-                  <td className="px-4 py-3 text-zinc-600">{meet.userName}</td>
+                  <td className="px-4 py-3 text-zinc-600">{meet.adminName}</td>
                   <td className="px-4 py-3 text-zinc-600">{meet.theme}</td>
                   <td className="px-4 py-3">
                     <span
