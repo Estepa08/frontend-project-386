@@ -1,7 +1,6 @@
 import { Routes, Route, Navigate } from "react-router-dom";
-import { AuthGuard } from "@/components/layout/AuthGuard";
-import { RootLayout } from "@/components/layout/RootLayout";
-import { Toaster } from "@/components/ui/sonner";
+import { AuthGuard, RootLayout } from "@/components/layout";
+import { Toaster } from "@/components/ui";
 import {
   LoginPage,
   RegisterPage,

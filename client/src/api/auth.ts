@@ -1,4 +1,5 @@
 import { request } from "./client";
+import type { Role } from "@/lib/constants";
 
 export interface LoginBody {
   email: string;
@@ -7,7 +8,7 @@ export interface LoginBody {
 
 export interface LoginResult {
   token: string;
-  role: "admin" | "user";
+  role: Role;
   user: {
     id: string;
     name: string;

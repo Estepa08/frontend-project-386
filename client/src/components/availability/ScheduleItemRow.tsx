@@ -1,8 +1,6 @@
-import { Checkbox } from "@/components/ui/checkbox";
-import { Label } from "@/components/ui/label";
+import { Checkbox, Label } from "@/components/ui";
 import { ScheduleTimeSelect } from "./ScheduleTimeSelect";
-
-type Day = "mon" | "tue" | "wed" | "thu" | "fri" | "sat" | "sun";
+import type { Day } from "@/lib/constants";
 
 interface ScheduleItemRowProps {
   dayKey: Day;

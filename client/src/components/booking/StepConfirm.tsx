@@ -3,11 +3,10 @@ import { format } from "date-fns";
 import { ru } from "date-fns/locale";
 import { useAuth } from "@/store/auth";
 import { useBooking } from "@/store/booking";
-import { combineDateAndTime } from "@/api/booking";
+import { combineDateAndTime } from "@/lib/utils";
 import { useCreateMeet } from "@/hooks/booking";
 import { categoryLabel, bookingFormSchema } from "@/lib/booking";
-import { Input } from "@/components/ui/input";
-import { ErrorMessage } from "@/components/ui/error-message";
+import { Input, ErrorMessage } from "@/components/ui";
 import { StepNav } from "./StepNav";
 import { Plus, X } from "lucide-react";
 

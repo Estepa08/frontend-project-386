@@ -1,16 +1,12 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
-import { Check, Copy, ArrowLeft, AlertCircle, Pencil, X } from "lucide-react";
-import { useMeet, useCancelMeet, useUpdateMeet } from "@/hooks/meets";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { StatusBadge } from "@/components/ui/status-badge";
-import { ErrorMessage } from "@/components/ui/error-message";
-import { ConfirmDialog } from "@/components/ui/confirm-dialog";
-import { PageSkeleton } from "@/components/ui/page-skeleton";
-import { CLIPBOARD_FEEDBACK_DURATION } from "@/lib/utils";
+import { Check, Copy, ArrowLeft, AlertCircle, Pencil } from "lucide-react";
+import { useMeet, useCancelMeet } from "@/hooks/meets";
+import { ApiRequestError } from "@/api/client";
+import { formatLocalDate, formatLocalTime, CLIPBOARD_FEEDBACK_DURATION } from "@/lib/utils";
+import { Button, StatusBadge, ErrorMessage, ConfirmDialog, PageSkeleton } from "@/components/ui";
+import { MeetEditDialog } from "@/components/meets";
 
 export function MeetDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -22,25 +18,18 @@ export function MeetDetailPage() {
   const meetId = id ? Number(id) : undefined;
   const { data: meet, isLoading, isError, error } = useMeet(meetId);
   const cancelMutation = useCancelMeet();
-  const updateMutation = useUpdateMeet();
-
-  const [editTheme, setEditTheme] = useState("");
-  const [editComment, setEditComment] = useState("");
-  const [editGuestEmails, setEditGuestEmails] = useState("");
-
-  useEffect(() => {
-    if (meet) {
-      setEditTheme(meet.theme);
-      setEditComment(meet.comment ?? "");
-      setEditGuestEmails((meet.guestEmails ?? []).join(", "));
-    }
-  }, [meet]);
 
   useEffect(() => {
     if (cancelMutation.isSuccess) {
       toast.success("Встреча отменена");
     }
   }, [cancelMutation.isSuccess]);
+
+  useEffect(() => {
+    if (cancelMutation.isError) {
+      toast.error(cancelMutation.error?.message ?? "Ошибка при отмене встречи");
+    }
+  }, [cancelMutation.isError]);
 
   const handleCopyLink = async () => {
     if (!meet?.inviteLink) return;
@@ -59,40 +48,12 @@ export function MeetDetailPage() {
     setShowCancelDialog(false);
   };
 
-  const handleEditSave = async () => {
-    if (!meetId || !meet) return;
-
-    const guestEmails = editGuestEmails
-      .split(",")
-      .map((e) => e.trim())
-      .filter(Boolean);
-
-    const body: { theme?: string; comment?: string; guestEmails?: string[] } = {};
-    if (editTheme !== meet.theme) body.theme = editTheme;
-    if (editComment !== (meet.comment ?? "")) body.comment = editComment || undefined;
-    const prevEmails = (meet.guestEmails ?? []).join(",");
-    if (guestEmails.join(",") !== prevEmails) body.guestEmails = guestEmails;
-
-    if (Object.keys(body).length === 0) {
-      setShowEditDialog(false);
-      return;
-    }
-
-    try {
-      await updateMutation.mutateAsync({ id: meetId, body });
-      toast.success("Встреча обновлена");
-      setShowEditDialog(false);
-    } catch {
-      toast.error("Ошибка при обновлении встречи");
-    }
-  };
-
   if (isLoading) {
     return <PageSkeleton rows={4} />;
   }
 
   if (isError) {
-    const is404 = error?.message?.includes("404");
+    const is404 = error instanceof ApiRequestError && error.code === "NOT_FOUND";
     return (
       <div className="space-y-4">
         <Button variant="ghost" size="sm" onClick={() => navigate(-1)}>
@@ -139,20 +100,14 @@ export function MeetDetailPage() {
         <div className="grid grid-cols-2 gap-4">
           <div>
             <p className="text-xs font-medium uppercase tracking-wide text-zinc-400">Дата</p>
-            <p className="mt-0.5 text-sm text-zinc-900">
-              {startDate.toLocaleDateString("ru-RU", {
-                day: "numeric",
-                month: "long",
-                year: "numeric",
-              })}
-            </p>
+            <p className="mt-0.5 text-sm text-zinc-900">{formatLocalDate(startDate)}</p>
           </div>
           <div>
             <p className="text-xs font-medium uppercase tracking-wide text-zinc-400">Время</p>
             <p className="mt-0.5 text-sm text-zinc-900">
-              {startDate.toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit" })}
+              {formatLocalTime(startDate)}
               {" – "}
-              {endDate.toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit" })}
+              {formatLocalTime(endDate)}
             </p>
           </div>
         </div>
@@ -227,12 +182,6 @@ export function MeetDetailPage() {
           >
             {cancelMutation.isPending ? "Отмена..." : "Отменить встречу"}
           </Button>
-
-          {cancelMutation.isError && (
-            <div className="mt-3">
-              <ErrorMessage message={cancelMutation.error?.message ?? "Ошибка при отмене"} />
-            </div>
-          )}
         </div>
       )}
 
@@ -252,63 +201,12 @@ export function MeetDetailPage() {
         onConfirm={handleCancelConfirm}
       />
 
-      {showEditDialog && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
-          onClick={() => setShowEditDialog(false)}
-        >
-          <div
-            className="mx-4 w-full max-w-md rounded-lg bg-white p-6 shadow-lg"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="mb-4 flex items-center justify-between">
-              <h2 className="text-lg font-semibold text-zinc-900">Редактировать встречу</h2>
-              <button
-                onClick={() => setShowEditDialog(false)}
-                className="text-zinc-400 hover:text-zinc-600"
-              >
-                <X className="h-5 w-5" />
-              </button>
-            </div>
-
-            <div className="space-y-4">
-              <div>
-                <Label className="mb-1 block">Тема</Label>
-                <Input
-                  type="text"
-                  value={editTheme}
-                  onChange={(e) => setEditTheme(e.target.value)}
-                />
-              </div>
-              <div>
-                <Label className="mb-1 block">Комментарий</Label>
-                <Input
-                  type="text"
-                  value={editComment}
-                  onChange={(e) => setEditComment(e.target.value)}
-                  placeholder="Необязательно"
-                />
-              </div>
-              <div>
-                <Label className="mb-1 block">Гости (email через запятую)</Label>
-                <Input
-                  type="text"
-                  value={editGuestEmails}
-                  onChange={(e) => setEditGuestEmails(e.target.value)}
-                  placeholder="guest@example.com, friend@example.com"
-                />
-              </div>
-              <div className="flex justify-end gap-2 pt-2">
-                <Button variant="outline" onClick={() => setShowEditDialog(false)}>
-                  Отмена
-                </Button>
-                <Button onClick={handleEditSave} disabled={updateMutation.isPending}>
-                  {updateMutation.isPending ? "Сохранение..." : "Сохранить"}
-                </Button>
-              </div>
-            </div>
-          </div>
-        </div>
+      {meet && (
+        <MeetEditDialog
+          meet={meet}
+          open={showEditDialog}
+          onClose={() => setShowEditDialog(false)}
+        />
       )}
     </div>
   );

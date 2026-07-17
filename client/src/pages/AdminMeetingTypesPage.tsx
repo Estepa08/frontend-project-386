@@ -5,13 +5,10 @@ import {
   useUpdateMeetingType,
   useDeleteMeetingType,
 } from "@/hooks/meetingTypes";
-import { CreateMeetingTypeDialog } from "@/components/meeting-types/CreateMeetingTypeDialog";
-import { Switch } from "@/components/ui/switch";
-import { ErrorMessage } from "@/components/ui/error-message";
-import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+import { CreateMeetingTypeDialog } from "@/components/meeting-types";
+import { Switch, ErrorMessage, ConfirmDialog, PageSkeleton } from "@/components/ui";
 import { Trash2, CalendarX } from "lucide-react";
-import { CATEGORY_LABELS } from "@/lib/booking";
-import { PageSkeleton } from "@/components/ui/page-skeleton";
+import { CATEGORY_LABELS } from "@/lib/constants";
 import type { components } from "@/api/generated/schema";
 
 type MeetingType = components["schemas"]["MeetingType"];

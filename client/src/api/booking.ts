@@ -51,9 +51,4 @@ export function createMeet(body: MeetInput): Promise<MeetResult> {
   });
 }
 
-export function combineDateAndTime(date: Date, time: string): string {
-  const [hour, minute] = time.split(":").map(Number);
-  const result = new Date(date);
-  result.setHours(hour, minute, 0, 0);
-  return result.toISOString();
-}
+

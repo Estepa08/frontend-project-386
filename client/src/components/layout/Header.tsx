@@ -1,9 +1,10 @@
 import { useState, useCallback, useEffect } from "react";
 import { NavLink, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/store/auth";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui";
 import { cn } from "@/lib/utils";
 import { Menu, X } from "lucide-react";
+import { ROLES, ADMIN_NAV, USER_NAV } from "@/lib/constants";
 
 function NavItem({ to, end, children, onClick }: { to: string; end?: boolean; children: React.ReactNode; onClick?: () => void }) {
   return (
@@ -60,20 +61,19 @@ export function Header() {
           </NavLink>
         </div>
 
-        {role === "admin" && (
+        {role === ROLES.ADMIN && (
           <nav className="hidden md:flex items-center gap-4 text-sm">
-            <NavItem to="/admin" end>Обзор</NavItem>
-            <NavItem to="/admin/meeting-types">Типы встреч</NavItem>
-            <NavItem to="/admin/availability">График</NavItem>
-            <NavItem to="/admin/meets">Встречи</NavItem>
+            {ADMIN_NAV.map((item) => (
+              <NavItem key={item.to} to={item.to} end={item.end}>{item.label}</NavItem>
+            ))}
           </nav>
         )}
 
-        {role === "user" && (
+        {role === ROLES.USER && (
           <nav className="hidden md:flex items-center gap-4 text-sm">
-            <NavItem to="/booking">Забронировать</NavItem>
-            <NavItem to="/user/meets">Мои встречи</NavItem>
-
+            {USER_NAV.map((item) => (
+              <NavItem key={item.to} to={item.to}>{item.label}</NavItem>
+            ))}
           </nav>
         )}
 
@@ -91,20 +91,19 @@ export function Header() {
 
       {mobileOpen && (
         <div className="md:hidden absolute left-0 right-0 top-14 z-50 border-b border-zinc-200 bg-white px-4 py-4 shadow-lg" data-container="header--mobile-menu">
-          {role === "admin" && (
+          {role === ROLES.ADMIN && (
             <nav className="flex flex-col gap-3 text-sm">
-              <NavItem to="/admin" end onClick={closeMobile}>Обзор</NavItem>
-              <NavItem to="/admin/meeting-types" onClick={closeMobile}>Типы встреч</NavItem>
-              <NavItem to="/admin/availability" onClick={closeMobile}>График</NavItem>
-              <NavItem to="/admin/meets" onClick={closeMobile}>Встречи</NavItem>
+              {ADMIN_NAV.map((item) => (
+                <NavItem key={item.to} to={item.to} end={item.end} onClick={closeMobile}>{item.label}</NavItem>
+              ))}
             </nav>
           )}
 
-          {role === "user" && (
+          {role === ROLES.USER && (
             <nav className="flex flex-col gap-3 text-sm">
-              <NavItem to="/booking" onClick={closeMobile}>Забронировать</NavItem>
-              <NavItem to="/user/meets" onClick={closeMobile}>Мои встречи</NavItem>
-
+              {USER_NAV.map((item) => (
+                <NavItem key={item.to} to={item.to} onClick={closeMobile}>{item.label}</NavItem>
+              ))}
             </nav>
           )}
         </div>

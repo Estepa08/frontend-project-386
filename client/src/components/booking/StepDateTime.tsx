@@ -7,7 +7,7 @@ import { useBooking } from "@/store/booking";
 import { cn } from "@/lib/utils";
 import { categoryLabel } from "@/lib/booking";
 import { useMeetingTypes, useAvailableDates, useSlots } from "@/hooks/booking";
-import { ErrorMessage } from "@/components/ui/error-message";
+import { ErrorMessage } from "@/components/ui";
 import { StepNav } from "./StepNav";
 
 export function StepDateTime() {

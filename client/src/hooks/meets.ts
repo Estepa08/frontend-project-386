@@ -10,9 +10,10 @@ import {
 } from "@/api/meets";
 import type { UseQueryResult, UseMutationResult } from "@tanstack/react-query";
 import { REFETCH_INTERVAL } from "@/lib/utils";
+import { MEET_STATUS, type Role } from "@/lib/constants";
 
 export function useMeets(
-  role: "admin" | "user",
+  role: Role,
   userId: string,
   filters?: MeetFilters,
 ): UseQueryResult<MeetResult[]> {
@@ -58,10 +59,10 @@ export function useCancelMeet(): UseMutationResult<MeetResult, Error, number> {
 
       queryClient.setQueriesData<MeetResult[]>(
         { queryKey: ["meets"] },
-        (old) => old?.map((m) => (m.id === id ? { ...m, status: "cancelled" as const } : m)),
+        (old) => old?.map((m) => (m.id === id ? { ...m, status: MEET_STATUS.CANCELLED } : m)),
       );
       queryClient.setQueryData<MeetResult>(["meet", id], (old) =>
-        old ? { ...old, status: "cancelled" as const } : old,
+        old ? { ...old, status: MEET_STATUS.CANCELLED } : old,
       );
 
       return { previousMeets, previousMeet };

@@ -1,11 +1,5 @@
-import { TIME_SLOTS } from "@/lib/utils";
-import {
-  Select,
-  SelectTrigger,
-  SelectContent,
-  SelectItem,
-  SelectValue,
-} from "@/components/ui/select";
+import { TIME_SLOTS } from "@/lib/constants";
+import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from "@/components/ui";
 
 interface ScheduleTimeSelectProps {
   value: string;

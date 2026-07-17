@@ -1,7 +1,5 @@
 import { useState, useMemo } from "react";
-import { CATEGORY_LABELS } from "@/lib/booking";
-import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
+import { Button, Label, ErrorMessage } from "@/components/ui";
 import {
   Dialog,
   DialogTrigger,
@@ -9,10 +7,10 @@ import {
   DialogHeader,
   DialogTitle,
   DialogClose,
-} from "@/components/ui/dialog";
-import { ErrorMessage } from "@/components/ui/error-message";
+} from "@/components/ui";
 import { useCreateMeetingType } from "@/hooks/meetingTypes";
 import type { components } from "@/api/generated/schema";
+import { DURATIONS, CATEGORIES, CATEGORY_LABELS } from "@/lib/constants";
 
 type MeetingTypeInput = components["schemas"]["MeetingTypeInput"];
 type MeetingType = components["schemas"]["MeetingType"];
@@ -25,8 +23,8 @@ interface CreateMeetingTypeDialogProps {
 export function CreateMeetingTypeDialog({ adminId, existingTypes }: CreateMeetingTypeDialogProps) {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [form, setForm] = useState<MeetingTypeInput>({
-    duration: 15,
-    category: "single",
+    duration: DURATIONS[0],
+    category: CATEGORIES[0],
   });
 
   const isDuplicate = useMemo(
@@ -40,7 +38,7 @@ export function CreateMeetingTypeDialog({ adminId, existingTypes }: CreateMeetin
     createMutation.mutate(form, {
       onSuccess: () => {
         setDialogOpen(false);
-        setForm({ duration: 15, category: "single" });
+        setForm({ duration: DURATIONS[0], category: CATEGORIES[0] });
       },
     });
   };
@@ -65,31 +63,24 @@ export function CreateMeetingTypeDialog({ adminId, existingTypes }: CreateMeetin
           <div>
             <Label className="mb-2 block">Длительность</Label>
             <div className="flex gap-4">
-              <label className="flex items-center gap-2 text-sm">
-                <input
-                  type="radio"
-                  name="duration"
-                  checked={form.duration === 15}
-                  onChange={() => setForm((f) => ({ ...f, duration: 15 }))}
-                />
-                15 мин
-              </label>
-              <label className="flex items-center gap-2 text-sm">
-                <input
-                  type="radio"
-                  name="duration"
-                  checked={form.duration === 30}
-                  onChange={() => setForm((f) => ({ ...f, duration: 30 }))}
-                />
-                30 мин
-              </label>
+              {DURATIONS.map((dur) => (
+                <label key={dur} className="flex items-center gap-2 text-sm">
+                  <input
+                    type="radio"
+                    name="duration"
+                    checked={form.duration === dur}
+                    onChange={() => setForm((f) => ({ ...f, duration: dur }))}
+                  />
+                  {dur} мин
+                </label>
+              ))}
             </div>
           </div>
 
           <div>
             <Label className="mb-2 block">Категория</Label>
             <div className="flex gap-4">
-              {(["single", "group", "private"] as const).map((category) => (
+              {CATEGORIES.map((category) => (
                 <label key={category} className="flex items-center gap-2 text-sm">
                   <input
                     type="radio"

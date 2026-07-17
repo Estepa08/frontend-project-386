@@ -1,6 +1,6 @@
 import { useBooking } from "@/store/booking";
 import { useAdmins } from "@/hooks/booking";
-import { ErrorMessage } from "@/components/ui/error-message";
+import { ErrorMessage } from "@/components/ui";
 
 export function StepSelectAdmin() {
   const { setAdmin } = useBooking();

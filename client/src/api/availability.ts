@@ -1,10 +1,8 @@
 import { request } from "./client";
-
-export const DEFAULT_START = "09:00";
-export const DEFAULT_END = "18:00";
+import type { Day } from "@/lib/constants";
 
 export interface WorkingHour {
-  dayOfWeek: "mon" | "tue" | "wed" | "thu" | "fri" | "sat" | "sun";
+  dayOfWeek: Day;
   startTime: string;
   endTime: string;
 }

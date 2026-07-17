@@ -1,5 +1,6 @@
 import { request } from "./client";
 import type { components } from "@/api/generated/schema";
+import { MEET_STATUS, type Role, type MeetStatus } from "@/lib/constants";
 
 export type Meet = components["schemas"]["Meet"];
 export type MeetPatch = components["schemas"]["MeetPatch"];
@@ -10,12 +11,12 @@ export interface MeetResult extends Meet {
 }
 
 export interface MeetFilters {
-  status?: "confirmed" | "cancelled";
+  status?: MeetStatus;
   date?: string;
 }
 
 export function fetchMeets(
-  role: "admin" | "user",
+  role: Role,
   userId: string,
   filters?: MeetFilters,
 ): Promise<MeetResult[]> {
@@ -38,7 +39,7 @@ export function fetchMeetById(id: number): Promise<MeetResult> {
 export function cancelMeet(id: number): Promise<MeetResult> {
   return request<MeetResult>(`/api/meets/${id}`, {
     method: "PATCH",
-    body: JSON.stringify({ status: "cancelled" }),
+    body: JSON.stringify({ status: MEET_STATUS.CANCELLED }),
   });
 }
 

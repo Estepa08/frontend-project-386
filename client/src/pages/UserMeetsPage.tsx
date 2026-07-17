@@ -1,10 +1,11 @@
-import { MeetsList } from "@/components/meets/MeetsList";
+import { MeetsList } from "@/components/meets";
+import { ROLES } from "@/lib/constants";
 
 export function UserMeetsPage() {
   return (
     <MeetsList
       title="Мои встречи"
-      role="user"
+      role={ROLES.USER}
       nameField="adminName"
       nameColumnLabel="Администратор"
     />

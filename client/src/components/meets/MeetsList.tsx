@@ -2,12 +2,11 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "@/store/auth";
 import { useMeets } from "@/hooks/meets";
-import { ErrorMessage } from "@/components/ui/error-message";
-import { StatusBadge } from "@/components/ui/status-badge";
-import { PageSkeleton } from "@/components/ui/page-skeleton";
+import { ErrorMessage, StatusBadge, PageSkeleton } from "@/components/ui";
 import { formatDate } from "@/lib/utils";
 import { CalendarX } from "lucide-react";
 import type { components } from "@/api/generated/schema";
+import { MEET_STATUS, PAGE_SIZE, STATUS_LABELS, type Role, type MeetStatus } from "@/lib/constants";
 
 type Meet = components["schemas"]["Meet"] & {
   adminName?: string;
@@ -16,20 +15,20 @@ type Meet = components["schemas"]["Meet"] & {
 
 interface MeetsListProps {
   title: string;
-  role: "admin" | "user";
+  role: Role;
   nameField: "userName" | "adminName";
   nameColumnLabel: string;
 }
 
 const STATUS_OPTIONS = [
-  { value: "all", label: "Все" },
-  { value: "confirmed", label: "Подтверждено" },
-  { value: "cancelled", label: "Отменено" },
-] as const;
+  { value: "all" as const, label: "Все" },
+  { value: MEET_STATUS.CONFIRMED, label: STATUS_LABELS.confirmed },
+  { value: MEET_STATUS.CANCELLED, label: STATUS_LABELS.cancelled },
+];
 
 export function MeetsList({ title, role, nameField, nameColumnLabel }: MeetsListProps) {
   const { user } = useAuth();
-  const [statusFilter, setStatusFilter] = useState<"all" | "confirmed" | "cancelled">("all");
+  const [statusFilter, setStatusFilter] = useState<MeetStatus | "all">("all");
   const [dateFilter, setDateFilter] = useState("");
 
   const { data: meets, isLoading, isError, error } = useMeets(role, user?.id ?? "", {
@@ -40,7 +39,6 @@ export function MeetsList({ title, role, nameField, nameColumnLabel }: MeetsList
   const items: Meet[] = Array.isArray(meets) ? meets : [];
 
   const [page, setPage] = useState(1);
-  const PAGE_SIZE = 20;
   const pageItems = items.slice(0, page * PAGE_SIZE);
   const hasMore = pageItems.length < items.length;
 

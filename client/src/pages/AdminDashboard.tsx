@@ -4,11 +4,9 @@ import { format, isToday, startOfWeek, endOfWeek, isWithinInterval, parseISO } f
 import { Plus, Clock, Calendar } from "lucide-react";
 import { useAuth } from "@/store/auth";
 import { useMeets } from "@/hooks/meets";
-import { ErrorMessage } from "@/components/ui/error-message";
-import { StatusBadge } from "@/components/ui/status-badge";
-import { Button } from "@/components/ui/button";
-import { PageSkeleton } from "@/components/ui/page-skeleton";
+import { Button, ErrorMessage, StatusBadge, PageSkeleton } from "@/components/ui";
 import type { components } from "@/api/generated/schema";
+import { MEET_STATUS } from "@/lib/constants";
 
 type Meet = components["schemas"]["Meet"] & {
   adminName?: string;
@@ -37,16 +35,16 @@ export function AdminDashboard() {
 
   const stats = useMemo(() => ({
     today: items.filter(
-      (meet) => meet.status === "confirmed" && isToday(parseISO(meet.startTime)),
+      (meet) => meet.status === MEET_STATUS.CONFIRMED && isToday(parseISO(meet.startTime)),
     ).length,
     week: items.filter(
       (meet) =>
-        meet.status === "confirmed" &&
+        meet.status === MEET_STATUS.CONFIRMED &&
         isWithinInterval(parseISO(meet.startTime), { start: weekStart, end: weekEnd }),
     ).length,
     cancelled: items.filter(
       (meet) =>
-        meet.status === "cancelled" &&
+        meet.status === MEET_STATUS.CANCELLED &&
         isWithinInterval(parseISO(meet.startTime), { start: weekStart, end: weekEnd }),
     ).length,
   }), [items, weekStart, weekEnd]);
