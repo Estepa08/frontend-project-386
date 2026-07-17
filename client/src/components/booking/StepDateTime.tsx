@@ -99,21 +99,21 @@ export function StepDateTime() {
               classNames={{
                 root: `${getDefaultClassNames().root} bg-white`,
                 months: "flex justify-center",
-                month_caption: "text-sm font-medium text-zinc-700 mb-2",
+                month_caption: "capitalize text-base font-semibold text-zinc-900 mb-2",
+                nav: "relative",
                 day: "p-0 rounded-lg overflow-hidden",
                 day_button:
-                  "h-10 w-10 text-sm rounded-lg transition-colors " +
+                  "h-12 w-12 text-base rounded-lg transition-colors " +
                   "hover:bg-zinc-100 " +
                   "aria-selected:bg-zinc-900 aria-selected:text-white aria-selected:hover:bg-zinc-800",
-                today: "border border-zinc-300 rounded-lg",
                 disabled: "text-zinc-300 cursor-default line-through hover:bg-transparent",
                 outside: "text-zinc-200",
                 chevron: "fill-zinc-600",
                 weekday: "text-xs text-zinc-400 font-normal pb-1",
                 button_previous:
-                  `${getDefaultClassNames().button_previous} text-zinc-600 hover:text-zinc-900 transition-colors`,
+                  "absolute top-1/2 -translate-y-1/2 left-0 h-9 w-9 p-1 text-zinc-600 hover:text-zinc-900 transition-colors",
                 button_next:
-                  `${getDefaultClassNames().button_next} text-zinc-600 hover:text-zinc-900 transition-colors`,
+                  "absolute top-1/2 -translate-y-1/2 right-0 h-9 w-9 p-1 text-zinc-600 hover:text-zinc-900 transition-colors",
               }}
             />
 
