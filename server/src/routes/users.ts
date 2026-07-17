@@ -2,7 +2,9 @@ import { Router } from "express";
 import { prisma } from "../lib/prisma.js";
 import { hash } from "../lib/password.js";
 import { validate } from "../middleware/validate.js";
-import { userCreateSchema } from "../schemas/user.js";
+import { authenticate, type AuthRequest } from "../middleware/auth.js";
+import { authorize } from "../middleware/authorize.js";
+import { userCreateSchema, userPatchSchema } from "../schemas/user.js";
 import { AppError } from "../lib/errors.js";
 import { asyncHandler } from "../lib/asyncHandler.js";
 
@@ -51,15 +53,27 @@ router.get(
 
 router.patch(
   "/:id",
-  asyncHandler(async (req, res) => {
+  authenticate,
+  authorize("user"),
+  validate(userPatchSchema),
+  asyncHandler(async (req: AuthRequest, res) => {
+    if (req.user!.id !== req.params.id) {
+      throw new AppError("FORBIDDEN", "Not your resource", 403);
+    }
     const user = await prisma.user.findUnique({ where: { id: req.params.id } });
     if (!user) {
       throw new AppError("NOT_FOUND", "User not found", 404);
     }
     const data: any = {};
-    if (req.body.name) data.name = req.body.name;
-    if (req.body.email) data.email = req.body.email;
-    if (req.body.password) data.password = await hash(req.body.password);
+    if (req.body.name !== undefined) data.name = req.body.name;
+    if (req.body.email !== undefined) {
+      const existing = await prisma.user.findUnique({ where: { email: req.body.email } });
+      if (existing && existing.id !== req.params.id) {
+        throw new AppError("EMAIL_EXISTS", "User with this email already exists", 409);
+      }
+      data.email = req.body.email;
+    }
+    if (req.body.password !== undefined) data.password = await hash(req.body.password);
     const updated = await prisma.user.update({
       where: { id: req.params.id },
       data,
@@ -70,7 +84,12 @@ router.patch(
 
 router.delete(
   "/:id",
-  asyncHandler(async (req, res) => {
+  authenticate,
+  authorize("user"),
+  asyncHandler(async (req: AuthRequest, res) => {
+    if (req.user!.id !== req.params.id) {
+      throw new AppError("FORBIDDEN", "Not your resource", 403);
+    }
     const user = await prisma.user.findUnique({ where: { id: req.params.id } });
     if (!user) {
       throw new AppError("NOT_FOUND", "User not found", 404);

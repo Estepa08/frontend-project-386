@@ -51,6 +51,25 @@ model UserCreate {
 
 alias MeetingCategory = "single" | "group" | "private";
 
+model AdminPatch {
+  name?: string;
+  email?: string;
+  password?: string;
+}
+
+model UserPatch {
+  name?: string;
+  email?: string;
+  password?: string;
+}
+
+model MeetingTypePatch {
+  duration?: 15 | 30;
+  category?: MeetingCategory;
+  visible?: boolean;
+  allowGuestInvite?: boolean;
+}
+
 model MeetingTypeInput {
   duration: 15 | 30;
   category: MeetingCategory;
@@ -129,7 +148,7 @@ interface Admins {
 
   @get get(@path id: string): Admin | ApiError;
 
-  @patch update(@path id: string, @body input: AdminCreate): Admin | ApiError;
+  @patch update(@path id: string, @body input: AdminPatch): Admin | ApiError;
 
   @delete delete(@path id: string): void | ApiError;
 
@@ -178,7 +197,7 @@ interface Admins {
 interface MeetingTypes {
   @patch
   @route("/{id}")
-  update(@path id: int32, @body input: MeetingTypeInput): MeetingType | ApiError;
+  update(@path id: int32, @body input: MeetingTypePatch): MeetingType | ApiError;
 
   @delete
   @route("/{id}")
@@ -193,7 +212,7 @@ interface Users {
 
   @get get(@path id: string): User | ApiError;
 
-  @patch update(@path id: string, @body input: UserCreate): User | ApiError;
+  @patch update(@path id: string, @body input: UserPatch): User | ApiError;
 
   @delete delete(@path id: string): void | ApiError;
 

@@ -142,7 +142,7 @@ export async function getSlots(
 
   if (meetingTypes.length === 0) return [];
 
-  const duration = meetingTypes[0].duration;
+  const duration = meetingTypeId ? meetingTypes[0].duration : 15;
 
   const dayStart = new Date(dateObj);
   dayStart.setHours(0, 0, 0, 0);

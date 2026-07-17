@@ -10,8 +10,8 @@ export type Meet = components["schemas"]["Meet"];
 export { request, ApiRequestError } from "./client";
 
 export interface MeetResult extends Meet {
-  adminName?: string;
-  userName?: string;
+  admin?: { id: string; name: string; email: string };
+  user?: { id: string; name: string; email: string };
 }
 
 export function fetchAdmins(): Promise<Admin[]> {

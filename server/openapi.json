@@ -1,288 +1,974 @@
 {
-  "openapi": "3.0.3",
+  "openapi": "3.0.0",
   "info": {
     "title": "Video Meeting Booking API",
-    "version": "1.0.0"
+    "version": "0.0.0"
   },
-  "servers": [
-    { "url": "http://localhost:3001/api", "description": "Локальный сервер" }
-  ],
+  "tags": [],
   "paths": {
-    "/auth/login": {
+    "/admins": {
       "post": {
-        "operationId": "login",
-        "summary": "Вход в систему",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "required": ["email", "password"],
-                "properties": {
-                  "email": { "type": "string" },
-                  "password": { "type": "string" }
-                }
-              }
-            }
-          }
-        },
+        "operationId": "Admins_create",
+        "parameters": [],
         "responses": {
           "200": {
-            "description": "OK",
+            "description": "The request has succeeded.",
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "required": ["token", "user", "role"],
-                  "properties": {
-                    "token": { "type": "string" },
-                    "role": { "type": "string", "enum": ["admin", "user"] },
-                    "user": {
-                      "oneOf": [
-                        { "$ref": "#/components/schemas/Admin" },
-                        { "$ref": "#/components/schemas/User" }
-                      ]
-                    }
-                  }
+                  "$ref": "#/components/schemas/Admin"
                 }
               }
             }
           },
           "default": {
-            "description": "Error",
+            "description": "An unexpected error response.",
             "content": {
               "application/json": {
-                "schema": { "$ref": "#/components/schemas/ApiError" }
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AdminCreate"
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "operationId": "Admins_list",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "The request has succeeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Admin"
+                  }
+                }
               }
             }
           }
         }
       }
     },
-    "/admins": {
-      "post": {
-        "operationId": "createAdmin",
-        "summary": "Создать Admin",
-        "requestBody": { "$ref": "#/components/requestBodies/AdminCreate" },
-        "responses": {
-          "200": { "description": "OK", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Admin" } } } },
-          "default": { "description": "Error", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ApiError" } } } }
-        }
-      },
-      "get": {
-        "operationId": "listAdmins",
-        "summary": "Список админов",
-        "responses": {
-          "200": { "description": "OK", "content": { "application/json": { "schema": { "type": "array", "items": { "$ref": "#/components/schemas/Admin" } } } } }
-        }
-      }
-    },
     "/admins/{id}": {
       "get": {
-        "operationId": "getAdmin",
-        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }],
+        "operationId": "Admins_get",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
-          "200": { "description": "OK", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Admin" } } } },
-          "default": { "description": "Error", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ApiError" } } } }
+          "200": {
+            "description": "The request has succeeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Admin"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
         }
       },
       "patch": {
-        "operationId": "updateAdmin",
-        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }],
-        "requestBody": { "$ref": "#/components/requestBodies/AdminCreate" },
+        "operationId": "Admins_update",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
-          "200": { "description": "OK", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Admin" } } } },
-          "default": { "description": "Error", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ApiError" } } } }
+          "200": {
+            "description": "The request has succeeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Admin"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AdminPatch"
+              }
+            }
+          }
         }
       },
       "delete": {
-        "operationId": "deleteAdmin",
-        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }],
+        "operationId": "Admins_delete",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
-          "204": { "description": "No Content" },
-          "default": { "description": "Error", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ApiError" } } } }
+          "204": {
+            "description": "There is no content to send for this request, but the headers may be useful. "
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
         }
       }
     },
     "/admins/{id}/availability": {
       "get": {
-        "operationId": "getAvailability",
-        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }],
+        "operationId": "Admins_getAvailability",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
-          "200": { "description": "OK", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Availability" } } } },
-          "default": { "description": "Error", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ApiError" } } } }
+          "200": {
+            "description": "The request has succeeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Availability"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
         }
       },
       "put": {
-        "operationId": "setAvailability",
-        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }],
-        "requestBody": { "$ref": "#/components/requestBodies/Availability" },
+        "operationId": "Admins_setAvailability",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
-          "200": { "description": "OK", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Availability" } } } },
-          "default": { "description": "Error", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ApiError" } } } }
+          "200": {
+            "description": "The request has succeeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Availability"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Availability"
+              }
+            }
+          }
         }
       }
     },
     "/admins/{id}/available-dates": {
       "get": {
-        "operationId": "getAvailableDates",
+        "operationId": "Admins_getAvailableDates",
         "parameters": [
-          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } },
-          { "name": "month", "in": "query", "required": true, "schema": { "type": "string" } },
-          { "name": "meetingTypeId", "in": "query", "required": false, "schema": { "type": "integer" } }
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "month",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "explode": false
+          },
+          {
+            "name": "meetingTypeId",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "explode": false
+          }
         ],
         "responses": {
-          "200": { "description": "OK", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/AvailableDates" } } } }
+          "200": {
+            "description": "The request has succeeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AvailableDates"
+                }
+              }
+            }
+          }
         }
       }
     },
-    "/admins/{id}/slots": {
-      "get": {
-        "operationId": "getSlots",
+    "/admins/{id}/meeting-types": {
+      "post": {
+        "operationId": "Admins_createMeetingType",
         "parameters": [
-          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } },
-          { "name": "date", "in": "query", "required": true, "schema": { "type": "string", "format": "date" } },
-          { "name": "meetingTypeId", "in": "query", "required": false, "schema": { "type": "integer" } }
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
         ],
         "responses": {
-          "200": { "description": "OK", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Slots" } } } }
+          "200": {
+            "description": "The request has succeeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MeetingType"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MeetingTypeInput"
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "operationId": "Admins_listMeetingTypes",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The request has succeeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/MeetingType"
+                  }
+                }
+              }
+            }
+          }
         }
       }
     },
     "/admins/{id}/meets": {
       "get": {
-        "operationId": "listAdminMeets",
+        "operationId": "Admins_listMeets",
         "parameters": [
-          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } },
-          { "name": "status", "in": "query", "required": false, "schema": { "type": "string", "enum": ["confirmed", "cancelled"] } },
-          { "name": "date", "in": "query", "required": false, "schema": { "type": "string", "format": "date" } }
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "confirmed",
+                "cancelled"
+              ]
+            },
+            "explode": false
+          },
+          {
+            "name": "date",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "date"
+            },
+            "explode": false
+          }
         ],
         "responses": {
-          "200": { "description": "OK", "content": { "application/json": { "schema": { "type": "array", "items": { "$ref": "#/components/schemas/Meet" } } } } }
+          "200": {
+            "description": "The request has succeeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Meet"
+                  }
+                }
+              }
+            }
+          }
         }
       }
     },
-    "/admins/{id}/meeting-types": {
+    "/admins/{id}/slots": {
       "get": {
-        "operationId": "listMeetingTypes",
-        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }],
+        "operationId": "Admins_getSlots",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "date",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "date"
+            },
+            "explode": false
+          },
+          {
+            "name": "meetingTypeId",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "explode": false
+          }
+        ],
         "responses": {
-          "200": { "description": "OK", "content": { "application/json": { "schema": { "type": "array", "items": { "$ref": "#/components/schemas/MeetingType" } } } } }
+          "200": {
+            "description": "The request has succeeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Slots"
+                }
+              }
+            }
+          }
         }
-      },
+      }
+    },
+    "/auth/login": {
       "post": {
-        "operationId": "createMeetingType",
-        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }],
-        "requestBody": { "$ref": "#/components/requestBodies/MeetingTypeInput" },
+        "operationId": "Auth_login",
+        "parameters": [],
         "responses": {
-          "201": { "description": "Created", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/MeetingType" } } } },
-          "default": { "description": "Error", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ApiError" } } } }
+          "200": {
+            "description": "The request has succeeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "token": {
+                      "type": "string"
+                    },
+                    "role": {
+                      "type": "string",
+                      "enum": [
+                        "admin",
+                        "user"
+                      ]
+                    },
+                    "user": {
+                      "anyOf": [
+                        {
+                          "$ref": "#/components/schemas/Admin"
+                        },
+                        {
+                          "$ref": "#/components/schemas/User"
+                        }
+                      ]
+                    }
+                  },
+                  "required": [
+                    "token",
+                    "role",
+                    "user"
+                  ]
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": {
+                    "type": "string"
+                  },
+                  "password": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "email",
+                  "password"
+                ]
+              }
+            }
+          }
         }
       }
     },
     "/meeting-types/{id}": {
       "patch": {
-        "operationId": "updateMeetingType",
-        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }],
-        "requestBody": { "$ref": "#/components/requestBodies/MeetingTypeInput" },
-        "responses": {
-          "200": { "description": "OK", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/MeetingType" } } } },
-          "default": { "description": "Error", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ApiError" } } } }
-        }
-      },
-      "delete": {
-        "operationId": "deleteMeetingType",
-        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }],
-        "responses": {
-          "204": { "description": "No Content" },
-          "default": { "description": "Error", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ApiError" } } } }
-        }
-      }
-    },
-    "/users": {
-      "post": {
-        "operationId": "createUser",
-        "summary": "Создать User",
-        "requestBody": { "$ref": "#/components/requestBodies/UserCreate" },
-        "responses": {
-          "200": { "description": "OK", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/User" } } } },
-          "default": { "description": "Error", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ApiError" } } } }
-        }
-      },
-      "get": {
-        "operationId": "listUsers",
-        "summary": "Список пользователей",
-        "responses": {
-          "200": { "description": "OK", "content": { "application/json": { "schema": { "type": "array", "items": { "$ref": "#/components/schemas/User" } } } } }
-        }
-      }
-    },
-    "/users/{id}": {
-      "get": {
-        "operationId": "getUser",
-        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }],
-        "responses": {
-          "200": { "description": "OK", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/User" } } } },
-          "default": { "description": "Error", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ApiError" } } } }
-        }
-      },
-      "patch": {
-        "operationId": "updateUser",
-        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }],
-        "requestBody": { "$ref": "#/components/requestBodies/UserCreate" },
-        "responses": {
-          "200": { "description": "OK", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/User" } } } },
-          "default": { "description": "Error", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ApiError" } } } }
-        }
-      },
-      "delete": {
-        "operationId": "deleteUser",
-        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }],
-        "responses": {
-          "204": { "description": "No Content" },
-          "default": { "description": "Error", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ApiError" } } } }
-        }
-      }
-    },
-    "/users/{id}/meets": {
-      "get": {
-        "operationId": "listUserMeets",
+        "operationId": "MeetingTypes_update",
         "parameters": [
-          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } },
-          { "name": "status", "in": "query", "required": false, "schema": { "type": "string", "enum": ["confirmed", "cancelled"] } },
-          { "name": "date", "in": "query", "required": false, "schema": { "type": "string", "format": "date" } }
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
         ],
         "responses": {
-          "200": { "description": "OK", "content": { "application/json": { "schema": { "type": "array", "items": { "$ref": "#/components/schemas/Meet" } } } } }
+          "200": {
+            "description": "The request has succeeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MeetingType"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MeetingTypePatch"
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "operationId": "MeetingTypes_delete",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "There is no content to send for this request, but the headers may be useful. "
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
         }
       }
     },
     "/meets": {
       "post": {
-        "operationId": "createMeet",
-        "requestBody": { "$ref": "#/components/requestBodies/MeetInput" },
+        "operationId": "Meets_create",
+        "parameters": [],
         "responses": {
-          "201": { "description": "Created", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Meet" } } } },
-          "default": { "description": "Error", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ApiError" } } } }
+          "200": {
+            "description": "The request has succeeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Meet"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MeetInput"
+              }
+            }
+          }
         }
       }
     },
     "/meets/{id}": {
       "get": {
-        "operationId": "getMeet",
-        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }],
+        "operationId": "Meets_get",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
         "responses": {
-          "200": { "description": "OK", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Meet" } } } },
-          "default": { "description": "Error", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ApiError" } } } }
+          "200": {
+            "description": "The request has succeeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Meet"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
         }
       },
       "patch": {
-        "operationId": "updateMeet",
-        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }],
-        "requestBody": { "$ref": "#/components/requestBodies/MeetPatch" },
+        "operationId": "Meets_update",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
         "responses": {
-          "200": { "description": "OK", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Meet" } } } },
-          "default": { "description": "Error", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ApiError" } } } }
+          "200": {
+            "description": "The request has succeeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Meet"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MeetPatch"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/users": {
+      "post": {
+        "operationId": "Users_create",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "The request has succeeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/User"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserCreate"
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "operationId": "Users_list",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "The request has succeeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/User"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/users/{id}": {
+      "get": {
+        "operationId": "Users_get",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The request has succeeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/User"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "operationId": "Users_update",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The request has succeeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/User"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserPatch"
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "operationId": "Users_delete",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "There is no content to send for this request, but the headers may be useful. "
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/users/{id}/meets": {
+      "get": {
+        "operationId": "Users_listMeets",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "confirmed",
+                "cancelled"
+              ]
+            },
+            "explode": false
+          },
+          {
+            "name": "date",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "date"
+            },
+            "explode": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The request has succeeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Meet"
+                  }
+                }
+              }
+            }
+          }
         }
       }
     }
@@ -291,164 +977,421 @@
     "schemas": {
       "Admin": {
         "type": "object",
-        "required": ["id", "name", "email", "createdAt"],
+        "required": [
+          "id",
+          "name",
+          "email",
+          "createdAt"
+        ],
         "properties": {
-          "id": { "type": "string" },
-          "name": { "type": "string" },
-          "email": { "type": "string" },
-          "createdAt": { "type": "string", "format": "date-time" }
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
         }
       },
       "AdminCreate": {
         "type": "object",
-        "required": ["name", "email", "password"],
+        "required": [
+          "name",
+          "email",
+          "password"
+        ],
         "properties": {
-          "name": { "type": "string" },
-          "email": { "type": "string" },
-          "password": { "type": "string" }
+          "name": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string"
+          }
         }
       },
-      "User": {
+      "AdminPatch": {
         "type": "object",
-        "required": ["id", "name", "email", "createdAt"],
         "properties": {
-          "id": { "type": "string" },
-          "name": { "type": "string" },
-          "email": { "type": "string" },
-          "createdAt": { "type": "string", "format": "date-time" }
+          "name": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string"
+          }
         }
       },
-      "UserCreate": {
+      "ApiError": {
         "type": "object",
-        "required": ["name", "email", "password"],
+        "required": [
+          "error"
+        ],
         "properties": {
-          "name": { "type": "string" },
-          "email": { "type": "string" },
-          "password": { "type": "string" }
-        }
-      },
-      "WorkingHour": {
-        "type": "object",
-        "required": ["dayOfWeek", "startTime", "endTime"],
-        "properties": {
-          "dayOfWeek": { "type": "string", "enum": ["mon", "tue", "wed", "thu", "fri", "sat", "sun"] },
-          "startTime": { "type": "string" },
-          "endTime": { "type": "string" }
+          "error": {
+            "type": "object",
+            "properties": {
+              "code": {
+                "type": "string"
+              },
+              "message": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "code",
+              "message"
+            ]
+          }
         }
       },
       "Availability": {
         "type": "object",
-        "required": ["workingHours"],
+        "required": [
+          "workingHours"
+        ],
         "properties": {
-          "workingHours": { "type": "array", "items": { "$ref": "#/components/schemas/WorkingHour" } }
+          "workingHours": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/WorkingHour"
+            }
+          }
         }
       },
-      "MeetingType": {
+      "AvailableDates": {
         "type": "object",
-        "required": ["id", "adminId", "duration", "category", "visible", "allowGuestInvite"],
+        "required": [
+          "dates"
+        ],
         "properties": {
-          "id": { "type": "integer" },
-          "adminId": { "type": "string" },
-          "duration": { "type": "integer", "enum": [15, 30] },
-          "category": { "type": "string", "enum": ["single", "group", "private"] },
-          "visible": { "type": "boolean" },
-          "allowGuestInvite": { "type": "boolean" }
-        }
-      },
-      "MeetingTypeInput": {
-        "type": "object",
-        "required": ["duration", "category"],
-        "properties": {
-          "duration": { "type": "integer", "enum": [15, 30] },
-          "category": { "type": "string", "enum": ["single", "group", "private"] }
+          "dates": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "date"
+            }
+          }
         }
       },
       "Meet": {
         "type": "object",
-        "required": ["id", "adminId", "userId", "meetingTypeId", "startTime", "endTime", "theme", "inviteLink", "status", "createdAt", "updatedAt"],
+        "required": [
+          "id",
+          "inviteLink",
+          "status",
+          "createdAt",
+          "updatedAt"
+        ],
         "properties": {
-          "id": { "type": "integer" },
-          "adminId": { "type": "string" },
-          "userId": { "type": "string" },
-          "meetingTypeId": { "type": "integer" },
-          "startTime": { "type": "string", "format": "date-time" },
-          "endTime": { "type": "string", "format": "date-time" },
-          "theme": { "type": "string" },
-          "comment": { "type": "string" },
-          "guestEmails": { "type": "array", "items": { "type": "string" } },
-          "inviteLink": { "type": "string" },
-          "status": { "type": "string", "enum": ["confirmed", "cancelled"] },
-          "createdAt": { "type": "string", "format": "date-time" },
-          "updatedAt": { "type": "string", "format": "date-time" }
-        }
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "inviteLink": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "confirmed",
+              "cancelled"
+            ]
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/MeetInput"
+          }
+        ]
       },
       "MeetInput": {
         "type": "object",
-        "required": ["adminId", "userId", "meetingTypeId", "startTime", "endTime", "theme"],
+        "required": [
+          "adminId",
+          "userId",
+          "meetingTypeId",
+          "startTime",
+          "endTime",
+          "theme"
+        ],
         "properties": {
-          "adminId": { "type": "string" },
-          "userId": { "type": "string" },
-          "meetingTypeId": { "type": "integer" },
-          "startTime": { "type": "string", "format": "date-time" },
-          "endTime": { "type": "string", "format": "date-time" },
-          "theme": { "type": "string" },
-          "comment": { "type": "string" },
-          "guestEmails": { "type": "array", "items": { "type": "string" } }
+          "adminId": {
+            "type": "string"
+          },
+          "userId": {
+            "type": "string"
+          },
+          "meetingTypeId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "startTime": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "endTime": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "theme": {
+            "type": "string"
+          },
+          "comment": {
+            "type": "string"
+          },
+          "guestEmails": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
         }
       },
       "MeetPatch": {
         "type": "object",
         "properties": {
-          "theme": { "type": "string" },
-          "comment": { "type": "string" },
-          "guestEmails": { "type": "array", "items": { "type": "string" } },
-          "status": { "type": "string", "enum": ["confirmed", "cancelled"] }
+          "theme": {
+            "type": "string"
+          },
+          "comment": {
+            "type": "string"
+          },
+          "guestEmails": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "confirmed",
+              "cancelled"
+            ]
+          }
         }
       },
-      "AvailableDates": {
+      "MeetingType": {
         "type": "object",
-        "required": ["dates"],
+        "required": [
+          "id",
+          "adminId",
+          "visible",
+          "allowGuestInvite"
+        ],
         "properties": {
-          "dates": { "type": "array", "items": { "type": "string", "format": "date" } }
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "adminId": {
+            "type": "string"
+          },
+          "visible": {
+            "type": "boolean"
+          },
+          "allowGuestInvite": {
+            "type": "boolean"
+          }
+        },
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/MeetingTypeInput"
+          }
+        ]
+      },
+      "MeetingTypeInput": {
+        "type": "object",
+        "required": [
+          "duration",
+          "category"
+        ],
+        "properties": {
+          "duration": {
+            "type": "number",
+            "enum": [
+              15,
+              30
+            ]
+          },
+          "category": {
+            "type": "string",
+            "enum": [
+              "single",
+              "group",
+              "private"
+            ]
+          }
+        }
+      },
+      "MeetingTypePatch": {
+        "type": "object",
+        "properties": {
+          "duration": {
+            "type": "number",
+            "enum": [
+              15,
+              30
+            ]
+          },
+          "category": {
+            "type": "string",
+            "enum": [
+              "single",
+              "group",
+              "private"
+            ]
+          },
+          "visible": {
+            "type": "boolean"
+          },
+          "allowGuestInvite": {
+            "type": "boolean"
+          }
         }
       },
       "Slot": {
         "type": "object",
-        "required": ["startTime", "endTime"],
+        "required": [
+          "startTime",
+          "endTime"
+        ],
         "properties": {
-          "startTime": { "type": "string", "format": "date-time" },
-          "endTime": { "type": "string", "format": "date-time" }
+          "startTime": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "endTime": {
+            "type": "string",
+            "format": "date-time"
+          }
         }
       },
       "Slots": {
         "type": "object",
-        "required": ["slots"],
+        "required": [
+          "slots"
+        ],
         "properties": {
-          "slots": { "type": "array", "items": { "$ref": "#/components/schemas/Slot" } }
-        }
-      },
-      "ApiError": {
-        "type": "object",
-        "required": ["error"],
-        "properties": {
-          "error": {
-            "type": "object",
-            "required": ["code", "message"],
-            "properties": {
-              "code": { "type": "string" },
-              "message": { "type": "string" }
+          "slots": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Slot"
             }
           }
         }
+      },
+      "User": {
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "email",
+          "createdAt"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "UserCreate": {
+        "type": "object",
+        "required": [
+          "name",
+          "email",
+          "password"
+        ],
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string"
+          }
+        }
+      },
+      "UserPatch": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string"
+          }
+        }
+      },
+      "WorkingHour": {
+        "type": "object",
+        "required": [
+          "dayOfWeek",
+          "startTime",
+          "endTime"
+        ],
+        "properties": {
+          "dayOfWeek": {
+            "type": "string",
+            "enum": [
+              "mon",
+              "tue",
+              "wed",
+              "thu",
+              "fri",
+              "sat",
+              "sun"
+            ]
+          },
+          "startTime": {
+            "type": "string"
+          },
+          "endTime": {
+            "type": "string"
+          }
+        }
       }
-    },
-    "requestBodies": {
-      "AdminCreate": { "content": { "application/json": { "schema": { "$ref": "#/components/schemas/AdminCreate" } } } },
-      "UserCreate": { "content": { "application/json": { "schema": { "$ref": "#/components/schemas/UserCreate" } } } },
-      "Availability": { "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Availability" } } } },
-      "MeetingTypeInput": { "content": { "application/json": { "schema": { "$ref": "#/components/schemas/MeetingTypeInput" } } } },
-      "MeetInput": { "content": { "application/json": { "schema": { "$ref": "#/components/schemas/MeetInput" } } } },
-      "MeetPatch": { "content": { "application/json": { "schema": { "$ref": "#/components/schemas/MeetPatch" } } } }
     }
-  }
+  },
+  "servers": [
+    {
+      "url": "http://localhost:3001/api",
+      "description": "Локальный сервер",
+      "variables": {}
+    }
+  ]
 }

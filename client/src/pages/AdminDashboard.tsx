@@ -9,8 +9,7 @@ import type { components } from "@/api/generated/schema";
 import { MEET_STATUS } from "@/lib/constants";
 
 type Meet = components["schemas"]["Meet"] & {
-  adminName?: string;
-  userName?: string;
+  user?: { id: string; name: string; email: string };
 };
 
 function formatTime(iso: string) {
@@ -142,7 +141,7 @@ export function AdminDashboard() {
                   {formatTime(meet.startTime)} — {formatTime(meet.endTime)}
                 </span>
                 <span className="text-sm text-zinc-600">{meet.theme}</span>
-                <span className="text-sm text-zinc-400">{meet.userName}</span>
+                <span className="text-sm text-zinc-400">{meet.user?.name}</span>
                 <span className="ml-auto">
                   <StatusBadge status={meet.status} />
                 </span>

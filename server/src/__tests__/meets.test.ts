@@ -1,35 +1,48 @@
 import { describe, it, expect, beforeAll } from "vitest";
 import supertest from "supertest";
 import app from "../app.js";
-import { describeIfDb } from "./helpers.js";
+import { describeIfDb, uniqueId } from "./helpers.js";
 
 const request = supertest(app);
+const uid = uniqueId();
 
 describeIfDb("Meets API", () => {
   let adminId: string;
+  let adminToken: string;
   let userId: string;
+  let userToken: string;
   let meetingTypeId: number;
   let meetId: number;
 
   beforeAll(async () => {
     const adminRes = await request.post("/api/admins").send({
       name: "Meet Admin",
-      email: "meetadmin@example.com",
+      email: `meetadmin-${uid}@example.com`,
       password: "password123",
     });
     adminId = adminRes.body.id;
 
+    const adminLoginRes = await request
+      .post("/api/auth/login")
+      .send({ email: `meetadmin-${uid}@example.com`, password: "password123" });
+    adminToken = adminLoginRes.body.token;
+
     const userRes = await request.post("/api/users").send({
       name: "Meet User",
-      email: "meetuser@example.com",
+      email: `meetuser-${uid}@example.com`,
       password: "password123",
     });
     userId = userRes.body.id;
 
-    const mtRes = await request.post(`/api/admins/${adminId}/meeting-types`).send({
-      duration: 15,
-      category: "single",
-    });
+    const userLoginRes = await request
+      .post("/api/auth/login")
+      .send({ email: `meetuser-${uid}@example.com`, password: "password123" });
+    userToken = userLoginRes.body.token;
+
+    const mtRes = await request
+      .post(`/api/admins/${adminId}/meeting-types`)
+      .set("Authorization", `Bearer ${adminToken}`)
+      .send({ duration: 15, category: "single" });
     meetingTypeId = mtRes.body.id;
   });
 
@@ -38,14 +51,17 @@ describeIfDb("Meets API", () => {
     tomorrow.setDate(tomorrow.getDate() + 1);
     tomorrow.setHours(10, 0, 0, 0);
 
-    const res = await request.post("/api/meets").send({
-      adminId,
-      userId,
-      meetingTypeId,
-      startTime: tomorrow.toISOString(),
-      endTime: new Date(tomorrow.getTime() + 15 * 60000).toISOString(),
-      theme: "Test meeting",
-    });
+    const res = await request
+      .post("/api/meets")
+      .set("Authorization", `Bearer ${userToken}`)
+      .send({
+        adminId,
+        userId,
+        meetingTypeId,
+        startTime: tomorrow.toISOString(),
+        endTime: new Date(tomorrow.getTime() + 15 * 60000).toISOString(),
+        theme: "Test meeting",
+      });
     expect(res.status).toBe(201);
     expect(res.body.theme).toBe("Test meeting");
     expect(res.body.status).toBe("confirmed");
@@ -58,14 +74,17 @@ describeIfDb("Meets API", () => {
     tomorrow.setDate(tomorrow.getDate() + 1);
     tomorrow.setHours(10, 0, 0, 0);
 
-    const res = await request.post("/api/meets").send({
-      adminId,
-      userId,
-      meetingTypeId,
-      startTime: tomorrow.toISOString(),
-      endTime: new Date(tomorrow.getTime() + 15 * 60000).toISOString(),
-      theme: "Overlapping meet",
-    });
+    const res = await request
+      .post("/api/meets")
+      .set("Authorization", `Bearer ${userToken}`)
+      .send({
+        adminId,
+        userId,
+        meetingTypeId,
+        startTime: tomorrow.toISOString(),
+        endTime: new Date(tomorrow.getTime() + 15 * 60000).toISOString(),
+        theme: "Overlapping meet",
+      });
     expect(res.status).toBe(409);
     expect(res.body.error.code).toBe("SLOT_TAKEN");
   });
@@ -84,9 +103,10 @@ describeIfDb("Meets API", () => {
   });
 
   it("PATCH /api/meets/:id — cancels a meet", async () => {
-    const res = await request.patch(`/api/meets/${meetId}`).send({
-      status: "cancelled",
-    });
+    const res = await request
+      .patch(`/api/meets/${meetId}`)
+      .set("Authorization", `Bearer ${userToken}`)
+      .send({ status: "cancelled" });
     expect(res.status).toBe(200);
     expect(res.body.status).toBe("cancelled");
   });

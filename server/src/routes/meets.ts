@@ -2,6 +2,8 @@ import { Router } from "express";
 import crypto from "crypto";
 import { prisma } from "../lib/prisma.js";
 import { validate } from "../middleware/validate.js";
+import { authenticate, type AuthRequest } from "../middleware/auth.js";
+import { authorize } from "../middleware/authorize.js";
 import { meetInputSchema, meetPatchSchema } from "../schemas/meet.js";
 import { AppError } from "../lib/errors.js";
 import { asyncHandler } from "../lib/asyncHandler.js";
@@ -14,10 +16,16 @@ function generateInviteLink(): string {
 
 router.post(
   "/",
+  authenticate,
+  authorize("user"),
   validate(meetInputSchema),
-  asyncHandler(async (req, res) => {
+  asyncHandler(async (req: AuthRequest, res) => {
     const { adminId, userId, meetingTypeId, startTime, endTime, theme, comment, guestEmails } =
       req.body;
+
+    if (userId !== req.user!.id) {
+      throw new AppError("FORBIDDEN", "Can only book meetings for yourself", 403);
+    }
 
     const admin = await prisma.admin.findUnique({ where: { id: adminId } });
     if (!admin) throw new AppError("NOT_FOUND", "Admin not found", 404);
@@ -77,12 +85,16 @@ router.get(
 
 router.patch(
   "/:id",
+  authenticate,
   validate(meetPatchSchema),
-  asyncHandler(async (req, res) => {
+  asyncHandler(async (req: AuthRequest, res) => {
     const id = Number(req.params.id);
     const existing = await prisma.meet.findUnique({ where: { id } });
     if (!existing) {
       throw new AppError("NOT_FOUND", "Meet not found", 404);
+    }
+    if (existing.adminId !== req.user!.id && existing.userId !== req.user!.id) {
+      throw new AppError("FORBIDDEN", "Not a participant of this meet", 403);
     }
     const data: any = {};
     if (req.body.theme !== undefined) data.theme = req.body.theme;

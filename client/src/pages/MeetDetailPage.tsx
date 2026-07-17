@@ -116,12 +116,12 @@ export function MeetDetailPage() {
 
         <div>
           <p className="text-xs font-medium uppercase tracking-wide text-zinc-400">Администратор</p>
-          <p className="mt-0.5 text-sm text-zinc-900">{meet.adminName ?? `ID ${meet.adminId}`}</p>
+          <p className="mt-0.5 text-sm text-zinc-900">{meet.admin?.name ?? `ID ${meet.adminId}`}</p>
         </div>
 
         <div>
           <p className="text-xs font-medium uppercase tracking-wide text-zinc-400">Клиент</p>
-          <p className="mt-0.5 text-sm text-zinc-900">{meet.userName ?? `ID ${meet.userId}`}</p>
+          <p className="mt-0.5 text-sm text-zinc-900">{meet.user?.name ?? `ID ${meet.userId}`}</p>
         </div>
 
         {meet.comment && (

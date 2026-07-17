@@ -3,6 +3,7 @@ import type { components } from "@/api/generated/schema";
 
 export type MeetingType = components["schemas"]["MeetingType"];
 export type MeetingTypeInput = components["schemas"]["MeetingTypeInput"];
+export type MeetingTypePatch = components["schemas"]["MeetingTypePatch"];
 
 export function fetchMeetingTypes(adminId: string): Promise<MeetingType[]> {
   return request(`/api/admins/${adminId}/meeting-types`);
@@ -20,7 +21,7 @@ export function createMeetingType(
 
 export function updateMeetingType(
   id: number,
-  body: Partial<MeetingTypeInput & { visible?: boolean; allowGuestInvite?: boolean }>,
+  body: MeetingTypePatch,
 ): Promise<MeetingType> {
   return request(`/api/meeting-types/${id}`, {
     method: "PATCH",

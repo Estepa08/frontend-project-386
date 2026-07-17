@@ -6,8 +6,8 @@ export type Meet = components["schemas"]["Meet"];
 export type MeetPatch = components["schemas"]["MeetPatch"];
 
 export interface MeetResult extends Meet {
-  adminName?: string;
-  userName?: string;
+  admin?: { id: string; name: string; email: string };
+  user?: { id: string; name: string; email: string };
 }
 
 export interface MeetFilters {

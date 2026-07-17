@@ -9,14 +9,14 @@ import type { components } from "@/api/generated/schema";
 import { MEET_STATUS, PAGE_SIZE, STATUS_LABELS, type Role, type MeetStatus } from "@/lib/constants";
 
 type Meet = components["schemas"]["Meet"] & {
-  adminName?: string;
-  userName?: string;
+  admin?: { id: string; name: string; email: string };
+  user?: { id: string; name: string; email: string };
 };
 
 interface MeetsListProps {
   title: string;
   role: Role;
-  nameField: "userName" | "adminName";
+  nameField: "user" | "admin";
   nameColumnLabel: string;
 }
 
@@ -114,7 +114,7 @@ export function MeetsList({ title, role, nameField, nameColumnLabel }: MeetsList
                 {pageItems.map((meet) => (
                   <tr key={meet.id} className="border-t border-zinc-100">
                     <td className="px-4 py-3 text-zinc-900">{formatDate(meet.startTime)}</td>
-                    <td className="px-4 py-3 text-zinc-600">{meet[nameField]}</td>
+                    <td className="px-4 py-3 text-zinc-600">{meet[nameField]?.name}</td>
                     <td className="px-4 py-3 text-zinc-600">{meet.theme}</td>
                     <td className="px-4 py-3">
                       <StatusBadge status={meet.status} />
@@ -140,7 +140,7 @@ export function MeetsList({ title, role, nameField, nameColumnLabel }: MeetsList
                   <span className="font-medium text-zinc-900">{formatDate(meet.startTime)}</span>
                   <StatusBadge status={meet.status} />
                 </div>
-                <p className="text-sm text-zinc-600">{meet[nameField]}</p>
+                <p className="text-sm text-zinc-600">{meet[nameField]?.name}</p>
                 <p className="text-sm text-zinc-600">{meet.theme}</p>
                 <Link
                   to={`/meets/${meet.id}`}

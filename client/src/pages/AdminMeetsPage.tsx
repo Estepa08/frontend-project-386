@@ -6,7 +6,7 @@ export function AdminMeetsPage() {
     <MeetsList
       title="Все встречи"
       role={ROLES.ADMIN}
-      nameField="userName"
+      nameField="user"
       nameColumnLabel="Клиент"
     />
   );

@@ -3,7 +3,8 @@ import { prisma } from "../lib/prisma.js";
 import { hash } from "../lib/password.js";
 import { validate } from "../middleware/validate.js";
 import { authenticate, type AuthRequest } from "../middleware/auth.js";
-import { adminCreateSchema } from "../schemas/admin.js";
+import { authorize } from "../middleware/authorize.js";
+import { adminCreateSchema, adminPatchSchema } from "../schemas/admin.js";
 import { availabilitySchema } from "../schemas/availability.js";
 import { meetingTypeInputSchema } from "../schemas/meetingType.js";
 import { AppError } from "../lib/errors.js";
@@ -55,15 +56,27 @@ router.get(
 
 router.patch(
   "/:id",
-  asyncHandler(async (req, res) => {
+  authenticate,
+  authorize("admin"),
+  validate(adminPatchSchema),
+  asyncHandler(async (req: AuthRequest, res) => {
+    if (req.user!.id !== req.params.id) {
+      throw new AppError("FORBIDDEN", "Not your resource", 403);
+    }
     const admin = await prisma.admin.findUnique({ where: { id: req.params.id } });
     if (!admin) {
       throw new AppError("NOT_FOUND", "Admin not found", 404);
     }
     const data: any = {};
-    if (req.body.name) data.name = req.body.name;
-    if (req.body.email) data.email = req.body.email;
-    if (req.body.password) data.password = await hash(req.body.password);
+    if (req.body.name !== undefined) data.name = req.body.name;
+    if (req.body.email !== undefined) {
+      const existing = await prisma.admin.findUnique({ where: { email: req.body.email } });
+      if (existing && existing.id !== req.params.id) {
+        throw new AppError("EMAIL_EXISTS", "Admin with this email already exists", 409);
+      }
+      data.email = req.body.email;
+    }
+    if (req.body.password !== undefined) data.password = await hash(req.body.password);
     const updated = await prisma.admin.update({
       where: { id: req.params.id },
       data,
@@ -74,7 +87,12 @@ router.patch(
 
 router.delete(
   "/:id",
-  asyncHandler(async (req, res) => {
+  authenticate,
+  authorize("admin"),
+  asyncHandler(async (req: AuthRequest, res) => {
+    if (req.user!.id !== req.params.id) {
+      throw new AppError("FORBIDDEN", "Not your resource", 403);
+    }
     const admin = await prisma.admin.findUnique({ where: { id: req.params.id } });
     if (!admin) {
       throw new AppError("NOT_FOUND", "Admin not found", 404);
@@ -101,8 +119,8 @@ router.get(
 
 router.put(
   "/:id/availability",
-  validate(availabilitySchema),
   authenticate,
+  validate(availabilitySchema),
   asyncHandler(async (req: AuthRequest, res) => {
     const adminId = req.params.id;
     if (req.user?.id !== adminId && req.user?.role !== "admin") {
@@ -113,7 +131,7 @@ router.put(
       throw new AppError("NOT_FOUND", "Admin not found", 404);
     }
     await prisma.workingHour.deleteMany({ where: { adminId } });
-    const workingHours = await prisma.workingHour.createMany({
+    await prisma.workingHour.createMany({
       data: req.body.workingHours.map((wh: any) => ({
         adminId,
         dayOfWeek: wh.dayOfWeek,
@@ -177,8 +195,13 @@ router.get(
 
 router.post(
   "/:id/meeting-types",
+  authenticate,
+  authorize("admin"),
   validate(meetingTypeInputSchema),
-  asyncHandler(async (req, res) => {
+  asyncHandler(async (req: AuthRequest, res) => {
+    if (req.user!.id !== req.params.id) {
+      throw new AppError("FORBIDDEN", "Not your resource", 403);
+    }
     const admin = await prisma.admin.findUnique({ where: { id: req.params.id } });
     if (!admin) {
       throw new AppError("NOT_FOUND", "Admin not found", 404);

@@ -15,11 +15,11 @@
     "generate": "tsp compile main.tsp --emit @typespec/openapi3 --output-dir ."
   },
   "dependencies": {
+    "@neondatabase/serverless": "^1.0.0",
     "@prisma/client": "^6.6.0",
     "bcryptjs": "^3.0.2",
     "cors": "^2.8.5",
     "dotenv": "^16.5.0",
-    "@neondatabase/serverless": "^1.0.0",
     "express": "^4.21.0",
     "helmet": "^8.1.0",
     "jsonwebtoken": "^9.0.2",
@@ -33,6 +33,10 @@
     "@types/jsonwebtoken": "^9.0.9",
     "@types/morgan": "^1.9.9",
     "@types/supertest": "^6.0.3",
+    "@typespec/compiler": "^1.14.0",
+    "@typespec/http": "^1.14.0",
+    "@typespec/openapi3": "^1.14.0",
+    "@typespec/rest": "^0.84.0",
     "prisma": "^6.6.0",
     "supertest": "^7.1.0",
     "tsx": "^4.19.0",
