@@ -31,8 +31,8 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
       }
 
       return (
-        <div className="flex min-h-[400px] items-center justify-center">
-          <div className="text-center">
+        <div className="flex min-h-[400px] items-center justify-center" data-container="error-boundary">
+          <div className="text-center" data-container="error-boundary--content">
             <h2 className="mb-2 text-lg font-semibold text-zinc-900">Что-то пошло не так</h2>
             <p className="mb-4 text-sm text-zinc-500">
               {this.state.error?.message ?? "Неизвестная ошибка"}

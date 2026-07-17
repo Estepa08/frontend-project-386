@@ -122,11 +122,11 @@ export function AdminAvailabilityPage() {
   }
 
   return (
-    <div>
+    <div data-container="page--availability">
       <h1 className="mb-6 text-2xl font-bold text-zinc-900">График работы</h1>
 
-      <div className="rounded-lg border border-zinc-200 bg-white">
-        <div className="grid grid-cols-[auto_1fr_1fr] gap-4 border-b border-zinc-100 px-6 py-3 text-sm font-medium text-zinc-500">
+      <div className="rounded-lg border border-zinc-200 bg-white" data-container="section--schedule">
+        <div className="grid grid-cols-[auto_1fr_1fr] gap-4 border-b border-zinc-100 px-6 py-3 text-sm font-medium text-zinc-500" data-container="schedule-header">
           <span>День</span>
           <span>Начало</span>
           <span>Конец</span>

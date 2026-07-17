@@ -59,10 +59,10 @@ export function AdminDashboard() {
   );
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6" data-container="page--dashboard">
       <h1 className="text-2xl font-bold text-zinc-900">Обзор</h1>
 
-      <div className="flex flex-wrap gap-3">
+      <div className="flex flex-wrap gap-3" data-container="actions--dashboard">
         <Button variant="outline" asChild>
           <Link to="/admin/meeting-types">
             <Plus className="mr-2 h-4 w-4" />
@@ -87,24 +87,24 @@ export function AdminDashboard() {
         <ErrorMessage message={allErrorObj?.message ?? "Ошибка загрузки данных"} />
       )}
 
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-3 gap-4" data-container="grid--stats">
         {isLoading ? (
           <div className="col-span-3">
             <PageSkeleton rows={3} />
           </div>
         ) : (
           <>
-            <div className="rounded-lg border border-zinc-200 bg-white p-4">
+            <div className="rounded-lg border border-zinc-200 bg-white p-4" data-container="stat-card--today">
               <p className="text-xs font-medium uppercase tracking-wide text-zinc-400">Сегодня</p>
               <p className="mt-1 text-2xl font-bold text-zinc-900">{stats.today}</p>
               <p className="text-xs text-zinc-500">подтверждённых встреч</p>
             </div>
-            <div className="rounded-lg border border-zinc-200 bg-white p-4">
+            <div className="rounded-lg border border-zinc-200 bg-white p-4" data-container="stat-card--week">
               <p className="text-xs font-medium uppercase tracking-wide text-zinc-400">Неделя</p>
               <p className="mt-1 text-2xl font-bold text-zinc-900">{stats.week}</p>
               <p className="text-xs text-zinc-500">подтверждённых встреч</p>
             </div>
-            <div className="rounded-lg border border-zinc-200 bg-white p-4">
+            <div className="rounded-lg border border-zinc-200 bg-white p-4" data-container="stat-card--cancelled">
               <p className="text-xs font-medium uppercase tracking-wide text-zinc-400">Отменено</p>
               <p className="mt-1 text-2xl font-bold text-red-600">{stats.cancelled}</p>
               <p className="text-xs text-zinc-500">на этой неделе</p>
@@ -113,7 +113,7 @@ export function AdminDashboard() {
         )}
       </div>
 
-      <div className="rounded-lg border border-zinc-200 bg-white p-5">
+      <div className="rounded-lg border border-zinc-200 bg-white p-5" data-container="section--today-meets">
         <h2 className="mb-4 text-sm font-semibold text-zinc-700">Сегодняшние встречи</h2>
 
         {isLoading && (
@@ -121,7 +121,7 @@ export function AdminDashboard() {
         )}
 
         {!isLoading && todayItems.length === 0 && (
-          <div className="flex flex-col items-center gap-3 py-12">
+          <div className="flex flex-col items-center gap-3 py-12" data-container="empty-state--today-meets">
             <Calendar className="h-10 w-10 text-zinc-300" />
             <p className="text-sm text-zinc-400">Нет встреч на сегодня</p>
             <Link
@@ -134,7 +134,7 @@ export function AdminDashboard() {
         )}
 
         {!isLoading && todayItems.length > 0 && (
-          <div className="space-y-2">
+          <div className="space-y-2" data-container="list--today-meets">
             {todayItems.map((meet) => (
               <div
                 key={meet.id}

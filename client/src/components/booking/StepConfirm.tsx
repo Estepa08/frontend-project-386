@@ -76,8 +76,8 @@ export function StepConfirm() {
   };
 
   return (
-    <div>
-      <div className="mb-6 rounded-lg border border-zinc-200 bg-white p-4 text-sm">
+    <div data-container="step--confirm">
+      <div className="mb-6 rounded-lg border border-zinc-200 bg-white p-4 text-sm" data-container="card--booking-summary">
         <p className="font-medium text-zinc-900">{admin?.name}</p>
         <p className="mt-1 text-zinc-600">
           {date && format(date, "d MMMM yyyy, EEEE", { locale: ru })} ·{" "}
@@ -90,7 +90,7 @@ export function StepConfirm() {
 
       {submitError && <ErrorMessage message={submitError} />}
 
-      <div className="space-y-4">
+      <div className="space-y-4" data-container="form--booking">
         <div>
           <label className="mb-1 block text-sm font-medium text-zinc-700">
             Тема <span className="text-red-500">*</span>

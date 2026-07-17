@@ -44,8 +44,8 @@ export function Header() {
   const closeMobile = useCallback(() => setMobileOpen(false), []);
 
   return (
-    <header className="relative border-b border-zinc-200 bg-white">
-      <div className="mx-auto flex h-14 max-w-7xl items-center justify-between px-4">
+    <header className="relative border-b border-zinc-200 bg-white" data-container="header">
+      <div className="mx-auto flex h-14 max-w-7xl items-center justify-between px-4" data-container="header--inner">
         <div className="flex items-center gap-3">
           <button
             className="md:hidden p-2 -ml-2 text-zinc-600 hover:text-zinc-900"
@@ -89,7 +89,7 @@ export function Header() {
       </div>
 
       {mobileOpen && (
-        <div className="md:hidden absolute left-0 right-0 top-14 z-50 border-b border-zinc-200 bg-white px-4 py-4 shadow-lg">
+        <div className="md:hidden absolute left-0 right-0 top-14 z-50 border-b border-zinc-200 bg-white px-4 py-4 shadow-lg" data-container="header--mobile-menu">
           {role === "admin" && (
             <nav className="flex flex-col gap-3 text-sm">
               <NavItem to="/admin" end onClick={closeMobile}>Обзор</NavItem>

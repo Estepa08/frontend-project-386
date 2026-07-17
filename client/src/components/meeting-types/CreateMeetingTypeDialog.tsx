@@ -50,12 +50,12 @@ export function CreateMeetingTypeDialog({ adminId, existingTypes }: CreateMeetin
       <DialogTrigger asChild>
         <Button>Создать</Button>
       </DialogTrigger>
-      <DialogContent>
+      <DialogContent data-container="dialog--create-meeting-type">
         <DialogHeader>
           <DialogTitle>Создать тип встречи</DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-4">
+        <div className="space-y-4" data-container="form--meeting-type">
           {createMutation.isError && (
             <ErrorMessage
               message={createMutation.error?.message ?? "Ошибка при создании"}

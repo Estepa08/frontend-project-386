@@ -16,12 +16,12 @@ export function StepSelectAdmin() {
   }
 
   return (
-    <div>
+    <div data-container="step--select-admin">
       <h2 className="mb-6 text-lg font-semibold text-zinc-900">
         Выберите организатора
       </h2>
 
-      <div className="space-y-3">
+      <div className="space-y-3" data-container="list--admins">
         {(admins ?? []).map((admin) => (
           <button
             key={admin.id}

@@ -61,14 +61,14 @@ export function AdminMeetingTypesPage() {
   }
 
   return (
-    <div>
-      <div className="mb-6 flex items-center justify-between">
+    <div data-container="page--meeting-types">
+      <div className="mb-6 flex items-center justify-between" data-container="page-header--meeting-types">
         <h1 className="text-2xl font-bold text-zinc-900">Типы встреч</h1>
         <CreateMeetingTypeDialog adminId={adminId} existingTypes={items} />
       </div>
 
       {items.length === 0 && (
-        <div className="flex flex-col items-center gap-4 py-16">
+        <div className="flex flex-col items-center gap-4 py-16" data-container="empty-state--meeting-types">
           <CalendarX className="h-12 w-12 text-zinc-300" />
           <p className="text-sm text-zinc-400">Нет типов встреч</p>
           <p className="text-xs text-zinc-300">
@@ -86,11 +86,12 @@ export function AdminMeetingTypesPage() {
       )}
 
       {items.length > 0 && (
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3" data-container="grid--meeting-types">
           {items.map((type) => (
             <div
               key={type.id}
               className="rounded-lg border border-zinc-200 bg-white p-4"
+              data-container="card--meeting-type"
             >
               <div className="mb-3 flex items-start justify-between">
                 <div>

@@ -45,10 +45,10 @@ export function MeetsList({ title, role, nameField, nameColumnLabel }: MeetsList
   const hasMore = pageItems.length < items.length;
 
   return (
-    <div>
+    <div data-container="page--meets">
       <h1 className="mb-6 text-2xl font-bold text-zinc-900">{title}</h1>
 
-      <div className="mb-4 flex flex-wrap items-center gap-3">
+      <div className="mb-4 flex flex-wrap items-center gap-3" data-container="filters--meets">
         <div className="flex gap-1 rounded-lg border border-zinc-200 p-0.5">
           {STATUS_OPTIONS.map((opt) => (
             <button
@@ -93,7 +93,7 @@ export function MeetsList({ title, role, nameField, nameColumnLabel }: MeetsList
       )}
 
       {!isLoading && !isError && items.length === 0 && (
-        <div className="flex flex-col items-center gap-4 py-16">
+        <div className="flex flex-col items-center gap-4 py-16" data-container="empty-state--meets">
           <CalendarX className="h-12 w-12 text-zinc-300" />
           <p className="text-sm text-zinc-400">Нет встреч</p>
         </div>
@@ -101,7 +101,7 @@ export function MeetsList({ title, role, nameField, nameColumnLabel }: MeetsList
 
       {!isLoading && !isError && items.length > 0 && (
         <>
-          <div className="hidden md:block overflow-hidden rounded-lg border border-zinc-200">
+          <div className="hidden md:block overflow-hidden rounded-lg border border-zinc-200" data-container="table--meets">
             <table className="w-full text-sm">
               <thead className="bg-zinc-50">
                 <tr>
@@ -137,7 +137,7 @@ export function MeetsList({ title, role, nameField, nameColumnLabel }: MeetsList
 
           <div className="md:hidden space-y-3">
             {pageItems.map((meet) => (
-              <div key={meet.id} className="rounded-lg border border-zinc-200 p-4 space-y-2">
+              <div key={meet.id} className="rounded-lg border border-zinc-200 p-4 space-y-2" data-container="card--mobile-meet">
                 <div className="flex justify-between">
                   <span className="font-medium text-zinc-900">{formatDate(meet.startTime)}</span>
                   <StatusBadge status={meet.status} />
@@ -155,7 +155,7 @@ export function MeetsList({ title, role, nameField, nameColumnLabel }: MeetsList
           </div>
 
           {hasMore && (
-            <div className="mt-4 text-center">
+            <div className="mt-4 text-center" data-container="pagination--meets">
               <button
                 onClick={() => setPage((p) => p + 1)}
                 className="rounded-lg border border-zinc-200 px-6 py-2 text-sm font-medium text-zinc-600 hover:bg-zinc-50 hover:text-zinc-900"

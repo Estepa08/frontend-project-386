@@ -68,7 +68,7 @@ export function MeetDetailPage() {
   const endDate = new Date(meet.endTime);
 
   return (
-    <div className="max-w-xl">
+    <div className="max-w-xl" data-container="page--meet-detail">
       <Button variant="ghost" size="sm" onClick={() => navigate(-1)} className="mb-4">
         <ArrowLeft className="mr-1 h-4 w-4" />
         Назад

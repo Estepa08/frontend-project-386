@@ -13,7 +13,7 @@ const STEPS = [
 
 function StepIndicator({ step }: { step: number }) {
   return (
-    <div className="mb-8 flex items-center justify-center gap-0">
+    <div className="mb-8 flex items-center justify-center gap-0" data-container="step-indicator">
       {STEPS.map((s, i) => {
         const isActive = step === s.num;
         const isDone = step > s.num;
@@ -58,7 +58,7 @@ export function BookingWizard() {
   const { step } = useBooking();
 
   return (
-    <div className="mx-auto max-w-3xl">
+    <div className="mx-auto max-w-3xl" data-container="booking-wizard">
       <StepIndicator step={step} />
 
       {step === 1 && <StepSelectAdmin />}
