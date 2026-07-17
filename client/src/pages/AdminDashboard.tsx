@@ -7,6 +7,7 @@ import { useMeets } from "@/hooks/meets";
 import { ErrorMessage } from "@/components/ui/error-message";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { Button } from "@/components/ui/button";
+import { PageSkeleton } from "@/components/ui/page-skeleton";
 import type { components } from "@/api/generated/schema";
 
 type Meet = components["schemas"]["Meet"] & {
@@ -67,11 +68,9 @@ export function AdminDashboard() {
 
       <div className="grid grid-cols-3 gap-4">
         {isLoading ? (
-          <>
-            <div className="h-20 animate-pulse rounded-lg bg-zinc-100" />
-            <div className="h-20 animate-pulse rounded-lg bg-zinc-100" />
-            <div className="h-20 animate-pulse rounded-lg bg-zinc-100" />
-          </>
+          <div className="col-span-3">
+            <PageSkeleton rows={3} />
+          </div>
         ) : (
           <>
             <div className="rounded-lg border border-zinc-200 bg-white p-4">
@@ -97,15 +96,16 @@ export function AdminDashboard() {
         <h2 className="mb-4 text-sm font-semibold text-zinc-700">Сегодняшние встречи</h2>
 
         {isLoading && (
-          <p className="py-8 text-center text-sm text-zinc-400">Загрузка...</p>
+          <PageSkeleton rows={4} />
         )}
 
         {!isLoading && todayItems.length === 0 && (
-          <div className="py-8 text-center">
+          <div className="flex flex-col items-center gap-3 py-12">
+            <Calendar className="h-10 w-10 text-zinc-300" />
             <p className="text-sm text-zinc-400">Нет встреч на сегодня</p>
             <Link
               to="/admin/meets"
-              className="mt-2 inline-block text-sm font-medium text-zinc-600 hover:text-zinc-900"
+              className="text-sm font-medium text-zinc-600 hover:text-zinc-900"
             >
               → Все встречи
             </Link>

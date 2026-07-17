@@ -22,7 +22,7 @@ export function useAdmins(): UseQueryResult<Admin[]> {
 
 export function useMeetingTypes(adminId?: string): UseQueryResult<MeetingType[]> {
   return useQuery({
-    queryKey: ["meeting-types", adminId],
+    queryKey: ["booking-meeting-types", adminId],
     queryFn: () => fetchMeetingTypes(adminId!),
     enabled: !!adminId,
   });

@@ -9,8 +9,9 @@ import { CreateMeetingTypeDialog } from "@/components/meeting-types/CreateMeetin
 import { Switch } from "@/components/ui/switch";
 import { ErrorMessage } from "@/components/ui/error-message";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
-import { Trash2 } from "lucide-react";
+import { Trash2, CalendarX } from "lucide-react";
 import { CATEGORY_LABELS } from "@/lib/booking";
+import { PageSkeleton } from "@/components/ui/page-skeleton";
 import type { components } from "@/api/generated/schema";
 
 type MeetingType = components["schemas"]["MeetingType"];
@@ -32,15 +33,18 @@ export function AdminMeetingTypesPage() {
   const updatingId = updateMutation.isPending
     ? updateMutation.variables?.id
     : null;
+  const updatingField = updateMutation.isPending
+    ? updateMutation.variables?.visible !== undefined
+      ? "visible"
+      : updateMutation.variables?.allowGuestInvite !== undefined
+        ? "allowGuestInvite"
+        : null
+    : null;
 
   const items: MeetingType[] = Array.isArray(types) ? types : [];
 
   if (isLoading) {
-    return (
-      <div className="py-10 text-center text-sm text-zinc-400">
-        Загрузка...
-      </div>
-    );
+    return <PageSkeleton rows={6} />;
   }
 
   if (isError) {
@@ -64,10 +68,10 @@ export function AdminMeetingTypesPage() {
       </div>
 
       {items.length === 0 && (
-        <div className="py-10 text-center">
-          <p className="mb-4 text-sm text-zinc-400">
-            Нет типов встреч. Создайте первый.
-          </p>
+        <div className="flex flex-col items-center gap-4 py-16">
+          <CalendarX className="h-12 w-12 text-zinc-300" />
+          <p className="text-sm text-zinc-400">Нет типов встреч</p>
+          <CreateMeetingTypeDialog adminId={adminId} />
         </div>
       )}
 
@@ -116,7 +120,9 @@ export function AdminMeetingTypesPage() {
                       })
                     }
                     disabled={
-                      updateMutation.isPending && updatingId !== type.id
+                      updateMutation.isPending &&
+                      updatingId === type.id &&
+                      updatingField === "visible"
                     }
                   />
                 </div>
@@ -131,7 +137,9 @@ export function AdminMeetingTypesPage() {
                       })
                     }
                     disabled={
-                      updateMutation.isPending && updatingId !== type.id
+                      updateMutation.isPending &&
+                      updatingId === type.id &&
+                      updatingField === "allowGuestInvite"
                     }
                   />
                 </div>

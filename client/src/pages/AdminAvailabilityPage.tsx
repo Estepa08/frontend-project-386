@@ -4,6 +4,7 @@ import { useAvailability, useUpdateAvailability } from "@/hooks/availability";
 import { Button } from "@/components/ui/button";
 import { ErrorMessage } from "@/components/ui/error-message";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+import { PageSkeleton } from "@/components/ui/page-skeleton";
 import { ScheduleItemRow } from "@/components/availability/ScheduleItemRow";
 import { DEFAULT_START, DEFAULT_END } from "@/api/availability";
 import type { components } from "@/api/generated/schema";
@@ -97,11 +98,7 @@ export function AdminAvailabilityPage() {
   }, [schedule]);
 
   if (isLoading) {
-    return (
-      <div className="py-10 text-center text-sm text-zinc-400">
-        Загрузка...
-      </div>
-    );
+    return <PageSkeleton rows={7} />;
   }
 
   if (isError) {

@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { ErrorMessage } from "@/components/ui/error-message";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+import { PageSkeleton } from "@/components/ui/page-skeleton";
 import { CLIPBOARD_FEEDBACK_DURATION } from "@/lib/utils";
 
 export function MeetDetailPage() {
@@ -36,9 +37,7 @@ export function MeetDetailPage() {
   };
 
   if (isLoading) {
-    return (
-      <p className="py-10 text-center text-sm text-zinc-400">Загрузка...</p>
-    );
+    return <PageSkeleton rows={4} />;
   }
 
   if (isError) {

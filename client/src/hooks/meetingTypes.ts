@@ -32,8 +32,8 @@ export function useUpdateMeetingType(adminId: string): UseMutationResult<
       ...body
     }: { id: number } & Partial<api.MeetingType>) =>
       api.updateMeetingType(id, body),
-    onMutate: async ({ id, ...body }) => {
-      await queryClient.cancelQueries({
+    onMutate: ({ id, ...body }) => {
+      queryClient.cancelQueries({
         queryKey: ["meeting-types", adminId],
       });
       const previous = queryClient.getQueryData<api.MeetingType[]>([

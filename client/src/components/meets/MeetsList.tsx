@@ -4,7 +4,9 @@ import { useAuth } from "@/store/auth";
 import { useMeets, useCancelMeet } from "@/hooks/meets";
 import { ErrorMessage } from "@/components/ui/error-message";
 import { StatusBadge } from "@/components/ui/status-badge";
+import { PageSkeleton } from "@/components/ui/page-skeleton";
 import { formatDate } from "@/lib/utils";
+import { CalendarX } from "lucide-react";
 import type { components } from "@/api/generated/schema";
 
 type Meet = components["schemas"]["Meet"] & {
@@ -39,6 +41,11 @@ export function MeetsList({ title, role, nameField, nameColumnLabel }: MeetsList
 
   const items: Meet[] = Array.isArray(meets) ? meets : [];
 
+  const [page, setPage] = useState(1);
+  const PAGE_SIZE = 20;
+  const pageItems = items.slice(0, page * PAGE_SIZE);
+  const hasMore = pageItems.length < items.length;
+
   return (
     <div>
       <h1 className="mb-6 text-2xl font-bold text-zinc-900">{title}</h1>
@@ -48,7 +55,7 @@ export function MeetsList({ title, role, nameField, nameColumnLabel }: MeetsList
           {STATUS_OPTIONS.map((opt) => (
             <button
               key={opt.value}
-              onClick={() => setStatusFilter(opt.value)}
+              onClick={() => { setStatusFilter(opt.value); setPage(1); }}
               className={`rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
                 statusFilter === opt.value
                   ? "bg-zinc-900 text-white"
@@ -78,7 +85,7 @@ export function MeetsList({ title, role, nameField, nameColumnLabel }: MeetsList
       </div>
 
       {isLoading && (
-        <p className="py-10 text-center text-sm text-zinc-400">Загрузка...</p>
+        <PageSkeleton rows={5} />
       )}
 
       {isError && (
@@ -86,43 +93,78 @@ export function MeetsList({ title, role, nameField, nameColumnLabel }: MeetsList
       )}
 
       {!isLoading && !isError && items.length === 0 && (
-        <p className="py-10 text-center text-sm text-zinc-400">Нет встреч</p>
+        <div className="flex flex-col items-center gap-4 py-16">
+          <CalendarX className="h-12 w-12 text-zinc-300" />
+          <p className="text-sm text-zinc-400">Нет встреч</p>
+        </div>
       )}
 
       {!isLoading && !isError && items.length > 0 && (
-        <div className="overflow-hidden rounded-lg border border-zinc-200">
-          <table className="w-full text-sm">
-            <thead className="bg-zinc-50">
-              <tr>
-                <th className="px-4 py-3 text-left font-medium text-zinc-500">Дата / время</th>
-                <th className="px-4 py-3 text-left font-medium text-zinc-500">{nameColumnLabel}</th>
-                <th className="px-4 py-3 text-left font-medium text-zinc-500">Тема</th>
-                <th className="px-4 py-3 text-left font-medium text-zinc-500">Статус</th>
-                <th className="px-4 py-3" />
-              </tr>
-            </thead>
-            <tbody>
-              {items.map((meet) => (
-                <tr key={meet.id} className="border-t border-zinc-100">
-                  <td className="px-4 py-3 text-zinc-900">{formatDate(meet.startTime)}</td>
-                  <td className="px-4 py-3 text-zinc-600">{meet[nameField]}</td>
-                  <td className="px-4 py-3 text-zinc-600">{meet.theme}</td>
-                  <td className="px-4 py-3">
-                    <StatusBadge status={meet.status} />
-                  </td>
-                  <td className="px-4 py-3 text-right">
-                    <Link
-                      to={`/meets/${meet.id}`}
-                      className="text-sm font-medium text-zinc-600 hover:text-zinc-900"
-                    >
-                      Подробнее
-                    </Link>
-                  </td>
+        <>
+          <div className="hidden md:block overflow-hidden rounded-lg border border-zinc-200">
+            <table className="w-full text-sm">
+              <thead className="bg-zinc-50">
+                <tr>
+                  <th className="px-4 py-3 text-left font-medium text-zinc-500">Дата / время</th>
+                  <th className="px-4 py-3 text-left font-medium text-zinc-500">{nameColumnLabel}</th>
+                  <th className="px-4 py-3 text-left font-medium text-zinc-500">Тема</th>
+                  <th className="px-4 py-3 text-left font-medium text-zinc-500">Статус</th>
+                  <th className="px-4 py-3" />
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody>
+                {pageItems.map((meet) => (
+                  <tr key={meet.id} className="border-t border-zinc-100">
+                    <td className="px-4 py-3 text-zinc-900">{formatDate(meet.startTime)}</td>
+                    <td className="px-4 py-3 text-zinc-600">{meet[nameField]}</td>
+                    <td className="px-4 py-3 text-zinc-600">{meet.theme}</td>
+                    <td className="px-4 py-3">
+                      <StatusBadge status={meet.status} />
+                    </td>
+                    <td className="px-4 py-3 text-right">
+                      <Link
+                        to={`/meets/${meet.id}`}
+                        className="text-sm font-medium text-zinc-600 hover:text-zinc-900"
+                      >
+                        Подробнее
+                      </Link>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          <div className="md:hidden space-y-3">
+            {pageItems.map((meet) => (
+              <div key={meet.id} className="rounded-lg border border-zinc-200 p-4 space-y-2">
+                <div className="flex justify-between">
+                  <span className="font-medium text-zinc-900">{formatDate(meet.startTime)}</span>
+                  <StatusBadge status={meet.status} />
+                </div>
+                <p className="text-sm text-zinc-600">{meet[nameField]}</p>
+                <p className="text-sm text-zinc-600">{meet.theme}</p>
+                <Link
+                  to={`/meets/${meet.id}`}
+                  className="text-sm font-medium text-zinc-600 hover:text-zinc-900"
+                >
+                  Подробнее →
+                </Link>
+              </div>
+            ))}
+          </div>
+
+          {hasMore && (
+            <div className="mt-4 text-center">
+              <button
+                onClick={() => setPage((p) => p + 1)}
+                className="rounded-lg border border-zinc-200 px-6 py-2 text-sm font-medium text-zinc-600 hover:bg-zinc-50 hover:text-zinc-900"
+              >
+                Показать ещё
+              </button>
+            </div>
+          )}
+        </>
       )}
 
       {cancelMutation.isError && (
