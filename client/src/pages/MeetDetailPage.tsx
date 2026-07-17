@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 import { Check, Copy, ArrowLeft, AlertCircle } from "lucide-react";
 import { useMeet, useCancelMeet } from "@/hooks/meets";
 import { Button } from "@/components/ui/button";
@@ -18,6 +19,12 @@ export function MeetDetailPage() {
   const meetId = id ? Number(id) : undefined;
   const { data: meet, isLoading, isError, error } = useMeet(meetId);
   const cancelMutation = useCancelMeet();
+
+  useEffect(() => {
+    if (cancelMutation.isSuccess) {
+      toast.success("Встреча отменена");
+    }
+  }, [cancelMutation.isSuccess]);
 
   const handleCopyLink = async () => {
     if (!meet?.inviteLink) return;
@@ -139,9 +146,14 @@ export function MeetDetailPage() {
         <div>
           <p className="text-xs font-medium uppercase tracking-wide text-zinc-400">Ссылка-приглашение</p>
           <div className="mt-1 flex items-center gap-2">
-            <code className="flex-1 truncate rounded bg-zinc-100 px-2 py-1 text-sm text-zinc-700">
+            <a
+              href={meet.inviteLink}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex-1 truncate rounded bg-zinc-100 px-2 py-1 text-sm text-zinc-700 hover:bg-zinc-200"
+            >
               {meet.inviteLink}
-            </code>
+            </a>
             <Button variant="outline" size="sm" onClick={handleCopyLink}>
               {copied ? (
                 <Check className="h-4 w-4 text-green-600" />
@@ -172,12 +184,6 @@ export function MeetDetailPage() {
             </div>
           )}
 
-          {cancelMutation.isSuccess && (
-            <div className="mt-3 flex items-center gap-2 text-sm text-green-600">
-              <Check className="h-4 w-4" />
-              Встреча отменена
-            </div>
-          )}
         </div>
       )}
 

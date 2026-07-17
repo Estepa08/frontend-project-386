@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "@/store/auth";
-import { useMeets, useCancelMeet } from "@/hooks/meets";
+import { useMeets } from "@/hooks/meets";
 import { ErrorMessage } from "@/components/ui/error-message";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { PageSkeleton } from "@/components/ui/page-skeleton";
@@ -37,8 +37,6 @@ export function MeetsList({ title, role, nameField, nameColumnLabel }: MeetsList
     date: dateFilter || undefined,
   });
 
-  const cancelMutation = useCancelMeet();
-
   const items: Meet[] = Array.isArray(meets) ? meets : [];
 
   const [page, setPage] = useState(1);
@@ -67,7 +65,9 @@ export function MeetsList({ title, role, nameField, nameColumnLabel }: MeetsList
           ))}
         </div>
 
+        <label htmlFor="date-filter" className="sr-only">Фильтр по дате</label>
         <input
+          id="date-filter"
           type="date"
           value={dateFilter}
           onChange={(e) => setDateFilter(e.target.value)}
@@ -167,13 +167,6 @@ export function MeetsList({ title, role, nameField, nameColumnLabel }: MeetsList
         </>
       )}
 
-      {cancelMutation.isError && (
-        <div className="mt-4">
-          <ErrorMessage
-            message={cancelMutation.error?.message ?? "Ошибка при отмене встречи"}
-          />
-        </div>
-      )}
     </div>
   );
 }

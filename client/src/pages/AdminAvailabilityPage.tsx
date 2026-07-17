@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { toast } from "sonner";
 import { useAuth } from "@/store/auth";
 import { useAvailability, useUpdateAvailability } from "@/hooks/availability";
 import { Button } from "@/components/ui/button";
@@ -61,6 +62,12 @@ export function AdminAvailabilityPage() {
     error,
   } = useAvailability(adminId);
   const mutation = useUpdateAvailability(adminId);
+
+  useEffect(() => {
+    if (mutation.isSuccess) {
+      toast.success("График сохранён");
+    }
+  }, [mutation.isSuccess]);
 
   const [schedule, setSchedule] = useState<ScheduleItem[]>(defaultSchedule);
   const [initialized, setInitialized] = useState(false);
@@ -191,10 +198,6 @@ export function AdminAvailabilityPage() {
       >
         {mutation.isPending ? "Сохранение..." : "Сохранить"}
       </Button>
-
-      {mutation.isSuccess && (
-        <p className="mt-2 text-sm text-green-600">График сохранён</p>
-      )}
 
       {mutation.isError && (
         <div className="mt-2">
