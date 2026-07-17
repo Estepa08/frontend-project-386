@@ -11,7 +11,10 @@ function getDayOfWeek(date: Date): string {
 }
 
 function toDateStr(date: Date): string {
-  return date.toISOString().slice(0, 10);
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, "0");
+  const d = String(date.getDate()).padStart(2, "0");
+  return `${y}-${m}-${d}`;
 }
 
 function parseTime(timeStr: string): number {
@@ -23,6 +26,12 @@ function addMinutes(date: Date, minutes: number): Date {
   const d = new Date(date);
   d.setMinutes(d.getMinutes() + minutes);
   return d;
+}
+
+function toTimeStr(date: Date): string {
+  const h = String(date.getHours()).padStart(2, "0");
+  const m = String(date.getMinutes()).padStart(2, "0");
+  return `${h}:${m}`;
 }
 
 export async function getAvailableDates(
@@ -181,8 +190,8 @@ export async function getSlots(
 
       if (!conflict) {
         slots.push({
-          startTime: slotStart.toISOString(),
-          endTime: slotEnd.toISOString(),
+          startTime: toTimeStr(slotStart),
+          endTime: toTimeStr(slotEnd),
         });
       }
     }
