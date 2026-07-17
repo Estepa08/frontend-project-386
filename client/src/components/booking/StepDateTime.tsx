@@ -6,13 +6,6 @@ import { useBooking } from "@/store/booking";
 import { cn } from "@/lib/utils";
 import { categoryLabel } from "@/lib/booking";
 import { useMeetingTypes, useAvailableDates, useSlots } from "@/hooks/booking";
-import {
-  Select,
-  SelectTrigger,
-  SelectContent,
-  SelectItem,
-  SelectValue,
-} from "@/components/ui/select";
 import { ErrorMessage } from "@/components/ui/error-message";
 import { StepNav } from "./StepNav";
 
@@ -54,24 +47,26 @@ export function StepDateTime() {
       {types && types.length > 0 && (
         <div className="mb-6">
           <p className="mb-1.5 text-sm font-medium text-zinc-700">Тип встречи</p>
-          <Select
-            value={meetingType ? String(meetingType.id) : ""}
-            onValueChange={(val) => {
-              const found = types.find((typeItem) => typeItem.id === Number(val));
-              if (found) setMeetingType(found);
-            }}
-          >
-            <SelectTrigger className="w-60">
-              <SelectValue placeholder="Выберите тип" />
-            </SelectTrigger>
-            <SelectContent>
-              {types.map((typeItem) => (
-                <SelectItem key={typeItem.id} value={String(typeItem.id)}>
-                  {typeItem.duration} мин · {categoryLabel(typeItem.category)}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <div className="flex flex-wrap gap-3">
+            {types.map((typeItem) => {
+              const isSelected = meetingType?.id === typeItem.id;
+              return (
+                <button
+                  key={typeItem.id}
+                  onClick={() => setMeetingType(typeItem)}
+                  className={cn(
+                    "rounded-lg border px-4 py-3 text-left transition-colors",
+                    isSelected
+                      ? "border-zinc-900 bg-zinc-50 ring-1 ring-zinc-900"
+                      : "border-zinc-200 bg-white hover:border-zinc-300",
+                  )}
+                >
+                  <p className="text-sm font-medium text-zinc-900">{typeItem.duration} мин</p>
+                  <p className="text-xs text-zinc-500">{categoryLabel(typeItem.category)}</p>
+                </button>
+              );
+            })}
+          </div>
         </div>
       )}
 
