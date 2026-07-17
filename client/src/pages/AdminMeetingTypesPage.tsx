@@ -64,7 +64,7 @@ export function AdminMeetingTypesPage() {
     <div>
       <div className="mb-6 flex items-center justify-between">
         <h1 className="text-2xl font-bold text-zinc-900">Типы встреч</h1>
-        <CreateMeetingTypeDialog adminId={adminId} existingTypes={items} />
+        <CreateMeetingTypeDialog adminId={adminId} existingTypes={items} animated />
       </div>
 
       {items.length === 0 && (

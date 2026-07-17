@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { NavLink, useNavigate } from "react-router-dom";
+import { useState, useCallback, useEffect } from "react";
+import { NavLink, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/store/auth";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -29,41 +29,54 @@ function NavItem({ to, end, children, onClick }: { to: string; end?: boolean; ch
 export function Header() {
   const { role, user, logout } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const [mobileOpen, setMobileOpen] = useState(false);
+
+  useEffect(() => {
+    setMobileOpen(false);
+  }, [location.pathname]);
 
   const handleLogout = () => {
     logout();
     navigate("/login");
   };
 
-  const closeMobile = () => setMobileOpen(false);
+  const closeMobile = useCallback(() => setMobileOpen(false), []);
 
   return (
-    <header className="border-b border-zinc-200 bg-white">
+    <header className="relative border-b border-zinc-200 bg-white">
       <div className="mx-auto flex h-14 max-w-7xl items-center justify-between px-4">
-        <div className="flex items-center gap-6">
+        <div className="flex items-center gap-3">
+          <button
+            className="md:hidden p-2 -ml-2 text-zinc-600 hover:text-zinc-900"
+            onClick={() => setMobileOpen((o) => !o)}
+            aria-label="Меню"
+          >
+            {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+          </button>
+
           <NavLink to="/" end className="text-lg font-bold tracking-tight text-zinc-900">
             Meetly
           </NavLink>
-
-          {role === "admin" && (
-            <nav className="hidden md:flex items-center gap-4 text-sm">
-              <NavItem to="/admin" end>Обзор</NavItem>
-              <NavItem to="/admin/meeting-types">Типы встреч</NavItem>
-              <NavItem to="/admin/availability">График</NavItem>
-              <NavItem to="/admin/meets">Встречи</NavItem>
-            </nav>
-          )}
-
-          {role === "user" && (
-            <nav className="hidden md:flex items-center gap-4 text-sm">
-              <NavItem to="/booking">Забронировать</NavItem>
-              <NavItem to="/user/meets">Мои встречи</NavItem>
-            </nav>
-          )}
         </div>
 
-        <div className="hidden md:flex items-center gap-3">
+        {role === "admin" && (
+          <nav className="hidden md:flex items-center gap-4 text-sm">
+            <NavItem to="/admin" end>Обзор</NavItem>
+            <NavItem to="/admin/meeting-types">Типы встреч</NavItem>
+            <NavItem to="/admin/availability">График</NavItem>
+            <NavItem to="/admin/meets">Встречи</NavItem>
+          </nav>
+        )}
+
+        {role === "user" && (
+          <nav className="hidden md:flex items-center gap-4 text-sm">
+            <NavItem to="/booking">Забронировать</NavItem>
+            <NavItem to="/user/meets">Мои встречи</NavItem>
+          </nav>
+        )}
+
+        <div className="flex items-center gap-3">
           {user && (
             <span className="text-sm text-zinc-500">{user.name}</span>
           )}
@@ -73,18 +86,10 @@ export function Header() {
             </Button>
           )}
         </div>
-
-        <button
-          className="md:hidden p-2 text-zinc-600 hover:text-zinc-900"
-          onClick={() => setMobileOpen((o) => !o)}
-          aria-label="Меню"
-        >
-          {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-        </button>
       </div>
 
       {mobileOpen && (
-        <div className="md:hidden border-t border-zinc-200 bg-white px-4 py-4 space-y-3">
+        <div className="md:hidden absolute left-0 right-0 top-14 z-50 border-b border-zinc-200 bg-white px-4 py-4 shadow-lg">
           {role === "admin" && (
             <nav className="flex flex-col gap-3 text-sm">
               <NavItem to="/admin" end onClick={closeMobile}>Обзор</NavItem>
@@ -100,17 +105,6 @@ export function Header() {
               <NavItem to="/user/meets" onClick={closeMobile}>Мои встречи</NavItem>
             </nav>
           )}
-
-          <div className="flex items-center gap-3 pt-2 border-t border-zinc-100">
-            {user && (
-              <span className="text-sm text-zinc-500">{user.name}</span>
-            )}
-            {role && (
-              <Button variant="ghost" size="sm" onClick={handleLogout}>
-                Выйти
-              </Button>
-            )}
-          </div>
         </div>
       )}
     </header>

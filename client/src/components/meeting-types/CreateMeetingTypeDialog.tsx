@@ -20,9 +20,10 @@ type MeetingType = components["schemas"]["MeetingType"];
 interface CreateMeetingTypeDialogProps {
   adminId: string;
   existingTypes: MeetingType[];
+  animated?: boolean;
 }
 
-export function CreateMeetingTypeDialog({ adminId, existingTypes }: CreateMeetingTypeDialogProps) {
+export function CreateMeetingTypeDialog({ adminId, existingTypes, animated }: CreateMeetingTypeDialogProps) {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [form, setForm] = useState<MeetingTypeInput>({
     duration: 15,
@@ -48,7 +49,7 @@ export function CreateMeetingTypeDialog({ adminId, existingTypes }: CreateMeetin
   return (
     <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
       <DialogTrigger asChild>
-        <Button>Создать</Button>
+        <Button className={animated ? "animate-pulse" : undefined}>Создать</Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
