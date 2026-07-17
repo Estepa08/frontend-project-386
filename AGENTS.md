@@ -84,3 +84,45 @@ SPA для бронирования видеовстреч. Две роли: **A
 
 - Schema-first / contract-first: сначала описывается контракт (`main.tsp` → OpenAPI → `openapi-typescript`), потом реализация.
 - Спецификация и критерии приёмки — до написания кода (TDD/BDD/acceptance criteria), а не после.
+
+### 7. Conventional Commits
+
+Формат коммитов для Release Please:
+
+```
+<type>(<scope>): <описание>
+```
+
+**Типы и влияние на версию (SemVer):**
+
+| Type | Bump | Changelog |
+|------|------|-----------|
+| `feat` | minor | Features |
+| `fix` | patch | Bug Fixes |
+| `perf` | patch | Performance Improvements |
+| `refactor` | patch | Refactors |
+| `test` | patch | Tests |
+| `ci` | patch (no release) | Continuous Integration |
+| `docs` | — (hidden) | — |
+| `chore` | — (hidden) | — |
+
+**Scope** указывает пакет:
+- `feat(client):` — только `client/`
+- `fix(server):` — только `server/`
+- `feat:`, `fix:` (без scope) — изменения в корне (opencode.json, Makefile, .github/), релиз обоих пакетов.
+
+Breaking change — суффикс `!` или `BREAKING CHANGE:` в теле коммита.
+
+**Правила для агента:**
+- Каждый коммит начинается с типа и scope
+- Scope обязателен, если изменения только в одном пакете
+- BREAKING CHANGE только при сознательном ломающем изменении публичного API
+- Не смешивать изменения разных пакетов в одном коммите
+
+### 8. Release Please
+
+Автоматическое версионирование через `.github/workflows/release-please.yml`:
+
+- При пуше в `main` создаётся/обновляется Release PR с CHANGELOG и бампом версии
+- После мержа Release PR создаются GitHub Release и git-теги (`client-v*`, `server-v*`)
+- Версии управляются из `.release-please-manifest.json` (не редактировать вручную)

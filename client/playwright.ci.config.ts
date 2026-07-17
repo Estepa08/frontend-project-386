@@ -12,7 +12,7 @@ export default defineConfig({
     trace: "on-first-retry",
   },
   webServer: {
-    command: "VITE_USE_MOCK=true vite dev --port 4173",
+    command: "vite dev --port 4173",
     port: 4173,
     reuseExistingServer: false,
     cwd: ".",

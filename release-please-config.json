@@ -1,0 +1,26 @@
+{
+  "$schema": "https://raw.githubusercontent.com/googleapis/release-please/main/schemas/config.json",
+  "bump-minor-pre-major": true,
+  "include-v-in-tag": true,
+  "include-component-in-tag": true,
+  "tag-separator": "-",
+  "packages": {
+    "client": {
+      "release-type": "node",
+      "component": "client"
+    },
+    "server": {
+      "release-type": "node",
+      "component": "server"
+    }
+  },
+  "$comment": "For commit types not listed here, release-please uses default behavior (patch bump, included in changelog).",
+  "changelog-sections": [
+    { "type": "feat", "section": "Features" },
+    { "type": "fix", "section": "Bug Fixes" },
+    { "type": "perf", "section": "Performance Improvements" },
+    { "type": "refactor", "section": "Refactors" },
+    { "type": "docs", "hidden": true },
+    { "type": "chore", "hidden": true }
+  ]
+}

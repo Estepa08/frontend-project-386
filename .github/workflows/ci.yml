@@ -34,12 +34,6 @@ jobs:
       - name: Unit tests
         run: npm test
 
-      - name: Install Playwright browsers
-        run: npx playwright install --with-deps chromium
-
-      - name: E2E tests
-        run: npm run test:e2e:ci
-
   backend:
     runs-on: ubuntu-latest
 
@@ -64,3 +58,83 @@ jobs:
 
       - name: Run tests
         run: npm test
+
+  e2e:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: meetly
+          POSTGRES_PASSWORD: meetly
+          POSTGRES_DB: meetly_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Install server dependencies
+        run: npm ci
+        working-directory: server
+
+      - name: Generate Prisma client
+        run: npm run prisma:generate
+        working-directory: server
+
+      - name: Run database migrations
+        run: npx prisma migrate deploy
+        working-directory: server
+        env:
+          DATABASE_URL: postgres://meetly:meetly@localhost:5432/meetly_test
+
+      - name: Seed database
+        run: npx tsx prisma/seed.ts
+        working-directory: server
+        env:
+          DATABASE_URL: postgres://meetly:meetly@localhost:5432/meetly_test
+
+      - name: Start server
+        run: npx tsx src/index.ts &
+        working-directory: server
+        env:
+          PORT: 3001
+          DATABASE_URL: postgres://meetly:meetly@localhost:5432/meetly_test
+          JWT_SECRET: test-secret
+
+      - name: Install client dependencies
+        run: npm ci
+        working-directory: client
+
+      - name: Build client
+        run: npm run build
+        working-directory: client
+
+      - name: Preview client
+        run: npx vite preview --port 4173 &
+        working-directory: client
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+        working-directory: client
+
+      - name: Wait for services
+        run: |
+          npx wait-on http://localhost:3001/api http://localhost:4173 --timeout 60000
+        working-directory: client
+
+      - name: Run e2e tests
+        run: npx playwright test
+        working-directory: client
+        env:
+          CI: true
