@@ -4,6 +4,7 @@ import { RootLayout } from "@/components/layout/RootLayout";
 import { Toaster } from "@/components/ui/sonner";
 import {
   LoginPage,
+  RegisterPage,
   AdminDashboard,
   AdminAvailabilityPage,
   AdminMeetingTypesPage,
@@ -19,6 +20,7 @@ export default function App() {
     <>
       <Routes>
         <Route path="/login" element={<LoginPage />} />
+        <Route path="/register" element={<RegisterPage />} />
 
         <Route element={<AuthGuard />}>
           <Route element={<RootLayout />}>
@@ -29,6 +31,7 @@ export default function App() {
             <Route path="admin/meets" element={<AdminMeetsPage />} />
             <Route path="user" element={<Navigate to="/user/meets" replace />} />
             <Route path="user/meets" element={<UserMeetsPage />} />
+
             <Route path="booking" element={<BookingPage />} />
             <Route path="meets/:id" element={<MeetDetailPage />} />
           </Route>

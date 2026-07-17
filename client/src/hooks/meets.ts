@@ -3,8 +3,10 @@ import {
   fetchMeets,
   fetchMeetById,
   cancelMeet,
+  updateMeet,
   type MeetFilters,
   type MeetResult,
+  type MeetPatch,
 } from "@/api/meets";
 import type { UseQueryResult, UseMutationResult } from "@tanstack/react-query";
 import { REFETCH_INTERVAL } from "@/lib/utils";
@@ -27,6 +29,18 @@ export function useMeet(id?: number): UseQueryResult<MeetResult> {
     queryKey: ["meet", id],
     queryFn: () => fetchMeetById(id!),
     enabled: !!id,
+  });
+}
+
+export function useUpdateMeet(): UseMutationResult<MeetResult, Error, { id: number; body: MeetPatch }> {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ id, body }) => updateMeet(id, body),
+    onSuccess: (_data, { id }) => {
+      queryClient.invalidateQueries({ queryKey: ["meet", id] });
+      queryClient.invalidateQueries({ queryKey: ["meets"] });
+    },
   });
 }
 

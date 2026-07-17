@@ -2,6 +2,7 @@ import { request } from "./client";
 import type { components } from "@/api/generated/schema";
 
 export type Meet = components["schemas"]["Meet"];
+export type MeetPatch = components["schemas"]["MeetPatch"];
 
 export interface MeetResult extends Meet {
   adminName?: string;
@@ -38,5 +39,15 @@ export function cancelMeet(id: number): Promise<MeetResult> {
   return request<MeetResult>(`/api/meets/${id}`, {
     method: "PATCH",
     body: JSON.stringify({ status: "cancelled" }),
+  });
+}
+
+export function updateMeet(
+  id: number,
+  body: MeetPatch,
+): Promise<MeetResult> {
+  return request<MeetResult>(`/api/meets/${id}`, {
+    method: "PATCH",
+    body: JSON.stringify(body),
   });
 }

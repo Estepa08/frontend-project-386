@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "@/store/auth";
 import { login as apiLogin } from "@/api/auth";
 import { Button } from "@/components/ui/button";
@@ -84,6 +84,13 @@ export function LoginPage() {
             <span className="bg-white px-2">или</span>
           </div>
         </div>
+
+        <p className="mb-6 text-center text-sm text-zinc-500">
+          Нет аккаунта?{" "}
+          <Link to="/register" className="font-medium text-zinc-900 hover:underline">
+            Зарегистрироваться
+          </Link>
+        </p>
 
         <p className="mb-3 text-center text-xs text-zinc-500">
           Быстрый вход (без API)

@@ -73,6 +73,7 @@ export function Header() {
           <nav className="hidden md:flex items-center gap-4 text-sm">
             <NavItem to="/booking">Забронировать</NavItem>
             <NavItem to="/user/meets">Мои встречи</NavItem>
+
           </nav>
         )}
 
@@ -103,6 +104,7 @@ export function Header() {
             <nav className="flex flex-col gap-3 text-sm">
               <NavItem to="/booking" onClick={closeMobile}>Забронировать</NavItem>
               <NavItem to="/user/meets" onClick={closeMobile}>Мои встречи</NavItem>
+
             </nav>
           )}
         </div>

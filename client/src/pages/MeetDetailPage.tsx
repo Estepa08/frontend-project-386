@@ -1,9 +1,11 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
-import { Check, Copy, ArrowLeft, AlertCircle } from "lucide-react";
-import { useMeet, useCancelMeet } from "@/hooks/meets";
+import { Check, Copy, ArrowLeft, AlertCircle, Pencil, X } from "lucide-react";
+import { useMeet, useCancelMeet, useUpdateMeet } from "@/hooks/meets";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { ErrorMessage } from "@/components/ui/error-message";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
@@ -15,10 +17,24 @@ export function MeetDetailPage() {
   const navigate = useNavigate();
   const [copied, setCopied] = useState(false);
   const [showCancelDialog, setShowCancelDialog] = useState(false);
+  const [showEditDialog, setShowEditDialog] = useState(false);
 
   const meetId = id ? Number(id) : undefined;
   const { data: meet, isLoading, isError, error } = useMeet(meetId);
   const cancelMutation = useCancelMeet();
+  const updateMutation = useUpdateMeet();
+
+  const [editTheme, setEditTheme] = useState("");
+  const [editComment, setEditComment] = useState("");
+  const [editGuestEmails, setEditGuestEmails] = useState("");
+
+  useEffect(() => {
+    if (meet) {
+      setEditTheme(meet.theme);
+      setEditComment(meet.comment ?? "");
+      setEditGuestEmails((meet.guestEmails ?? []).join(", "));
+    }
+  }, [meet]);
 
   useEffect(() => {
     if (cancelMutation.isSuccess) {
@@ -32,8 +48,8 @@ export function MeetDetailPage() {
       await navigator.clipboard.writeText(meet.inviteLink);
       setCopied(true);
       setTimeout(() => setCopied(false), CLIPBOARD_FEEDBACK_DURATION);
-    } catch (clipboardError) {
-      console.warn("Failed to copy invite link:", clipboardError);
+    } catch {
+      console.warn("Failed to copy invite link");
     }
   };
 
@@ -41,6 +57,34 @@ export function MeetDetailPage() {
     if (!meetId) return;
     cancelMutation.mutate(meetId);
     setShowCancelDialog(false);
+  };
+
+  const handleEditSave = async () => {
+    if (!meetId || !meet) return;
+
+    const guestEmails = editGuestEmails
+      .split(",")
+      .map((e) => e.trim())
+      .filter(Boolean);
+
+    const body: { theme?: string; comment?: string; guestEmails?: string[] } = {};
+    if (editTheme !== meet.theme) body.theme = editTheme;
+    if (editComment !== (meet.comment ?? "")) body.comment = editComment || undefined;
+    const prevEmails = (meet.guestEmails ?? []).join(",");
+    if (guestEmails.join(",") !== prevEmails) body.guestEmails = guestEmails;
+
+    if (Object.keys(body).length === 0) {
+      setShowEditDialog(false);
+      return;
+    }
+
+    try {
+      await updateMutation.mutateAsync({ id: meetId, body });
+      toast.success("Встреча обновлена");
+      setShowEditDialog(false);
+    } catch {
+      toast.error("Ошибка при обновлении встречи");
+    }
   };
 
   if (isLoading) {
@@ -74,7 +118,15 @@ export function MeetDetailPage() {
         Назад
       </Button>
 
-      <h1 className="mb-6 text-2xl font-bold text-zinc-900">{meet.theme}</h1>
+      <div className="mb-6 flex items-center justify-between">
+        <h1 className="text-2xl font-bold text-zinc-900">{meet.theme}</h1>
+        {meet.status === "confirmed" && (
+          <Button variant="outline" size="sm" onClick={() => setShowEditDialog(true)}>
+            <Pencil className="mr-1 h-4 w-4" />
+            Редактировать
+          </Button>
+        )}
+      </div>
 
       <div className="space-y-4 rounded-lg border border-zinc-200 p-5">
         <div className="flex items-center justify-between">
@@ -166,7 +218,7 @@ export function MeetDetailPage() {
       </div>
 
       {meet.status === "confirmed" && (
-        <div className="mt-6">
+        <div className="mt-6 flex gap-3">
           <Button
             variant="outline"
             className="border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700"
@@ -178,12 +230,9 @@ export function MeetDetailPage() {
 
           {cancelMutation.isError && (
             <div className="mt-3">
-              <ErrorMessage
-                message={cancelMutation.error?.message ?? "Ошибка при отмене"}
-              />
+              <ErrorMessage message={cancelMutation.error?.message ?? "Ошибка при отмене"} />
             </div>
           )}
-
         </div>
       )}
 
@@ -202,6 +251,65 @@ export function MeetDetailPage() {
         confirmLabel="Отменить"
         onConfirm={handleCancelConfirm}
       />
+
+      {showEditDialog && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
+          onClick={() => setShowEditDialog(false)}
+        >
+          <div
+            className="mx-4 w-full max-w-md rounded-lg bg-white p-6 shadow-lg"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="mb-4 flex items-center justify-between">
+              <h2 className="text-lg font-semibold text-zinc-900">Редактировать встречу</h2>
+              <button
+                onClick={() => setShowEditDialog(false)}
+                className="text-zinc-400 hover:text-zinc-600"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+
+            <div className="space-y-4">
+              <div>
+                <Label className="mb-1 block">Тема</Label>
+                <Input
+                  type="text"
+                  value={editTheme}
+                  onChange={(e) => setEditTheme(e.target.value)}
+                />
+              </div>
+              <div>
+                <Label className="mb-1 block">Комментарий</Label>
+                <Input
+                  type="text"
+                  value={editComment}
+                  onChange={(e) => setEditComment(e.target.value)}
+                  placeholder="Необязательно"
+                />
+              </div>
+              <div>
+                <Label className="mb-1 block">Гости (email через запятую)</Label>
+                <Input
+                  type="text"
+                  value={editGuestEmails}
+                  onChange={(e) => setEditGuestEmails(e.target.value)}
+                  placeholder="guest@example.com, friend@example.com"
+                />
+              </div>
+              <div className="flex justify-end gap-2 pt-2">
+                <Button variant="outline" onClick={() => setShowEditDialog(false)}>
+                  Отмена
+                </Button>
+                <Button onClick={handleEditSave} disabled={updateMutation.isPending}>
+                  {updateMutation.isPending ? "Сохранение..." : "Сохранить"}
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
