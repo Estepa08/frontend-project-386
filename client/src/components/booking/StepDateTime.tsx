@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { DayPicker } from "react-day-picker";
+import { DayPicker, getDefaultClassNames } from "react-day-picker";
 import { ru } from "date-fns/locale";
 import { format } from "date-fns";
 import { useBooking } from "@/store/booking";
@@ -47,7 +47,7 @@ export function StepDateTime() {
       {types && types.length > 0 && (
         <div className="mb-6">
           <p className="mb-1.5 text-sm font-medium text-zinc-700">Тип встречи</p>
-          <div className="flex flex-wrap gap-3">
+          <div className="grid grid-cols-2 gap-3">
             {types.map((typeItem) => {
               const isSelected = meetingType?.id === typeItem.id;
               return (
@@ -74,70 +74,93 @@ export function StepDateTime() {
       {slotsError && <ErrorMessage message="Не удалось загрузить слоты" />}
       {typesError && <ErrorMessage message="Не удалось загрузить типы встреч" />}
 
-      {meetingType && (
-        <div className="flex flex-col gap-6 md:flex-row">
-          <DayPicker
-            mode="single"
-            selected={date ?? undefined}
-            onSelect={(selectedDate) => setDate(selectedDate ?? null)}
-            locale={ru}
-            month={month}
-            startMonth={new Date()}
-            modifiers={{
-              available: (day) => availableDatesSet.has(format(day, "yyyy-MM-dd")),
-            }}
-            modifiersStyles={{
-              available: { fontWeight: 600 },
-            }}
-            disabled={(day) =>
-              day < new Date(new Date().toDateString()) ||
-              !availableDatesSet.has(format(day, "yyyy-MM-dd"))
-            }
-            showOutsideDays={false}
-          />
+      <div className="min-h-[450px]">
+        {meetingType ? (
+          <div className="flex flex-col gap-6 md:flex-row">
+            <DayPicker
+              mode="single"
+              selected={date ?? undefined}
+              onSelect={(selectedDate) => setDate(selectedDate ?? null)}
+              locale={ru}
+              month={month}
+              startMonth={new Date()}
+              modifiers={{
+                available: (day) => availableDatesSet.has(format(day, "yyyy-MM-dd")),
+              }}
+              modifiersClassNames={{
+                available: "font-semibold",
+              }}
+              disabled={(day) =>
+                day < new Date(new Date().toDateString()) ||
+                !availableDatesSet.has(format(day, "yyyy-MM-dd"))
+              }
+              showOutsideDays={false}
+              classNames={{
+                root: `${getDefaultClassNames().root} bg-white`,
+                months: "flex justify-center",
+                month_caption: "text-sm font-medium text-zinc-700 mb-2",
+                day_button:
+                  "h-9 w-9 text-sm rounded-lg transition-colors hover:bg-zinc-100",
+                selected: "bg-zinc-900 text-white hover:bg-zinc-800",
+                today: "border border-zinc-300",
+                disabled: "text-zinc-300 cursor-default line-through hover:bg-transparent",
+                outside: "text-zinc-200",
+                chevron: "fill-zinc-600",
+                weekday: "text-xs text-zinc-400 font-normal pb-1",
+                button_previous:
+                  "text-zinc-600 hover:text-zinc-900 transition-colors",
+                button_next:
+                  "text-zinc-600 hover:text-zinc-900 transition-colors",
+              }}
+            />
 
-          <div className="flex-1">
-            {date && (
-              <p className="mb-3 text-sm font-medium text-zinc-700">
-                Доступные слоты на {format(date, "d MMMM, EEEE", { locale: ru })}
-              </p>
-            )}
+            <div className="flex-1">
+              {date && (
+                <p className="mb-3 text-sm font-medium text-zinc-700">
+                  Доступные слоты на {format(date, "d MMMM, EEEE", { locale: ru })}
+                </p>
+              )}
 
-            {date && slots.length === 0 && (
-              <p className="text-sm text-zinc-400">Нет свободных слотов</p>
-            )}
+              {date && slots.length === 0 && (
+                <p className="text-sm text-zinc-400">Нет свободных слотов</p>
+              )}
 
-            {slots.length > 0 && (
-              <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
-                {slots.map((slotItem) => {
-                  const isSelected = slot?.startTime === slotItem.startTime;
-                  return (
-                    <button
-                      key={slotItem.startTime}
-                      onClick={() => setSlot(slotItem)}
-                      className={cn(
-                        "rounded-lg border px-3 py-2 text-sm transition-colors",
-                        isSelected
-                          ? "border-zinc-900 bg-zinc-900 text-white"
-                          : "border-zinc-200 bg-white text-zinc-700 hover:border-zinc-400",
-                      )}
-                    >
-                      {slotItem.startTime.slice(0, 5)}
-                    </button>
-                  );
-                })}
-              </div>
-            )}
+              {slots.length > 0 && (
+                <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+                  {slots.map((slotItem) => {
+                    const isSelected = slot?.startTime === slotItem.startTime;
+                    return (
+                      <button
+                        key={slotItem.startTime}
+                        onClick={() => setSlot(slotItem)}
+                        className={cn(
+                          "rounded-lg border px-3 py-2 text-sm transition-colors",
+                          isSelected
+                            ? "border-zinc-900 bg-zinc-900 text-white"
+                            : "border-zinc-200 bg-white text-zinc-700 hover:border-zinc-400",
+                        )}
+                      >
+                        {slotItem.startTime.slice(0, 5)}
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
 
-            {slot && (
-              <StepNav
-                onBack={() => setStep(1)}
-                onNext={() => setStep(3)}
-              />
-            )}
+              {slot && (
+                <StepNav
+                  onBack={() => setStep(1)}
+                  onNext={() => setStep(3)}
+                />
+              )}
+            </div>
           </div>
-        </div>
-      )}
+        ) : (
+          <div className="flex items-center justify-center h-[450px] text-sm text-zinc-400">
+            Сначала выберите тип встречи
+          </div>
+        )}
+      </div>
     </div>
   );
 }
