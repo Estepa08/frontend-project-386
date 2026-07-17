@@ -32,10 +32,33 @@ export function useUpdateMeetingType(adminId: string): UseMutationResult<
       ...body
     }: { id: number } & Partial<api.MeetingType>) =>
       api.updateMeetingType(id, body),
-    onSuccess: () =>
-      queryClient.invalidateQueries({ queryKey: ["meeting-types", adminId] }),
-    onError: () =>
-      queryClient.invalidateQueries({ queryKey: ["meeting-types", adminId] }),
+    onMutate: async ({ id, ...body }) => {
+      await queryClient.cancelQueries({
+        queryKey: ["meeting-types", adminId],
+      });
+      const previous = queryClient.getQueryData<api.MeetingType[]>([
+        "meeting-types",
+        adminId,
+      ]);
+      queryClient.setQueryData<api.MeetingType[]>(
+        ["meeting-types", adminId],
+        (old) =>
+          old?.map((t) => (t.id === id ? { ...t, ...body } : t)),
+      );
+      return { previous };
+    },
+    onError: (_err, _vars, context) => {
+      if (context?.previous) {
+        queryClient.setQueryData(
+          ["meeting-types", adminId],
+          context.previous,
+        );
+      }
+    },
+    onSettled: () =>
+      queryClient.invalidateQueries({
+        queryKey: ["meeting-types", adminId],
+      }),
   });
 }
 

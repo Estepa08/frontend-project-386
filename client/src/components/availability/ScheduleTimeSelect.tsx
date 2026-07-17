@@ -11,12 +11,13 @@ interface ScheduleTimeSelectProps {
   value: string;
   disabled?: boolean;
   onChange: (value: string) => void;
+  error?: boolean;
 }
 
-export function ScheduleTimeSelect({ value, disabled, onChange }: ScheduleTimeSelectProps) {
+export function ScheduleTimeSelect({ value, disabled, onChange, error }: ScheduleTimeSelectProps) {
   return (
     <Select value={value} disabled={disabled} onValueChange={onChange}>
-      <SelectTrigger>
+      <SelectTrigger className={error ? "border-red-500 focus:ring-0" : ""}>
         <SelectValue placeholder="--" />
       </SelectTrigger>
       <SelectContent>

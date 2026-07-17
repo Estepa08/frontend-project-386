@@ -29,6 +29,9 @@ export function AdminMeetingTypesPage() {
   } = useMeetingTypes(adminId);
   const updateMutation = useUpdateMeetingType(adminId);
   const deleteMutation = useDeleteMeetingType(adminId);
+  const updatingId = updateMutation.isPending
+    ? updateMutation.variables?.id
+    : null;
 
   const items: MeetingType[] = Array.isArray(types) ? types : [];
 
@@ -112,7 +115,9 @@ export function AdminMeetingTypesPage() {
                         visible: checked,
                       })
                     }
-                    disabled={updateMutation.isPending}
+                    disabled={
+                      updateMutation.isPending && updatingId !== type.id
+                    }
                   />
                 </div>
                 <div className="flex items-center justify-between">
@@ -125,7 +130,9 @@ export function AdminMeetingTypesPage() {
                         allowGuestInvite: checked,
                       })
                     }
-                    disabled={updateMutation.isPending}
+                    disabled={
+                      updateMutation.isPending && updatingId !== type.id
+                    }
                   />
                 </div>
               </div>

@@ -5,12 +5,14 @@ import { useMeet, useCancelMeet } from "@/hooks/meets";
 import { Button } from "@/components/ui/button";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { ErrorMessage } from "@/components/ui/error-message";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { CLIPBOARD_FEEDBACK_DURATION } from "@/lib/utils";
 
 export function MeetDetailPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [copied, setCopied] = useState(false);
+  const [showCancelDialog, setShowCancelDialog] = useState(false);
 
   const meetId = id ? Number(id) : undefined;
   const { data: meet, isLoading, isError, error } = useMeet(meetId);
@@ -27,9 +29,10 @@ export function MeetDetailPage() {
     }
   };
 
-  const handleCancel = () => {
+  const handleCancelConfirm = () => {
     if (!meetId) return;
     cancelMutation.mutate(meetId);
+    setShowCancelDialog(false);
   };
 
   if (isLoading) {
@@ -156,7 +159,7 @@ export function MeetDetailPage() {
           <Button
             variant="outline"
             className="border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700"
-            onClick={handleCancel}
+            onClick={() => setShowCancelDialog(true)}
             disabled={cancelMutation.isPending}
           >
             {cancelMutation.isPending ? "Отмена..." : "Отменить встречу"}
@@ -185,6 +188,15 @@ export function MeetDetailPage() {
           Эта встреча была отменена
         </p>
       )}
+
+      <ConfirmDialog
+        open={showCancelDialog}
+        onOpenChange={setShowCancelDialog}
+        title="Отменить встречу?"
+        description="Это действие нельзя отменить."
+        confirmLabel="Отменить"
+        onConfirm={handleCancelConfirm}
+      />
     </div>
   );
 }

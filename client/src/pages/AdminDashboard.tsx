@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import { Link } from "react-router-dom";
 import { format, isToday, startOfWeek, endOfWeek, isWithinInterval, parseISO } from "date-fns";
 import { Plus, Clock, Calendar } from "lucide-react";
@@ -20,28 +21,20 @@ function formatTime(iso: string) {
 export function AdminDashboard() {
   const { user } = useAuth();
 
-  const todayString = format(new Date(), "yyyy-MM-dd");
-
   const {
     data: allMeets,
-    isLoading: allLoading,
-    isError: allError,
+    isLoading,
+    isError,
     error: allErrorObj,
   } = useMeets("admin", user?.id ?? "");
 
-  const {
-    data: todayMeets,
-    isLoading: todayLoading,
-  } = useMeets("admin", user?.id ?? "", { date: todayString });
-
   const items: Meet[] = Array.isArray(allMeets) ? allMeets : [];
-  const todayItems: Meet[] = Array.isArray(todayMeets) ? todayMeets : [];
 
   const now = new Date();
   const weekStart = startOfWeek(now, { weekStartsOn: 1 });
   const weekEnd = endOfWeek(now, { weekStartsOn: 1 });
 
-  const stats = {
+  const stats = useMemo(() => ({
     today: items.filter(
       (meet) => meet.status === "confirmed" && isToday(parseISO(meet.startTime)),
     ).length,
@@ -55,22 +48,25 @@ export function AdminDashboard() {
         meet.status === "cancelled" &&
         isWithinInterval(parseISO(meet.startTime), { start: weekStart, end: weekEnd }),
     ).length,
-  };
+  }), [items, weekStart, weekEnd]);
 
-  const sortedTodayMeets = [...todayItems].sort(
-    (a, b) => parseISO(a.startTime).getTime() - parseISO(b.startTime).getTime(),
+  const todayItems = useMemo(
+    () => items
+      .filter((m) => isToday(parseISO(m.startTime)))
+      .sort((a, b) => parseISO(a.startTime).getTime() - parseISO(b.startTime).getTime()),
+    [items],
   );
 
   return (
     <div className="space-y-6">
       <h1 className="text-2xl font-bold text-zinc-900">Обзор</h1>
 
-      {allError && (
+      {isError && (
         <ErrorMessage message={allErrorObj?.message ?? "Ошибка загрузки данных"} />
       )}
 
       <div className="grid grid-cols-3 gap-4">
-        {allLoading ? (
+        {isLoading ? (
           <>
             <div className="h-20 animate-pulse rounded-lg bg-zinc-100" />
             <div className="h-20 animate-pulse rounded-lg bg-zinc-100" />
@@ -100,11 +96,11 @@ export function AdminDashboard() {
       <div className="rounded-lg border border-zinc-200 bg-white p-5">
         <h2 className="mb-4 text-sm font-semibold text-zinc-700">Сегодняшние встречи</h2>
 
-        {todayLoading && (
+        {isLoading && (
           <p className="py-8 text-center text-sm text-zinc-400">Загрузка...</p>
         )}
 
-        {!todayLoading && sortedTodayMeets.length === 0 && (
+        {!isLoading && todayItems.length === 0 && (
           <div className="py-8 text-center">
             <p className="text-sm text-zinc-400">Нет встреч на сегодня</p>
             <Link
@@ -116,9 +112,9 @@ export function AdminDashboard() {
           </div>
         )}
 
-        {!todayLoading && sortedTodayMeets.length > 0 && (
+        {!isLoading && todayItems.length > 0 && (
           <div className="space-y-2">
-            {sortedTodayMeets.map((meet) => (
+            {todayItems.map((meet) => (
               <div
                 key={meet.id}
                 className="flex items-center gap-4 rounded-lg border border-zinc-100 bg-zinc-50 px-4 py-3"

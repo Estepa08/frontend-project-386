@@ -3,6 +3,7 @@ import { useAuth } from "@/store/auth";
 import { useAvailability, useUpdateAvailability } from "@/hooks/availability";
 import { Button } from "@/components/ui/button";
 import { ErrorMessage } from "@/components/ui/error-message";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { ScheduleItemRow } from "@/components/availability/ScheduleItemRow";
 import { DEFAULT_START, DEFAULT_END } from "@/api/availability";
 import type { components } from "@/api/generated/schema";
@@ -62,13 +63,38 @@ export function AdminAvailabilityPage() {
 
   const [schedule, setSchedule] = useState<ScheduleItem[]>(defaultSchedule);
   const [initialized, setInitialized] = useState(false);
+  const [initialData, setInitialData] = useState<string>("");
+  const [dayErrors, setDayErrors] = useState<Record<string, string>>({});
+  const [showSaveErrorModal, setShowSaveErrorModal] = useState(false);
 
   useEffect(() => {
     if (data && !initialized) {
-      setSchedule(buildInitial(data.workingHours));
+      const built = buildInitial(data.workingHours);
+      setSchedule(built);
+      setInitialData(JSON.stringify(built));
       setInitialized(true);
     }
   }, [data, initialized]);
+
+  useEffect(() => {
+    const handler = (e: BeforeUnloadEvent) => {
+      if (JSON.stringify(schedule) !== initialData) {
+        e.preventDefault();
+      }
+    };
+    window.addEventListener("beforeunload", handler);
+    return () => window.removeEventListener("beforeunload", handler);
+  }, [schedule, initialData]);
+
+  useEffect(() => {
+    const errors: Record<string, string> = {};
+    for (const day of schedule) {
+      if (day.enabled && day.startTime && day.endTime && day.startTime >= day.endTime) {
+        errors[day.dayOfWeek] = "Начало должно быть раньше конца";
+      }
+    }
+    setDayErrors(errors);
+  }, [schedule]);
 
   if (isLoading) {
     return (
@@ -112,6 +138,7 @@ export function AdminAvailabilityPage() {
               enabled={day.enabled}
               startTime={day.startTime}
               endTime={day.endTime}
+              error={dayErrors[day.dayOfWeek]}
               onToggle={(checked) =>
                 setSchedule((prev) =>
                   prev.map((item) =>
@@ -146,7 +173,13 @@ export function AdminAvailabilityPage() {
 
       <Button
         className="mt-6"
-        onClick={() =>
+        onClick={() => {
+          const hasErrors = Object.keys(dayErrors).length > 0;
+          if (hasErrors) {
+            setShowSaveErrorModal(true);
+            return;
+          }
+
           mutation.mutate({
             workingHours: schedule
               .filter((w) => w.enabled)
@@ -156,7 +189,7 @@ export function AdminAvailabilityPage() {
                 endTime,
               })),
           })
-        }
+        }}
         disabled={mutation.isPending}
       >
         {mutation.isPending ? "Сохранение..." : "Сохранить"}
@@ -173,6 +206,15 @@ export function AdminAvailabilityPage() {
           />
         </div>
       )}
+
+      <ConfirmDialog
+        open={showSaveErrorModal}
+        onOpenChange={setShowSaveErrorModal}
+        title="Ошибка в расписании"
+        description="Исправьте формат времени в отмеченных днях перед сохранением"
+        confirmLabel="Понятно"
+        onConfirm={() => setShowSaveErrorModal(false)}
+      />
     </div>
   );
 }

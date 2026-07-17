@@ -10,6 +10,7 @@ interface ScheduleItemRowProps {
   enabled: boolean;
   startTime: string;
   endTime: string;
+  error?: string;
   onToggle: (checked: boolean) => void;
   onStartTimeChange: (value: string) => void;
   onEndTimeChange: (value: string) => void;
@@ -21,6 +22,7 @@ export function ScheduleItemRow({
   enabled,
   startTime,
   endTime,
+  error,
   onToggle,
   onStartTimeChange,
   onEndTimeChange,
@@ -39,12 +41,14 @@ export function ScheduleItemRow({
       <ScheduleTimeSelect
         value={enabled ? startTime : ""}
         disabled={!enabled}
+        error={!!error}
         onChange={onStartTimeChange}
       />
 
       <ScheduleTimeSelect
         value={enabled ? endTime : ""}
         disabled={!enabled}
+        error={!!error}
         onChange={onEndTimeChange}
       />
     </div>

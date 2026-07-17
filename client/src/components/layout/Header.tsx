@@ -1,6 +1,27 @@
-import { Link, useNavigate } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "@/store/auth";
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+
+function NavItem({ to, end, children }: { to: string; end?: boolean; children: React.ReactNode }) {
+  return (
+    <NavLink
+      to={to}
+      end={end}
+      className={({ isActive }) =>
+        cn(
+          "relative text-sm transition-colors duration-200",
+          "after:absolute after:-bottom-1 after:left-0 after:h-0.5 after:bg-zinc-900 after:transition-all after:duration-300",
+          isActive
+            ? "text-zinc-900 after:w-full"
+            : "text-zinc-600 hover:text-zinc-900 after:w-0 hover:after:w-full",
+        )
+      }
+    >
+      {children}
+    </NavLink>
+  );
+}
 
 export function Header() {
   const { role, user, logout } = useAuth();
@@ -15,35 +36,23 @@ export function Header() {
     <header className="border-b border-zinc-200 bg-white">
       <div className="mx-auto flex h-14 max-w-7xl items-center justify-between px-4">
         <div className="flex items-center gap-6">
-          <Link to="/" className="text-lg font-bold tracking-tight text-zinc-900">
+          <NavLink to="/" end className="text-lg font-bold tracking-tight text-zinc-900">
             Meetly
-          </Link>
+          </NavLink>
 
           {role === "admin" && (
             <nav className="flex items-center gap-4 text-sm">
-              <Link to="/admin" className="text-zinc-600 hover:text-zinc-900">
-                Обзор
-              </Link>
-              <Link to="/admin/meeting-types" className="text-zinc-600 hover:text-zinc-900">
-                Типы встреч
-              </Link>
-              <Link to="/admin/availability" className="text-zinc-600 hover:text-zinc-900">
-                График
-              </Link>
-              <Link to="/admin/meets" className="text-zinc-600 hover:text-zinc-900">
-                Встречи
-              </Link>
+              <NavItem to="/admin" end>Обзор</NavItem>
+              <NavItem to="/admin/meeting-types">Типы встреч</NavItem>
+              <NavItem to="/admin/availability">График</NavItem>
+              <NavItem to="/admin/meets">Встречи</NavItem>
             </nav>
           )}
 
           {role === "user" && (
             <nav className="flex items-center gap-4 text-sm">
-              <Link to="/booking" className="text-zinc-600 hover:text-zinc-900">
-                Забронировать
-              </Link>
-              <Link to="/user/meets" className="text-zinc-600 hover:text-zinc-900">
-                Мои встречи
-              </Link>
+              <NavItem to="/booking">Забронировать</NavItem>
+              <NavItem to="/user/meets">Мои встречи</NavItem>
             </nav>
           )}
         </div>
