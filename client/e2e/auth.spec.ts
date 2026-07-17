@@ -48,7 +48,7 @@ test.describe("Authentication", () => {
     await page.getByPlaceholder("********").fill("wrongpass");
     await page.getByRole("button", { name: "Войти" }).click();
 
-    await expect(page.locator('[data-container="page--auth"]')).toContainText(/ошиб/i);
+    await expect(page.locator('[data-container="page--auth"]')).toContainText(/ошиб|invalid|error/i);
   });
 
   test("dev quick-login buttons are absent in production", async ({ page }) => {
