@@ -28,8 +28,8 @@ export function ScheduleItemRow({
   onEndTimeChange,
 }: ScheduleItemRowProps) {
   return (
-    <div className="grid grid-cols-[auto_1fr_1fr] gap-4 border-b border-zinc-50 px-6 py-3 last:border-0">
-      <div className="flex items-center gap-3">
+    <div className="grid grid-cols-[auto_1fr_1fr] gap-x-4 gap-y-1 border-b border-zinc-50 px-6 py-3 last:border-0">
+      <div className="flex items-center gap-3 row-span-2">
         <Checkbox
           id={dayKey}
           checked={enabled}
@@ -51,6 +51,10 @@ export function ScheduleItemRow({
         error={!!error}
         onChange={onEndTimeChange}
       />
+
+      {error && (
+        <p className="col-span-2 text-xs text-red-500">{error}</p>
+      )}
     </div>
   );
 }

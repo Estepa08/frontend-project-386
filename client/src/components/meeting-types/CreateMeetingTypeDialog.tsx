@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { CATEGORY_LABELS } from "@/lib/booking";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -15,17 +15,24 @@ import { useCreateMeetingType } from "@/hooks/meetingTypes";
 import type { components } from "@/api/generated/schema";
 
 type MeetingTypeInput = components["schemas"]["MeetingTypeInput"];
+type MeetingType = components["schemas"]["MeetingType"];
 
 interface CreateMeetingTypeDialogProps {
   adminId: string;
+  existingTypes: MeetingType[];
 }
 
-export function CreateMeetingTypeDialog({ adminId }: CreateMeetingTypeDialogProps) {
+export function CreateMeetingTypeDialog({ adminId, existingTypes }: CreateMeetingTypeDialogProps) {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [form, setForm] = useState<MeetingTypeInput>({
     duration: 15,
     category: "single",
   });
+
+  const isDuplicate = useMemo(
+    () => existingTypes.some((t) => t.duration === form.duration && t.category === form.category),
+    [existingTypes, form.duration, form.category],
+  );
 
   const createMutation = useCreateMeetingType(adminId);
 
@@ -96,13 +103,19 @@ export function CreateMeetingTypeDialog({ adminId }: CreateMeetingTypeDialogProp
             </div>
           </div>
 
+          {isDuplicate && (
+            <p className="text-xs text-amber-600">
+              Такой тип встречи уже существует
+            </p>
+          )}
+
           <div className="flex justify-end gap-3 pt-2">
             <DialogClose asChild>
               <Button variant="outline">Отмена</Button>
             </DialogClose>
             <Button
               onClick={handleCreate}
-              disabled={createMutation.isPending}
+              disabled={createMutation.isPending || isDuplicate}
             >
               {createMutation.isPending ? "Создание..." : "Создать"}
             </Button>

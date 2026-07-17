@@ -64,14 +64,16 @@ export function AdminMeetingTypesPage() {
     <div>
       <div className="mb-6 flex items-center justify-between">
         <h1 className="text-2xl font-bold text-zinc-900">Типы встреч</h1>
-        <CreateMeetingTypeDialog adminId={adminId} />
+        <CreateMeetingTypeDialog adminId={adminId} existingTypes={items} />
       </div>
 
       {items.length === 0 && (
         <div className="flex flex-col items-center gap-4 py-16">
           <CalendarX className="h-12 w-12 text-zinc-300" />
           <p className="text-sm text-zinc-400">Нет типов встреч</p>
-          <CreateMeetingTypeDialog adminId={adminId} />
+          <p className="text-xs text-zinc-300 animate-bounce">
+            Нажмите «Создать» → в правом верхнем углу
+          </p>
         </div>
       )}
 

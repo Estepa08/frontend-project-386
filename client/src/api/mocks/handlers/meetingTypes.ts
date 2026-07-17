@@ -8,6 +8,17 @@ export const meetingTypesHandlers = [
 
   http.post("/api/admins/:id/meeting-types", async ({ request }) => {
     const body = (await request.json()) as { duration: number; category: string };
+
+    const duplicate = meetingTypes.find(
+      (t) => t.duration === body.duration && t.category === body.category,
+    );
+    if (duplicate) {
+      return HttpResponse.json(
+        { error: { code: "DUPLICATE", message: "Такой тип встречи уже существует" } },
+        { status: 409 },
+      );
+    }
+
     const newType: MeetType = {
       id: meetingTypes.length + 1,
       adminId: "1",
