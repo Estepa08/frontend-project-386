@@ -12,8 +12,12 @@ async function startApp() {
   const useMock = import.meta.env.VITE_USE_MOCK !== "false";
 
   if (import.meta.env.DEV && useMock) {
-    const { worker } = await import("./api/mocks/browser");
-    await worker.start({ onUnhandledRequest: "bypass" });
+    try {
+      const { worker } = await import("./api/mocks/browser");
+      await worker.start({ onUnhandledRequest: "bypass" });
+    } catch (error) {
+      console.warn("MSW failed to start:", error);
+    }
   }
 
   const rootElement = document.getElementById("root");
