@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { DayPicker, getDefaultClassNames } from "react-day-picker";
 import { ru } from "date-fns/locale";
 import { format } from "date-fns";
@@ -13,9 +13,9 @@ export function StepDateTime() {
   const { admin, meetingType, date, slot, setMeetingType, setDate, setSlot, setStep } =
     useBooking();
 
-  const month = date ?? new Date();
+  const [viewMonth, setViewMonth] = useState(new Date());
   const dateStr = date ? format(date, "yyyy-MM-dd") : "";
-  const monthStr = format(month, "yyyy-MM");
+  const monthStr = format(viewMonth, "yyyy-MM");
 
   const {
     data: types,
@@ -82,7 +82,8 @@ export function StepDateTime() {
               selected={date ?? undefined}
               onSelect={(selectedDate) => setDate(selectedDate ?? null)}
               locale={ru}
-              month={month}
+              month={viewMonth}
+              onMonthChange={setViewMonth}
               startMonth={new Date()}
               modifiers={{
                 available: (day) => availableDatesSet.has(format(day, "yyyy-MM-dd")),
@@ -99,18 +100,20 @@ export function StepDateTime() {
                 root: `${getDefaultClassNames().root} bg-white`,
                 months: "flex justify-center",
                 month_caption: "text-sm font-medium text-zinc-700 mb-2",
+                day: "p-0 rounded-lg overflow-hidden",
                 day_button:
-                  "h-9 w-9 text-sm rounded-lg transition-colors hover:bg-zinc-100",
-                selected: "bg-zinc-900 text-white hover:bg-zinc-800",
-                today: "border border-zinc-300",
+                  "h-10 w-10 text-sm rounded-lg transition-colors " +
+                  "hover:bg-zinc-100 " +
+                  "aria-selected:bg-zinc-900 aria-selected:text-white aria-selected:hover:bg-zinc-800",
+                today: "border border-zinc-300 rounded-lg",
                 disabled: "text-zinc-300 cursor-default line-through hover:bg-transparent",
                 outside: "text-zinc-200",
                 chevron: "fill-zinc-600",
                 weekday: "text-xs text-zinc-400 font-normal pb-1",
                 button_previous:
-                  "text-zinc-600 hover:text-zinc-900 transition-colors",
+                  `${getDefaultClassNames().button_previous} text-zinc-600 hover:text-zinc-900 transition-colors`,
                 button_next:
-                  "text-zinc-600 hover:text-zinc-900 transition-colors",
+                  `${getDefaultClassNames().button_next} text-zinc-600 hover:text-zinc-900 transition-colors`,
               }}
             />
 
