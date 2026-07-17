@@ -62,6 +62,27 @@ export function AdminDashboard() {
     <div className="space-y-6">
       <h1 className="text-2xl font-bold text-zinc-900">Обзор</h1>
 
+      <div className="flex flex-wrap gap-3">
+        <Button variant="outline" asChild>
+          <Link to="/admin/meeting-types">
+            <Plus className="mr-2 h-4 w-4" />
+            Новый тип встречи
+          </Link>
+        </Button>
+        <Button variant="outline" asChild>
+          <Link to="/admin/availability">
+            <Clock className="mr-2 h-4 w-4" />
+            График
+          </Link>
+        </Button>
+        <Button variant="outline" asChild>
+          <Link to="/admin/meets">
+            <Calendar className="mr-2 h-4 w-4" />
+            Все встречи
+          </Link>
+        </Button>
+      </div>
+
       {isError && (
         <ErrorMessage message={allErrorObj?.message ?? "Ошибка загрузки данных"} />
       )}
@@ -131,30 +152,6 @@ export function AdminDashboard() {
             ))}
           </div>
         )}
-      </div>
-
-      <div>
-        <h2 className="mb-3 text-sm font-semibold text-zinc-700">Быстрые действия</h2>
-        <div className="flex flex-wrap gap-3">
-          <Button variant="outline" asChild>
-            <Link to="/admin/meeting-types">
-              <Plus className="mr-2 h-4 w-4" />
-              Новый тип встречи
-            </Link>
-          </Button>
-          <Button variant="outline" asChild>
-            <Link to="/admin/availability">
-              <Clock className="mr-2 h-4 w-4" />
-              График
-            </Link>
-          </Button>
-          <Button variant="outline" asChild>
-            <Link to="/admin/meets">
-              <Calendar className="mr-2 h-4 w-4" />
-              Все встречи
-            </Link>
-          </Button>
-        </div>
       </div>
     </div>
   );
