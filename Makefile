@@ -1,7 +1,10 @@
 .PHONY: dev build lint format typecheck test generate-api
 
 dev:
-	npm run dev --prefix client
+	@trap 'kill 0' EXIT; \
+	cd server && npm run dev & \
+	cd client && npm run dev & \
+	wait
 
 build:
 	npm run build --prefix client

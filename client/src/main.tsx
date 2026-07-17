@@ -9,7 +9,9 @@ import "react-day-picker/style.css";
 const queryClient = new QueryClient();
 
 async function startApp() {
-  if (import.meta.env.DEV) {
+  const useMock = import.meta.env.VITE_USE_MOCK !== "false";
+
+  if (import.meta.env.DEV && useMock) {
     const { worker } = await import("./api/mocks/browser");
     await worker.start({ onUnhandledRequest: "bypass" });
   }

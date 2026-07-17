@@ -8,7 +8,7 @@ using TypeSpec.Rest;
 @service(#{
   title: "Video Meeting Booking API"
 })
-@server("https://api.example.com/v1", "Основной сервер")
+@server("http://localhost:3001/api", "Локальный сервер")
 namespace BookingApi;
 
 // ===================== Models =====================

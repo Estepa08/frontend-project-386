@@ -1,0 +1,72 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Admin {
+  id        String   @id @default(uuid())
+  name      String
+  email     String   @unique
+  password  String
+  createdAt DateTime @default(now())
+
+  workingHours WorkingHour[]
+  meetingTypes MeetingType[]
+  meetsAsAdmin Meet[]        @relation("AdminMeets")
+}
+
+model User {
+  id        String   @id @default(uuid())
+  name      String
+  email     String   @unique
+  password  String
+  createdAt DateTime @default(now())
+
+  meetsAsUser Meet[] @relation("UserMeets")
+}
+
+model WorkingHour {
+  id        Int    @id @default(autoincrement())
+  adminId   String
+  dayOfWeek String
+  startTime String
+  endTime   String
+
+  admin Admin @relation(fields: [adminId], references: [id], onDelete: Cascade)
+}
+
+model MeetingType {
+  id               Int     @id @default(autoincrement())
+  adminId          String
+  duration         Int
+  category         String
+  visible          Boolean @default(true)
+  allowGuestInvite Boolean @default(false)
+
+  admin Admin @relation(fields: [adminId], references: [id], onDelete: Cascade)
+  meets Meet[]
+}
+
+model Meet {
+  id            Int      @id @default(autoincrement())
+  adminId       String
+  userId        String
+  meetingTypeId Int
+  startTime     DateTime
+  endTime       DateTime
+  theme         String
+  comment       String?
+  guestEmails   String[]  @default([])
+  inviteLink    String    @unique
+  status        String    @default("confirmed")
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  admin       Admin       @relation("AdminMeets", fields: [adminId], references: [id])
+  user        User        @relation("UserMeets", fields: [userId], references: [id])
+  meetingType MeetingType @relation(fields: [meetingTypeId], references: [id])
+}

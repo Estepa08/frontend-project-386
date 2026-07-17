@@ -5,7 +5,7 @@
     "version": "1.0.0"
   },
   "servers": [
-    { "url": "https://api.example.com/v1", "description": "Основной сервер" }
+    { "url": "http://localhost:3001/api", "description": "Локальный сервер" }
   ],
   "paths": {
     "/auth/login": {
