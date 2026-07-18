@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.2.0](https://github.com/Estepa08/frontend-project-386/compare/server-v0.1.0...server-v0.2.0) (2026-07-18)
+
+
+### Features
+
+* add Docker deployment support ([9c4ffe7](https://github.com/Estepa08/frontend-project-386/commit/9c4ffe7eb68e663879e4fce8987266facd739b29))
+
+
+### Bug Fixes
+
+* make JWT_SECRET and DATABASE_URL optional ([66e890f](https://github.com/Estepa08/frontend-project-386/commit/66e890fed3e795bb9b515b8faf735ae5ad1985a0))
+
 ## [0.1.0](https://github.com/Estepa08/frontend-project-386/compare/server-v0.0.1...server-v0.1.0) (2026-07-18)
 
 

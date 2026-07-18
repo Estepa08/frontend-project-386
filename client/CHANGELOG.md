@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.1](https://github.com/Estepa08/frontend-project-386/compare/client-v0.1.0...client-v0.1.1) (2026-07-18)
+
+
+### Bug Fixes
+
+* **ci:** set reuseExistingServer:true in Playwright config ([6102f82](https://github.com/Estepa08/frontend-project-386/commit/6102f82fa1326cdea3393c43501972e52175a5ed))
+
 ## [0.1.0](https://github.com/Estepa08/frontend-project-386/compare/client-v0.0.1...client-v0.1.0) (2026-07-18)
 
 
