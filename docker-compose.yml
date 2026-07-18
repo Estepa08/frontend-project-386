@@ -1,0 +1,10 @@
+services:
+  app:
+    build: .
+    ports:
+      - "${PORT:-3001}:${PORT:-3001}"
+    environment:
+      PORT: "${PORT:-3001}"
+      DATABASE_URL: "${DATABASE_URL}"
+      JWT_SECRET: "${JWT_SECRET}"
+      NODE_ENV: "production"
