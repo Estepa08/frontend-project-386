@@ -33,7 +33,7 @@ SPA для бронирования видеовстреч. Две роли — 
 | **Формы** | React Hook Form + Zod |
 | **Backend** | Node.js, Express, TypeScript, Prisma ORM |
 | **БД** | PostgreSQL |
-| **Контракт** | TypeSpec → OpenAPI → openapi-typescript (schema-first) |
+| **Контракт** | TypeSpec → OpenAPI → openapi-typescript (design-first) |
 | **Тесты** | Vitest (39 integration), Playwright (15 e2e) |
 | **CI/CD** | GitHub Actions (typecheck → lint → test → e2e → release) |
 | **Инфраструктура** | Docker (multi-stage), Railway |
@@ -58,7 +58,7 @@ SPA для бронирования видеовстреч. Две роли — 
 Этот проект — демонстрация осознанной работы с AI-инструментами.
 
 **Что делал я:**
-- Спроектировал архитектуру: schema-first (TypeSpec), разделение на роли, структуру БД, стек
+- Спроектировал архитектуру: design-first (TypeSpec), разделение на роли, структуру БД, стек
 - Написал AGENTS.md — регламент для AI-агента: код-стайл, правила безопасности, конвенции коммитов, процессы
 - Ставил задачи, ревьюил код, уточнял требования на каждом этапе
 - Использовал скиллы агента под конкретные задачи: TDD, code review, shadcn, writing plans
@@ -73,7 +73,7 @@ SPA для бронирования видеовстреч. Две роли — 
 
 ## 🏗️ Архитектура
 
-- **Schema-first:** TypeSpec → OpenAPI → автогенерация типов — контракт как единый источник правды
+- **Design-first:** TypeSpec → OpenAPI → автогенерация типов — контракт как единый источник правды
 - **Layered architecture:** API-слой → хуки → UI, однонаправленный поток данных
 - **Security:** httpOnly cookies, rate limiting, Helmet CSP, bcrypt, Zod-валидация
 - **Оптимистичные обновления:** отмена и изменение встреч без ожидания ответа сервера
