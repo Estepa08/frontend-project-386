@@ -6,6 +6,7 @@ import { validate } from "../middleware/validate.js";
 import { loginSchema } from "../schemas/auth.js";
 import { AppError } from "../lib/errors.js";
 import { asyncHandler } from "../lib/asyncHandler.js";
+import { config } from "../config.js";
 
 const router = Router();
 
@@ -22,6 +23,12 @@ router.post(
         throw new AppError("INVALID_CREDENTIALS", "Invalid email or password", 401);
       }
       const token = sign({ id: admin.id, role: "admin" });
+      res.cookie("token", token, {
+        httpOnly: true,
+        secure: config.nodeEnv === "production",
+        sameSite: "lax",
+        maxAge: 60 * 60 * 1000,
+      });
       res.json({
         token,
         role: "admin",
@@ -37,6 +44,12 @@ router.post(
         throw new AppError("INVALID_CREDENTIALS", "Invalid email or password", 401);
       }
       const token = sign({ id: user.id, role: "user" });
+      res.cookie("token", token, {
+        httpOnly: true,
+        secure: config.nodeEnv === "production",
+        sameSite: "lax",
+        maxAge: 60 * 60 * 1000,
+      });
       res.json({
         token,
         role: "user",
@@ -48,5 +61,10 @@ router.post(
     throw new AppError("INVALID_CREDENTIALS", "Invalid email or password", 401);
   }),
 );
+
+router.post("/logout", (_req, res) => {
+  res.clearCookie("token");
+  res.json({ ok: true });
+});
 
 export default router;

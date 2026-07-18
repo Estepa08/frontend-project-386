@@ -89,8 +89,15 @@ describeIfDb("Meets API", () => {
     expect(res.body.error.code).toBe("SLOT_TAKEN");
   });
 
-  it("GET /api/meets/:id — returns meet details", async () => {
+  it("GET /api/meets/:id — returns 401 without token", async () => {
     const res = await request.get(`/api/meets/${meetId}`);
+    expect(res.status).toBe(401);
+  });
+
+  it("GET /api/meets/:id — returns meet details for participant", async () => {
+    const res = await request
+      .get(`/api/meets/${meetId}`)
+      .set("Authorization", `Bearer ${userToken}`);
     expect(res.status).toBe(200);
     expect(res.body.theme).toBe("Test meeting");
     expect(res.body.admin).toBeDefined();
@@ -98,7 +105,9 @@ describeIfDb("Meets API", () => {
   });
 
   it("GET /api/meets/:id — returns 404 for non-existent id", async () => {
-    const res = await request.get("/api/meets/999999");
+    const res = await request
+      .get("/api/meets/999999")
+      .set("Authorization", `Bearer ${userToken}`);
     expect(res.status).toBe(404);
   });
 
@@ -111,14 +120,23 @@ describeIfDb("Meets API", () => {
     expect(res.body.status).toBe("cancelled");
   });
 
-  it("GET /api/admins/:id/meets — lists admin meets", async () => {
+  it("GET /api/admins/:id/meets — returns 401 without token", async () => {
     const res = await request.get(`/api/admins/${adminId}/meets`);
+    expect(res.status).toBe(401);
+  });
+
+  it("GET /api/admins/:id/meets — lists admin meets", async () => {
+    const res = await request
+      .get(`/api/admins/${adminId}/meets`)
+      .set("Authorization", `Bearer ${adminToken}`);
     expect(res.status).toBe(200);
     expect(Array.isArray(res.body)).toBe(true);
   });
 
   it("GET /api/admins/:id/meets — filters by status", async () => {
-    const res = await request.get(`/api/admins/${adminId}/meets?status=cancelled`);
+    const res = await request
+      .get(`/api/admins/${adminId}/meets?status=cancelled`)
+      .set("Authorization", `Bearer ${adminToken}`);
     expect(res.status).toBe(200);
     res.body.forEach((m: any) => {
       expect(m.status).toBe("cancelled");

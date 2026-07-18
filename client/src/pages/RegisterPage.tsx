@@ -38,7 +38,7 @@ export function RegisterPage() {
       }
 
       const result = await apiLogin({ email: data.email, password: data.password });
-      setSession(result.role, result.user, result.token);
+      setSession(result.role, result.user);
       navigate(result.role === ROLES.ADMIN ? "/admin" : "/user/meets");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Ошибка регистрации");

@@ -1,5 +1,4 @@
 import { create } from "zustand";
-import { setToken, clearToken } from "@/api/client";
 import type { components } from "@/api/generated/schema";
 import { ROLES, type Role } from "@/lib/constants";
 
@@ -10,7 +9,7 @@ interface AuthState {
   role: AuthRole;
   user: User | null;
   login: (role: Role) => void;
-  setSession: (role: AuthRole, user: User, token: string) => void;
+  setSession: (role: AuthRole, user: User) => void;
   logout: () => void;
 }
 
@@ -27,12 +26,11 @@ export const useAuth = create<AuthState>((set) => ({
         createdAt: new Date().toISOString(),
       },
     }),
-  setSession: (role, user, token) => {
-    setToken(token);
+  setSession: (role, user) => {
     set({ role, user });
   },
   logout: () => {
-    clearToken();
+    fetch("/api/auth/logout", { method: "POST", credentials: "include" }).catch(() => {});
     set({ role: null, user: null });
   },
 }));

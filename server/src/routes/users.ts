@@ -101,7 +101,11 @@ router.delete(
 
 router.get(
   "/:id/meets",
-  asyncHandler(async (req, res) => {
+  authenticate,
+  asyncHandler(async (req: AuthRequest, res) => {
+    if (req.user!.id !== req.params.id) {
+      throw new AppError("FORBIDDEN", "Not your resource", 403);
+    }
     const user = await prisma.user.findUnique({ where: { id: req.params.id } });
     if (!user) {
       throw new AppError("NOT_FOUND", "User not found", 404);
