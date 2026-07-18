@@ -7,11 +7,14 @@ export interface AuthRequest extends Request {
 }
 
 export function authenticate(req: AuthRequest, _res: Response, next: NextFunction) {
-  const header = req.headers.authorization;
-  if (!header?.startsWith("Bearer ")) {
+  const token = req.cookies?.token ||
+    (req.headers.authorization?.startsWith("Bearer ")
+      ? req.headers.authorization.slice(7)
+      : null);
+
+  if (!token) {
     throw new AppError("UNAUTHORIZED", "Missing or invalid token", 401);
   }
-  const token = header.slice(7);
   try {
     req.user = verify(token);
     next();

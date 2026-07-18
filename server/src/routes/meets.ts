@@ -67,7 +67,8 @@ router.post(
 
 router.get(
   "/:id",
-  asyncHandler(async (req, res) => {
+  authenticate,
+  asyncHandler(async (req: AuthRequest, res) => {
     const id = Number(req.params.id);
     const meet = await prisma.meet.findUnique({
       where: { id },
@@ -78,6 +79,9 @@ router.get(
     });
     if (!meet) {
       throw new AppError("NOT_FOUND", "Meet not found", 404);
+    }
+    if (meet.adminId !== req.user!.id && meet.userId !== req.user!.id) {
+      throw new AppError("FORBIDDEN", "Not a participant of this meet", 403);
     }
     res.json(meet);
   }),

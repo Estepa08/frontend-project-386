@@ -8,33 +8,6 @@ export class ApiRequestError extends Error {
   }
 }
 
-const TOKEN_KEY = "meetly_token";
-
-export function getToken(): string | null {
-  try {
-    return localStorage.getItem(TOKEN_KEY);
-  } catch (error) {
-    console.warn("Failed to read token from localStorage:", error);
-    return null;
-  }
-}
-
-export function setToken(token: string): void {
-  try {
-    localStorage.setItem(TOKEN_KEY, token);
-  } catch (error) {
-    console.warn("Failed to save token to localStorage:", error);
-  }
-}
-
-export function clearToken(): void {
-  try {
-    localStorage.removeItem(TOKEN_KEY);
-  } catch (error) {
-    console.warn("Failed to clear token from localStorage:", error);
-  }
-}
-
 function mergeHeaders(
   initHeaders?: HeadersInit,
 ): Record<string, string> {
@@ -57,12 +30,7 @@ export async function request<T>(url: string, options?: RequestInit): Promise<T>
     headers["Content-Type"] ??= "application/json";
   }
 
-  const token = getToken();
-  if (token) {
-    headers["Authorization"] ??= `Bearer ${token}`;
-  }
-
-  const res = await fetch(url, { ...options, headers });
+  const res = await fetch(url, { ...options, headers, credentials: "include" });
 
   if (!res.ok) {
     let code = "UNKNOWN";

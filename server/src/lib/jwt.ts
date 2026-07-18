@@ -7,7 +7,7 @@ export interface JwtPayload {
 }
 
 export function sign(payload: JwtPayload): string {
-  return jwt.sign(payload, config.jwtSecret, { expiresIn: "7d" });
+  return jwt.sign(payload, config.jwtSecret, { expiresIn: "1h" });
 }
 
 export function verify(token: string): JwtPayload {

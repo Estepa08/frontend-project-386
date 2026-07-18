@@ -1,6 +1,7 @@
 import type { Request, Response, NextFunction } from "express";
 import { ZodError } from "zod";
 import { AppError } from "../lib/errors.js";
+import { config } from "../config.js";
 
 export function errorHandler(err: Error, _req: Request, res: Response, _next: NextFunction) {
   if (err instanceof AppError) {
@@ -11,11 +12,11 @@ export function errorHandler(err: Error, _req: Request, res: Response, _next: Ne
   }
 
   if (err instanceof ZodError) {
+    const message = config.nodeEnv === "production"
+      ? "Validation failed"
+      : err.errors.map((e) => `${e.path.join(".")}: ${e.message}`).join("; ");
     res.status(400).json({
-      error: {
-        code: "VALIDATION_ERROR",
-        message: err.errors.map((e) => `${e.path.join(".")}: ${e.message}`).join("; "),
-      },
+      error: { code: "VALIDATION_ERROR", message },
     });
     return;
   }
