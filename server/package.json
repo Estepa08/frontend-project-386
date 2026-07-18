@@ -35,7 +35,7 @@
     "@types/express": "^4.17.21",
     "@types/jsonwebtoken": "^9.0.9",
     "@types/morgan": "^1.9.9",
-    "@types/supertest": "^6.0.3",
+    "@types/supertest": "^7.2.1",
     "@typespec/compiler": "^1.14.0",
     "@typespec/http": "^1.14.0",
     "@typespec/openapi3": "^1.14.0",
