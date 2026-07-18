@@ -15,7 +15,7 @@ export default defineConfig({
   webServer: {
     command: "VITE_USE_MOCK=false vite build && VITE_USE_MOCK=false vite preview --port 4173",
     port: 4173,
-    reuseExistingServer: !process.env.CI,
+    reuseExistingServer: true,
     cwd: ".",
   },
 });
