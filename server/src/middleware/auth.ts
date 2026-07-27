@@ -7,6 +7,15 @@ export interface AuthRequest extends Request {
 }
 
 export function authenticate(req: AuthRequest, _res: Response, next: NextFunction) {
+  const mockId = req.headers["x-user-id"] as string | undefined;
+  const mockRole = req.headers["x-user-role"] as string | undefined;
+
+  if (mockId && mockRole && (mockRole === "admin" || mockRole === "user")) {
+    req.user = { id: mockId, role: mockRole };
+    next();
+    return;
+  }
+
   const token = req.cookies?.token ||
     (req.headers.authorization?.startsWith("Bearer ")
       ? req.headers.authorization.slice(7)

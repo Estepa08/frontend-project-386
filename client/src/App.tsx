@@ -3,7 +3,6 @@ import { AuthGuard, RootLayout } from "@/components/layout";
 import { Toaster } from "@/components/ui";
 import {
   LoginPage,
-  RegisterPage,
   AdminDashboard,
   AdminAvailabilityPage,
   AdminMeetingTypesPage,
@@ -19,7 +18,6 @@ export default function App() {
     <>
       <Routes>
         <Route path="/login" element={<LoginPage />} />
-        <Route path="/register" element={<RegisterPage />} />
 
         <Route element={<AuthGuard />}>
           <Route element={<RootLayout />}>

@@ -90,9 +90,9 @@ export async function getAvailableDates(
       select: { startTime: true, endTime: true },
     });
 
-    const occupied: Array<{ start: number; end: number }> = meets.map((m) => ({
-      start: m.startTime.getTime(),
-      end: m.endTime.getTime(),
+    const occupied: Array<{ start: number; end: number }> = meets.map((m: Record<string, unknown>) => ({
+      start: (m.startTime as Date).getTime(),
+      end: (m.endTime as Date).getTime(),
     }));
 
     let hasSlot = false;
@@ -168,9 +168,9 @@ export async function getSlots(
     select: { startTime: true, endTime: true },
   });
 
-  const occupied: Array<{ start: number; end: number }> = meets.map((m) => ({
-    start: m.startTime.getTime(),
-    end: m.endTime.getTime(),
+  const occupied: Array<{ start: number; end: number }> = meets.map((m: Record<string, unknown>) => ({
+    start: (m.startTime as Date).getTime(),
+    end: (m.endTime as Date).getTime(),
   }));
 
   const slots: Slot[] = [];

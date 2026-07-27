@@ -3,9 +3,9 @@ import { ErrorMessage } from "@/components/ui";
 
 interface AuthLayoutProps {
   subtitle: string;
-  error: string | null;
+  error?: string | null;
   children: ReactNode;
-  bottomLink: ReactNode;
+  bottomLink?: ReactNode;
 }
 
 export function AuthLayout({ subtitle, error, children, bottomLink }: AuthLayoutProps) {

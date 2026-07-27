@@ -38,7 +38,7 @@ describeIfDb("POST /api/auth/login — integration", () => {
   it("returns 401 for wrong password", async () => {
     const res = await request
       .post("/api/auth/login")
-      .send({ email: "alice@example.com", password: "wrongpassword" });
+      .send({ email: "alice@example.com", password: "wrongpassword1" });
 
     expect(res.status).toBe(401);
     expect(res.body.error.code).toBe("INVALID_CREDENTIALS");
