@@ -13,10 +13,12 @@ test.describe.serial("Booking — full user flow", () => {
     await page.getByRole("navigation").getByRole("link", { name: "График" }).click();
     await expect(page.locator('[data-container="page--availability"]')).toBeVisible({ timeout: 10000 });
 
-    // Toggle Monday to ensure it's enabled in the payload
-    const monCheckbox = page.getByLabel("Пн");
-    await monCheckbox.uncheck();
-    await monCheckbox.check();
+    // Enable all weekdays so there's always an available day regardless of test date
+    for (const dayLabel of ["Пн", "Вт", "Ср", "Чт", "Пт"]) {
+      const checkbox = page.getByLabel(dayLabel);
+      await checkbox.uncheck();
+      await checkbox.check();
+    }
 
     await page.getByRole("button", { name: "Сохранить" }).click();
     await expect(page.getByText("График сохранён")).toBeVisible({ timeout: 10000 });
@@ -25,13 +27,17 @@ test.describe.serial("Booking — full user flow", () => {
     await page.getByRole("navigation").getByRole("link", { name: "Типы встреч" }).click();
     await expect(page.locator('[data-container="page--meeting-types"]')).toBeVisible();
 
-    await page.getByRole("button", { name: "Создать" }).click();
-    await expect(page.locator('[data-container="dialog--create-meeting-type"]')).toBeVisible();
-    await page.getByText("15 мин").click();
-    await page.getByText("Single").click();
-    await page.getByRole("button", { name: "Создать" }).click();
-    await expect(page.locator('[data-container="dialog--create-meeting-type"]')).not.toBeVisible();
-    await expect(page.locator('[data-container="card--meeting-type"]')).toBeVisible({ timeout: 10000 });
+    // On retry, the type may already exist — check before creating
+    const existingCards = page.locator('[data-container="card--meeting-type"]');
+    if ((await existingCards.count()) === 0) {
+      await page.getByRole("button", { name: "Создать" }).click();
+      await expect(page.locator('[data-container="dialog--create-meeting-type"]')).toBeVisible();
+      await page.getByRole("radio", { name: "15 мин" }).check();
+      await page.getByRole("radio", { name: "Single" }).check();
+      await page.getByRole("button", { name: "Создать" }).click();
+      await expect(page.locator('[data-container="dialog--create-meeting-type"]')).not.toBeVisible();
+      await expect(page.locator('[data-container="card--meeting-type"]')).toBeVisible({ timeout: 10000 });
+    }
 
     // Logout
     await page.getByRole("button", { name: "Выйти" }).click();

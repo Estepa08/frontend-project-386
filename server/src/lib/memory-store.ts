@@ -191,8 +191,8 @@ function seed() {
   const adminPassword = "$2b$10$o0K88ITGLLI6GNEYWnsw3ef.FccxRRYNb5Ke/2bq4p7xI4qwjWyGK";
   const userPassword = "$2b$10$o0K88ITGLLI6GNEYWnsw3ef.FccxRRYNb5Ke/2bq4p7xI4qwjWyGK";
 
-  stores.admin.insert("1", { id: "1", name: "Admin", email: "admin@meetly.app", password: adminPassword, createdAt: now });
-  stores.user.insert("2", { id: "2", name: "User", email: "user@meetly.app", password: userPassword, createdAt: now });
+  stores.admin.insert("00000000-0000-0000-0000-000000000001", { id: "00000000-0000-0000-0000-000000000001", name: "Admin", email: "admin@meetly.app", password: adminPassword, createdAt: now });
+  stores.user.insert("00000000-0000-0000-0000-000000000002", { id: "00000000-0000-0000-0000-000000000002", name: "User", email: "user@meetly.app", password: userPassword, createdAt: now });
 }
 
 seed();

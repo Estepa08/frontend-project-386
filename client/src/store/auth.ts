@@ -20,9 +20,9 @@ export const useAuth = create<AuthState>((set) => ({
     set({
       role,
       user: {
-        id: role === ROLES.ADMIN ? "1" : "2",
+        id: role === ROLES.ADMIN ? "00000000-0000-0000-0000-000000000001" : "00000000-0000-0000-0000-000000000002",
         name: role === ROLES.ADMIN ? "Admin" : "User",
-        email: `${role}@meetly.app`,
+        email: role === ROLES.ADMIN ? "admin@meetly.app" : "user@meetly.app",
         createdAt: new Date().toISOString(),
       },
     }),
