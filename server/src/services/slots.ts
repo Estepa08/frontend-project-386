@@ -1,6 +1,7 @@
 import { memoryStore } from "../lib/memory-store.js";
 
-const SLOT_DURATION_MIN = 30;
+export const SLOT_DURATIONS = [15, 30] as const;
+export type SlotDurationMinutes = (typeof SLOT_DURATIONS)[number];
 
 interface Slot {
   startTime: string;
@@ -51,7 +52,40 @@ async function getOccupied(dayStart: Date, dayEnd: Date): Promise<Array<{ start:
   }));
 }
 
-export async function getAvailableDates(month: string): Promise<string[]> {
+function buildSlots(
+  date: Date,
+  durationMinutes: number,
+  workingHours: Array<{ startTime: string; endTime: string }>,
+  occupied: Array<{ start: number; end: number }>,
+): Slot[] {
+  const slots: Slot[] = [];
+
+  for (const wh of workingHours) {
+    const whStart = parseTime(wh.startTime);
+    const whEnd = parseTime(wh.endTime);
+
+    for (let m = whStart; m + durationMinutes <= whEnd; m += durationMinutes) {
+      const slotStart = new Date(date);
+      slotStart.setHours(Math.floor(m / 60), m % 60, 0, 0);
+      const slotEnd = addMinutes(slotStart, durationMinutes);
+
+      const conflict = occupied.some(
+        (o) => slotStart.getTime() < o.end && slotEnd.getTime() > o.start,
+      );
+
+      if (!conflict) {
+        slots.push({
+          startTime: toTimeStr(slotStart),
+          endTime: toTimeStr(slotEnd),
+        });
+      }
+    }
+  }
+
+  return slots;
+}
+
+export async function getAvailableDates(month: string, durationMinutes: number): Promise<string[]> {
   const [yearStr, monthStr] = month.split("-");
   const year = Number(yearStr);
   const mon = Number(monthStr);
@@ -83,31 +117,9 @@ export async function getAvailableDates(month: string): Promise<string[]> {
     dayEnd.setHours(23, 59, 59, 999);
 
     const occupied = await getOccupied(dayStart, dayEnd);
+    const slots = buildSlots(date, durationMinutes, dayWorkingHours, occupied);
 
-    let hasSlot = false;
-
-    for (const wh of dayWorkingHours) {
-      const whStart = parseTime(wh.startTime);
-      const whEnd = parseTime(wh.endTime);
-
-      for (let m = whStart; m + SLOT_DURATION_MIN <= whEnd; m += SLOT_DURATION_MIN) {
-        const slotStart = new Date(date);
-        slotStart.setHours(Math.floor(m / 60), m % 60, 0, 0);
-        const slotEnd = addMinutes(slotStart, SLOT_DURATION_MIN);
-
-        const conflict = occupied.some(
-          (o) => slotStart.getTime() < o.end && slotEnd.getTime() > o.start,
-        );
-
-        if (!conflict) {
-          hasSlot = true;
-          break;
-        }
-      }
-      if (hasSlot) break;
-    }
-
-    if (hasSlot) {
+    if (slots.length > 0) {
       available.push(toDateStr(date));
     }
   }
@@ -115,7 +127,7 @@ export async function getAvailableDates(month: string): Promise<string[]> {
   return available;
 }
 
-export async function getSlots(date: string): Promise<Slot[]> {
+export async function getSlots(date: string, durationMinutes: number): Promise<Slot[]> {
   const dateObj = new Date(date + "T00:00:00Z");
   const dow = getDayOfWeek(dateObj);
 
@@ -132,29 +144,5 @@ export async function getSlots(date: string): Promise<Slot[]> {
 
   const occupied = await getOccupied(dayStart, dayEnd);
 
-  const slots: Slot[] = [];
-
-  for (const wh of dayWorkingHours) {
-    const whStartMinutes = parseTime(wh.startTime);
-    const whEndMinutes = parseTime(wh.endTime);
-
-    for (let m = whStartMinutes; m + SLOT_DURATION_MIN <= whEndMinutes; m += SLOT_DURATION_MIN) {
-      const slotStart = new Date(dateObj);
-      slotStart.setHours(Math.floor(m / 60), m % 60, 0, 0);
-      const slotEnd = addMinutes(slotStart, SLOT_DURATION_MIN);
-
-      const conflict = occupied.some(
-        (o) => slotStart.getTime() < o.end && slotEnd.getTime() > o.start,
-      );
-
-      if (!conflict) {
-        slots.push({
-          startTime: toTimeStr(slotStart),
-          endTime: toTimeStr(slotEnd),
-        });
-      }
-    }
-  }
-
-  return slots;
+  return buildSlots(dateObj, durationMinutes, dayWorkingHours, occupied);
 }

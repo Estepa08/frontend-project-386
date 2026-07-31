@@ -1,5 +1,6 @@
 import { request } from "./client";
 import type { Day } from "@/lib/constants";
+import type { SlotDuration } from "@/lib/constants";
 
 export interface WorkingHour {
   dayOfWeek: Day;
@@ -9,6 +10,7 @@ export interface WorkingHour {
 
 export interface Availability {
   workingHours: WorkingHour[];
+  slotDurations: SlotDuration[];
 }
 
 export function fetchAvailability(): Promise<Availability> {

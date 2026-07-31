@@ -53,6 +53,17 @@ describe("Meets API", () => {
     expect(res.status).toBe(400);
   });
 
+  it("POST /api/meets — rejects a meet with unsupported duration", async () => {
+    const start = tomorrowAt(11);
+    const res = await request.post("/api/meets").send({
+      name: "John Doe",
+      theme: "Too long",
+      startTime: start.toISOString(),
+      endTime: new Date(start.getTime() + 45 * 60000).toISOString(),
+    });
+    expect(res.status).toBe(400);
+  });
+
   it("GET /api/meets — lists all meets", async () => {
     const res = await request.get("/api/meets");
     expect(res.status).toBe(200);

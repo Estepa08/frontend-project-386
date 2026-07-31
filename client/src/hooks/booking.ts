@@ -7,24 +7,27 @@ import {
 } from "@/api/booking";
 import type { UseQueryResult, UseMutationResult } from "@tanstack/react-query";
 import type { components } from "@/api/generated/schema";
+import type { SlotDuration } from "@/lib/constants";
 
 export function useAvailableDates(
   month?: string,
+  duration?: SlotDuration,
 ): UseQueryResult<components["schemas"]["AvailableDates"]> {
   return useQuery({
-    queryKey: ["available-dates", month],
-    queryFn: () => fetchAvailableDates(month!),
-    enabled: !!month,
+    queryKey: ["available-dates", month, duration],
+    queryFn: () => fetchAvailableDates(month!, duration!),
+    enabled: !!month && !!duration,
   });
 }
 
 export function useSlots(
   date?: string,
+  duration?: SlotDuration,
 ): UseQueryResult<components["schemas"]["Slots"]> {
   return useQuery({
-    queryKey: ["slots", date],
-    queryFn: () => fetchSlots(date!),
-    enabled: !!date,
+    queryKey: ["slots", date, duration],
+    queryFn: () => fetchSlots(date!, duration!),
+    enabled: !!date && !!duration,
   });
 }
 

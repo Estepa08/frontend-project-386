@@ -21,6 +21,7 @@ model WorkingHour {
 
 model Availability {
   workingHours: WorkingHour[];
+  slotDurations: ("15" | "30")[];
 }
 
 model Slot {
@@ -78,12 +79,12 @@ interface AvailabilityApi {
 
 @route("/available-dates")
 interface AvailableDatesApi {
-  @get get(@query month: string): AvailableDates;
+  @get get(@query month: string, @query duration: "15" | "30"): AvailableDates;
 }
 
 @route("/slots")
 interface SlotsApi {
-  @get get(@query date: plainDate): Slots;
+  @get get(@query date: plainDate, @query duration: "15" | "30"): Slots;
 }
 
 @route("/meets")

@@ -12,6 +12,7 @@ export function StepConfirm() {
   const {
     date,
     slot,
+    duration,
     name,
     email,
     theme,
@@ -68,7 +69,7 @@ export function StepConfirm() {
       <div className="mb-6 rounded-lg border border-zinc-200 bg-white p-4 text-sm" data-container="card--booking-summary">
         <p className="mt-1 text-zinc-600">
           {date && format(date, "d MMMM yyyy, EEEE", { locale: ru })} ·{" "}
-          {slot?.startTime.slice(0, 5)} – {slot?.endTime.slice(0, 5)} · 30 мин
+          {slot?.startTime.slice(0, 5)} – {slot?.endTime.slice(0, 5)} · {duration ?? ""} мин
         </p>
       </div>
 

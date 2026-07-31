@@ -10,4 +10,5 @@ const workingHourSchema = z.object({
 
 export const availabilitySchema = z.object({
   workingHours: z.array(workingHourSchema),
+  slotDurations: z.array(z.enum(["15", "30"])).min(1, "Выберите хотя бы одну длительность"),
 });

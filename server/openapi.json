@@ -72,6 +72,19 @@
               "type": "string"
             },
             "explode": false
+          },
+          {
+            "name": "duration",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "15",
+                "30"
+              ]
+            },
+            "explode": false
           }
         ],
         "responses": {
@@ -266,6 +279,19 @@
               "format": "date"
             },
             "explode": false
+          },
+          {
+            "name": "duration",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "15",
+                "30"
+              ]
+            },
+            "explode": false
           }
         ],
         "responses": {
@@ -311,13 +337,24 @@
       "Availability": {
         "type": "object",
         "required": [
-          "workingHours"
+          "workingHours",
+          "slotDurations"
         ],
         "properties": {
           "workingHours": {
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/WorkingHour"
+            }
+          },
+          "slotDurations": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "15",
+                "30"
+              ]
             }
           }
         }

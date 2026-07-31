@@ -2,13 +2,23 @@ import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { useAvailability, useUpdateAvailability } from "@/hooks/availability";
 import { useSchedule } from "@/hooks/useSchedule";
-import { Button, ErrorMessage, ConfirmDialog, PageSkeleton } from "@/components/ui";
+import { Button, ErrorMessage, ConfirmDialog, PageSkeleton, Switch } from "@/components/ui";
 import { ScheduleItemRow } from "@/components/availability";
-import { DAY_LABELS } from "@/lib/constants";
+import { DAY_LABELS, SLOT_DURATIONS, SLOT_DURATION_LABELS, type SlotDuration } from "@/lib/constants";
 
 export function AdminAvailabilityPage() {
   const { data, isLoading, isError, error } = useAvailability();
   const mutation = useUpdateAvailability();
+
+  const [durations, setDurations] = useState<SlotDuration[]>(["15", "30"]);
+  const [durationsInitialized, setDurationsInitialized] = useState(false);
+
+  useEffect(() => {
+    if (data?.slotDurations && !durationsInitialized) {
+      setDurations(data.slotDurations);
+      setDurationsInitialized(true);
+    }
+  }, [data, durationsInitialized]);
 
   useEffect(() => {
     if (mutation.isSuccess) {
@@ -41,6 +51,16 @@ export function AdminAvailabilityPage() {
     );
   }
 
+  const noDurationsEnabled = durations.length === 0;
+
+  const handleToggleDuration = (duration: SlotDuration, checked: boolean) => {
+    setDurations((prev) =>
+      checked
+        ? [...new Set([...prev, duration])]
+        : prev.filter((item) => item !== duration),
+    );
+  };
+
   return (
     <div data-container="page--availability">
       <h1 className="mb-6 text-2xl font-bold text-zinc-900">График работы</h1>
@@ -68,14 +88,36 @@ export function AdminAvailabilityPage() {
         ))}
       </div>
 
+      <div className="mt-6 rounded-lg border border-zinc-200 bg-white px-6 py-4" data-container="section--durations">
+        <p className="mb-4 text-sm font-medium text-zinc-700">Длительность встречи</p>
+        <div className="space-y-3">
+          {SLOT_DURATIONS.map((duration) => (
+            <label
+              key={duration}
+              className="flex items-center justify-between gap-4 text-sm text-zinc-700"
+              data-container={`duration-row--${duration}`}
+            >
+              {SLOT_DURATION_LABELS[duration]}
+              <Switch
+                checked={durations.includes(duration)}
+                onCheckedChange={(checked) => handleToggleDuration(duration, checked)}
+              />
+            </label>
+          ))}
+        </div>
+        {noDurationsEnabled && (
+          <p className="mt-3 text-sm text-red-600">Выберите хотя бы одну длительность</p>
+        )}
+      </div>
+
       <Button
         className="mt-6"
         onClick={() => {
-          if (hasErrors) {
+          if (hasErrors || noDurationsEnabled) {
             setShowSaveErrorModal(true);
             return;
           }
-          mutation.mutate({ workingHours: payload });
+          mutation.mutate({ workingHours: payload, slotDurations: durations });
         }}
         disabled={mutation.isPending}
       >
@@ -92,7 +134,7 @@ export function AdminAvailabilityPage() {
         open={showSaveErrorModal}
         onOpenChange={setShowSaveErrorModal}
         title="Ошибка в расписании"
-        description="Исправьте формат времени в отмеченных днях перед сохранением"
+        description="Исправьте формат времени или выберите хотя бы одну длительность перед сохранением"
         confirmLabel="Понятно"
         onConfirm={() => setShowSaveErrorModal(false)}
       />

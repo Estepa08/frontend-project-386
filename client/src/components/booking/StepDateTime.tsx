@@ -1,30 +1,41 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { DayPicker, getDefaultClassNames } from "react-day-picker";
 import { ru } from "date-fns/locale";
 import { format, addMonths } from "date-fns";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useBooking } from "@/store/booking";
 import { cn } from "@/lib/utils";
+import { SLOT_DURATIONS, SLOT_DURATION_LABELS } from "@/lib/constants";
 import { useAvailableDates, useSlots } from "@/hooks/booking";
+import { useAvailability } from "@/hooks/availability";
 import { ErrorMessage } from "@/components/ui";
 import { StepNav } from "./StepNav";
 
 export function StepDateTime() {
-  const { date, slot, setDate, setSlot, setStep } = useBooking();
+  const { date, slot, duration, setDate, setSlot, setDuration, setStep } = useBooking();
 
   const [viewMonth, setViewMonth] = useState(new Date());
   const dateStr = date ? format(date, "yyyy-MM-dd") : "";
   const monthStr = format(viewMonth, "yyyy-MM");
 
+  const { data: availability, isError: availabilityError } = useAvailability();
+  const enabledDurations = availability?.slotDurations ?? [];
+
+  useEffect(() => {
+    if (!duration && enabledDurations.length > 0) {
+      setDuration(enabledDurations[0]);
+    }
+  }, [enabledDurations, duration, setDuration]);
+
   const {
     data: datesData,
     isError: datesError,
-  } = useAvailableDates(monthStr);
+  } = useAvailableDates(monthStr, duration ?? undefined);
 
   const {
     data: slotsData,
     isError: slotsError,
-  } = useSlots(dateStr);
+  } = useSlots(dateStr, duration ?? undefined);
 
   const availableDates = datesData?.dates ?? [];
   const slots = slotsData?.slots ?? [];
@@ -34,12 +45,44 @@ export function StepDateTime() {
     [availableDates],
   );
 
+  const showDurationPicker = enabledDurations.length > 1;
+
   return (
     <div data-container="step--date-time">
+      {availabilityError && <ErrorMessage message="Не удалось загрузить настройки" />}
       {datesError && <ErrorMessage message="Не удалось загрузить доступные даты" />}
       {slotsError && <ErrorMessage message="Не удалось загрузить слоты" />}
 
       <div data-container="container--content" className="min-h-[450px]">
+        {showDurationPicker && (
+          <div className="mb-6 flex items-center gap-2" data-container="card--duration-picker">
+            <span className="text-sm font-medium text-zinc-700">Длительность:</span>
+            <div className="flex rounded-lg border border-zinc-200 bg-white p-1">
+              {SLOT_DURATIONS.map((option) => {
+                const enabled = enabledDurations.includes(option);
+                const isSelected = duration === option;
+                return (
+                  <button
+                    key={option}
+                    type="button"
+                    disabled={!enabled}
+                    onClick={() => setDuration(option)}
+                    className={cn(
+                      "rounded-md px-4 py-1.5 text-sm font-medium transition-colors",
+                      isSelected
+                        ? "bg-zinc-900 text-white"
+                        : "text-zinc-600 hover:text-zinc-900",
+                      !enabled && "cursor-not-allowed text-zinc-300",
+                    )}
+                  >
+                    {SLOT_DURATION_LABELS[option]}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
         <div data-container="grid--calendar-and-slots" className="flex flex-col gap-6 md:grid md:grid-cols-2 md:gap-6">
           <div data-container="card--calendar" className="bg-white border border-zinc-200 rounded-lg p-3 min-h-[250px] w-full flex flex-col gap-2">
             <div data-container="header--calendar-month" className="flex items-center justify-between min-h-[36px]">

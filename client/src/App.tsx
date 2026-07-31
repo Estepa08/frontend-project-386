@@ -1,11 +1,12 @@
-import { Routes, Route, Navigate } from "react-router-dom";
-import { RootLayout } from "@/components/layout";
+import { Routes, Route } from "react-router-dom";
+import { RootLayout, RoleGuard } from "@/components/layout";
 import { Toaster } from "@/components/ui";
 import {
   AdminDashboard,
   AdminAvailabilityPage,
   AdminMeetsPage,
   BookingPage,
+  LandingPage,
   MeetDetailPage,
   NotFoundPage,
 } from "@/pages";
@@ -15,13 +16,16 @@ export default function App() {
     <>
       <Routes>
         <Route element={<RootLayout />}>
-          <Route index element={<Navigate to="/booking" replace />} />
+          <Route index element={<LandingPage />} />
 
           <Route path="booking" element={<BookingPage />} />
-          <Route path="admin" element={<AdminDashboard />} />
-          <Route path="admin/availability" element={<AdminAvailabilityPage />} />
-          <Route path="admin/meets" element={<AdminMeetsPage />} />
-          <Route path="meets/:id" element={<MeetDetailPage />} />
+
+          <Route element={<RoleGuard />}>
+            <Route path="admin" element={<AdminDashboard />} />
+            <Route path="admin/availability" element={<AdminAvailabilityPage />} />
+            <Route path="admin/meets" element={<AdminMeetsPage />} />
+            <Route path="meets/:id" element={<MeetDetailPage />} />
+          </Route>
 
           <Route path="*" element={<NotFoundPage />} />
         </Route>

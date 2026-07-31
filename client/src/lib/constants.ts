@@ -15,6 +15,13 @@ export const DAY_LABELS: Record<Day, string> = {
 export const DEFAULT_START = "09:00";
 export const DEFAULT_END = "18:00";
 
+export const SLOT_DURATIONS = ["15", "30"] as const;
+export type SlotDuration = (typeof SLOT_DURATIONS)[number];
+export const SLOT_DURATION_LABELS: Record<SlotDuration, string> = {
+  "15": "15 минут",
+  "30": "30 минут",
+};
+
 export const START_HOUR = 9;
 export const SLOT_COUNT = 19;
 export const TIME_SLOTS = Array.from({ length: SLOT_COUNT }, (_, index) => {
@@ -25,9 +32,19 @@ export const TIME_SLOTS = Array.from({ length: SLOT_COUNT }, (_, index) => {
 
 export const PAGE_SIZE = 20;
 
-export const NAV: readonly { to: string; label: string; end?: boolean }[] = [
+const OWNER_NAV: readonly { to: string; label: string; end?: boolean }[] = [
   { to: "/booking", label: "Забронировать" },
   { to: "/admin", label: "Обзор", end: true },
   { to: "/admin/meets", label: "Встречи" },
   { to: "/admin/availability", label: "График" },
 ];
+
+const USER_NAV: readonly { to: string; label: string; end?: boolean }[] = [
+  { to: "/booking", label: "Забронировать" },
+];
+
+export function getNavByRole(role: "owner" | "user" | null) {
+  if (role === "owner") return OWNER_NAV;
+  if (role === "user") return USER_NAV;
+  return [];
+}

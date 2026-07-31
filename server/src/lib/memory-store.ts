@@ -135,14 +135,17 @@ class MemoryCollection<T extends Record<string, unknown>> {
 interface Stores {
   workingHour: MemoryCollection<{ id: number; dayOfWeek: string; startTime: string; endTime: string }>;
   meet: MemoryCollection<Record<string, unknown>>;
+  settings: MemoryCollection<{ id: number; slotDurations: string[] }>;
 }
 
 const stores: Stores = {
   workingHour: new MemoryCollection(true, "workingHour"),
   meet: new MemoryCollection(true, "meet"),
+  settings: new MemoryCollection(true, "settings"),
 };
 
 export const memoryStore = {
   workingHour: stores.workingHour,
   meet: stores.meet,
+  settings: stores.settings,
 };

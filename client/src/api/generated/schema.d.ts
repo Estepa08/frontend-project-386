@@ -96,6 +96,7 @@ export interface components {
         };
         Availability: {
             workingHours: components["schemas"]["WorkingHour"][];
+            slotDurations: ("15" | "30")[];
         };
         AvailableDates: {
             dates: string[];
@@ -206,6 +207,7 @@ export interface operations {
         parameters: {
             query: {
                 month: string;
+                duration: "15" | "30";
             };
             header?: never;
             path?: never;
@@ -350,6 +352,7 @@ export interface operations {
         parameters: {
             query: {
                 date: string;
+                duration: "15" | "30";
             };
             header?: never;
             path?: never;

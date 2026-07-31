@@ -1,8 +1,9 @@
 import { useState, useCallback, useEffect } from "react";
-import { NavLink, useLocation } from "react-router-dom";
+import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
-import { Menu, X } from "lucide-react";
-import { NAV } from "@/lib/constants";
+import { Menu, X, LogOut } from "lucide-react";
+import { getNavByRole } from "@/lib/constants";
+import { useRole, type Role } from "@/store/role";
 
 function NavItem({ to, end, children, onClick }: { to: string; end?: boolean; children: React.ReactNode; onClick?: () => void }) {
   return (
@@ -25,8 +26,16 @@ function NavItem({ to, end, children, onClick }: { to: string; end?: boolean; ch
   );
 }
 
+const ROLE_LABELS: Record<Role, string> = {
+  owner: "Владелец",
+  user: "Пользователь",
+};
+
 export function Header() {
   const location = useLocation();
+  const navigate = useNavigate();
+  const role = useRole((state) => state.role);
+  const clearRole = useRole((state) => state.clearRole);
   const [mobileOpen, setMobileOpen] = useState(false);
 
   useEffect(() => {
@@ -34,6 +43,13 @@ export function Header() {
   }, [location.pathname]);
 
   const closeMobile = useCallback(() => setMobileOpen(false), []);
+
+  const nav = getNavByRole(role);
+
+  const handleSwitchRole = () => {
+    clearRole();
+    navigate("/");
+  };
 
   return (
     <header className="relative border-b border-zinc-200 bg-white" data-container="header">
@@ -52,20 +68,43 @@ export function Header() {
           </NavLink>
         </div>
 
-        <nav className="hidden md:flex items-center gap-4 text-sm">
-          {NAV.map((item) => (
-            <NavItem key={item.to} to={item.to} end={item.end}>{item.label}</NavItem>
-          ))}
-        </nav>
+        {nav.length > 0 && (
+          <nav className="hidden md:flex items-center gap-4 text-sm">
+            {nav.map((item) => (
+              <NavItem key={item.to} to={item.to} end={item.end}>{item.label}</NavItem>
+            ))}
+          </nav>
+        )}
+
+        {role && (
+          <button
+            onClick={handleSwitchRole}
+            className="hidden md:inline-flex items-center gap-2 rounded-lg border border-zinc-200 px-3 py-1.5 text-sm text-zinc-600 transition-colors hover:border-zinc-900 hover:text-zinc-900"
+            data-container="header--switch-role"
+          >
+            <LogOut className="h-4 w-4" />
+            {ROLE_LABELS[role]} · Сменить
+          </button>
+        )}
       </div>
 
       {mobileOpen && (
         <div className="md:hidden absolute left-0 right-0 top-14 z-50 border-b border-zinc-200 bg-white px-4 py-4 shadow-lg" data-container="header--mobile-menu">
           <nav className="flex flex-col gap-3 text-sm">
-            {NAV.map((item) => (
+            {nav.map((item) => (
               <NavItem key={item.to} to={item.to} end={item.end} onClick={closeMobile}>{item.label}</NavItem>
             ))}
           </nav>
+
+          {role && (
+            <button
+              onClick={handleSwitchRole}
+              className="mt-4 inline-flex w-full items-center gap-2 rounded-lg border border-zinc-200 px-3 py-2 text-sm text-zinc-600"
+            >
+              <LogOut className="h-4 w-4" />
+              {ROLE_LABELS[role]} · Сменить роль
+            </button>
+          )}
         </div>
       )}
     </header>
