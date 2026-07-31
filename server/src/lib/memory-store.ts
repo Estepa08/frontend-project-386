@@ -134,18 +134,37 @@ class MemoryCollection<T extends Record<string, unknown>> {
 
 interface Stores {
   workingHour: MemoryCollection<{ id: number; dayOfWeek: string; startTime: string; endTime: string }>;
+  eventType: MemoryCollection<{ id: number; title: string; description: string; durationMinutes: number }>;
   meet: MemoryCollection<Record<string, unknown>>;
-  settings: MemoryCollection<{ id: number; slotDurations: string[] }>;
 }
 
 const stores: Stores = {
   workingHour: new MemoryCollection(true, "workingHour"),
+  eventType: new MemoryCollection(true, "eventType"),
   meet: new MemoryCollection(true, "meet"),
-  settings: new MemoryCollection(true, "settings"),
 };
+
+const DEFAULT_WORKING_HOURS: Array<{ dayOfWeek: string; startTime: string; endTime: string }> =
+  ["mon", "tue", "wed", "thu", "fri"].map((dayOfWeek) => ({
+    dayOfWeek,
+    startTime: "09:00",
+    endTime: "18:00",
+  }));
+
+const DEFAULT_EVENT_TYPES: Array<{ title: string; description: string; durationMinutes: number }> = [
+  { title: "Быстрая консультация", description: "Короткий звонок для уточнения вопросов", durationMinutes: 15 },
+  { title: "Созвон", description: "Стандартная видео-встреча", durationMinutes: 30 },
+];
+
+async function seedDefaults(): Promise<void> {
+  await stores.workingHour.createMany({ data: DEFAULT_WORKING_HOURS });
+  await stores.eventType.createMany({ data: DEFAULT_EVENT_TYPES });
+}
+
+await seedDefaults();
 
 export const memoryStore = {
   workingHour: stores.workingHour,
+  eventType: stores.eventType,
   meet: stores.meet,
-  settings: stores.settings,
 };

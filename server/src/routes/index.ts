@@ -1,6 +1,6 @@
 import { Router } from "express";
 import availabilityRouter from "./availability.js";
-import slotsRouter from "./slots.js";
+import eventTypesRouter from "./event-types.js";
 import meetsRouter from "./meets.js";
 
 const router = Router();
@@ -10,7 +10,7 @@ router.get("/health", (_req, res) => {
 });
 
 router.use("/availability", availabilityRouter);
-router.use("/", slotsRouter);
+router.use("/event-types", eventTypesRouter);
 router.use("/meets", meetsRouter);
 
 export default router;

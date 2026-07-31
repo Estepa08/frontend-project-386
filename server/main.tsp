@@ -21,7 +21,19 @@ model WorkingHour {
 
 model Availability {
   workingHours: WorkingHour[];
-  slotDurations: ("15" | "30")[];
+}
+
+model EventType {
+  id: int32;
+  title: string;
+  description: string;
+  durationMinutes: int32;
+}
+
+model EventTypeInput {
+  title: string;
+  description: string;
+  durationMinutes: int32;
 }
 
 model Slot {
@@ -38,15 +50,16 @@ model AvailableDates {
 }
 
 model MeetInput {
+  eventTypeId: int32;
   name: string;
   email?: string;
   theme: string;
   startTime: utcDateTime;
-  endTime: utcDateTime;
 }
 
 model Meet extends MeetInput {
   id: int32;
+  endTime: utcDateTime;
   inviteLink: string;
   status: "confirmed" | "cancelled";
   createdAt: utcDateTime;
@@ -77,21 +90,50 @@ interface AvailabilityApi {
   @put set(@body input: Availability): Availability | ApiError;
 }
 
-@route("/available-dates")
-interface AvailableDatesApi {
-  @get get(@query month: string, @query duration: "15" | "30"): AvailableDates;
+@route("/event-types")
+interface EventTypes {
+  @get list(): EventType[];
+
+  @post
+  create(@body input: EventTypeInput): {
+    @statusCode statusCode: 201;
+    ...EventType;
+  } | ApiError;
+
+  @get
+  @route("/{id}")
+  get(@path id: int32): EventType | ApiError;
+
+  @patch
+  @route("/{id}")
+  update(@path id: int32, @body input: EventTypeInput): EventType | ApiError;
+
+  @delete
+  @route("/{id}")
+  delete(@path id: int32): {
+    @statusCode statusCode: 204;
+  } | ApiError;
 }
 
-@route("/slots")
-interface SlotsApi {
-  @get get(@query date: plainDate, @query duration: "15" | "30"): Slots;
+@route("/event-types/{eventTypeId}/available-dates")
+interface EventTypeAvailableDates {
+  @get get(@path eventTypeId: int32): AvailableDates | ApiError;
+}
+
+@route("/event-types/{eventTypeId}/slots")
+interface EventTypeSlots {
+  @get get(@path eventTypeId: int32, @query date: plainDate): Slots | ApiError;
 }
 
 @route("/meets")
 interface Meets {
   @get list(@query status?: "confirmed" | "cancelled", @query date?: plainDate): Meet[];
 
-  @post create(@body input: MeetInput): Meet | ApiError;
+  @post
+  create(@body input: MeetInput): {
+    @statusCode statusCode: 201;
+    ...Meet;
+  } | ApiError;
 
   @get
   @route("/{id}")

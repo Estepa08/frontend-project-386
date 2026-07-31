@@ -1,7 +1,6 @@
 import { memoryStore } from "../lib/memory-store.js";
 
-export const SLOT_DURATIONS = [15, 30] as const;
-export type SlotDurationMinutes = (typeof SLOT_DURATIONS)[number];
+export const BOOKING_WINDOW_DAYS = 14;
 
 interface Slot {
   startTime: string;
@@ -13,7 +12,7 @@ function getDayOfWeek(date: Date): string {
   return days[date.getDay()];
 }
 
-function toDateStr(date: Date): string {
+export function toDateStr(date: Date): string {
   const y = date.getFullYear();
   const m = String(date.getMonth() + 1).padStart(2, "0");
   const d = String(date.getDate()).padStart(2, "0");
@@ -31,10 +30,25 @@ function addMinutes(date: Date, minutes: number): Date {
   return d;
 }
 
-function toTimeStr(date: Date): string {
+export function toTimeStr(date: Date): string {
   const h = String(date.getHours()).padStart(2, "0");
   const m = String(date.getMinutes()).padStart(2, "0");
   return `${h}:${m}`;
+}
+
+function isToday(date: Date): boolean {
+  const today = new Date();
+  return (
+    date.getFullYear() === today.getFullYear() &&
+    date.getMonth() === today.getMonth() &&
+    date.getDate() === today.getDate()
+  );
+}
+
+export function getBookingWindowEnd(): Date {
+  const end = new Date();
+  end.setDate(end.getDate() + BOOKING_WINDOW_DAYS - 1);
+  return end;
 }
 
 async function getOccupied(dayStart: Date, dayEnd: Date): Promise<Array<{ start: number; end: number }>> {
@@ -57,6 +71,7 @@ function buildSlots(
   durationMinutes: number,
   workingHours: Array<{ startTime: string; endTime: string }>,
   occupied: Array<{ start: number; end: number }>,
+  minStartTime?: Date,
 ): Slot[] {
   const slots: Slot[] = [];
 
@@ -68,6 +83,10 @@ function buildSlots(
       const slotStart = new Date(date);
       slotStart.setHours(Math.floor(m / 60), m % 60, 0, 0);
       const slotEnd = addMinutes(slotStart, durationMinutes);
+
+      if (minStartTime && slotStart.getTime() <= minStartTime.getTime()) {
+        continue;
+      }
 
       const conflict = occupied.some(
         (o) => slotStart.getTime() < o.end && slotEnd.getTime() > o.start,
@@ -85,25 +104,23 @@ function buildSlots(
   return slots;
 }
 
-export async function getAvailableDates(month: string, durationMinutes: number): Promise<string[]> {
-  const [yearStr, monthStr] = month.split("-");
-  const year = Number(yearStr);
-  const mon = Number(monthStr);
-
+export async function getAvailableDatesInWindow(eventTypeId: number, durationMinutes: number): Promise<string[]> {
   const workingHours = await memoryStore.workingHour.findMany({});
   if (workingHours.length === 0) return [];
 
   const workingDays = new Set(workingHours.map((wh) => wh.dayOfWeek));
 
-  const daysInMonth = new Date(year, mon, 0).getDate();
   const today = new Date();
   today.setHours(0, 0, 0, 0);
+  const windowEnd = getBookingWindowEnd();
+  windowEnd.setHours(0, 0, 0, 0);
 
   const available: string[] = [];
 
-  for (let day = 1; day <= daysInMonth; day++) {
-    const date = new Date(year, mon - 1, day);
-    if (date < today) continue;
+  for (let day = 0; day < BOOKING_WINDOW_DAYS; day++) {
+    const date = new Date(today);
+    date.setDate(today.getDate() + day);
+    if (date > windowEnd) break;
 
     const dow = getDayOfWeek(date);
     if (!workingDays.has(dow)) continue;
@@ -117,7 +134,13 @@ export async function getAvailableDates(month: string, durationMinutes: number):
     dayEnd.setHours(23, 59, 59, 999);
 
     const occupied = await getOccupied(dayStart, dayEnd);
-    const slots = buildSlots(date, durationMinutes, dayWorkingHours, occupied);
+    const slots = buildSlots(
+      date,
+      durationMinutes,
+      dayWorkingHours,
+      occupied,
+      isToday(date) ? new Date() : undefined,
+    );
 
     if (slots.length > 0) {
       available.push(toDateStr(date));
@@ -144,5 +167,11 @@ export async function getSlots(date: string, durationMinutes: number): Promise<S
 
   const occupied = await getOccupied(dayStart, dayEnd);
 
-  return buildSlots(dateObj, durationMinutes, dayWorkingHours, occupied);
+  return buildSlots(
+    dateObj,
+    durationMinutes,
+    dayWorkingHours,
+    occupied,
+    isToday(dateObj) ? new Date() : undefined,
+  );
 }

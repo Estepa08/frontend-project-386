@@ -3,7 +3,6 @@ import { memoryStore } from "../lib/memory-store.js";
 import { validate } from "../middleware/validate.js";
 import { availabilitySchema } from "../schemas/availability.js";
 import { asyncHandler } from "../lib/asyncHandler.js";
-import { getSlotDurations, setSlotDurations, type SlotDuration } from "../services/settings.js";
 import { z } from "zod";
 
 const router = Router();
@@ -14,8 +13,7 @@ router.get(
     const workingHours = await memoryStore.workingHour.findMany({
       select: { dayOfWeek: true, startTime: true, endTime: true },
     });
-    const slotDurations = await getSlotDurations();
-    res.json({ workingHours, slotDurations });
+    res.json({ workingHours });
   }),
 );
 
@@ -32,10 +30,8 @@ router.put(
         endTime: wh.endTime,
       })),
     });
-    await setSlotDurations(body.slotDurations as SlotDuration[]);
     res.json({
       workingHours: body.workingHours,
-      slotDurations: body.slotDurations,
     });
   }),
 );
