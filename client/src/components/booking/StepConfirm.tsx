@@ -77,10 +77,13 @@ export function StepConfirm() {
 
       <div className="space-y-4" data-container="form--booking">
         <div>
-          <label className="mb-1 block text-sm font-medium text-zinc-700">
+          <label htmlFor="name" className="mb-1 block text-sm font-medium text-zinc-700">
             Ваше имя <span className="text-red-500">*</span>
           </label>
           <Input
+            id="name"
+            name="name"
+            autoComplete="name"
             value={name}
             onChange={(e) => setName(e.target.value)}
             placeholder="Например: Иван Петров"
@@ -88,11 +91,15 @@ export function StepConfirm() {
         </div>
 
         <div>
-          <label className="mb-1 block text-sm font-medium text-zinc-700">
+          <label htmlFor="email" className="mb-1 block text-sm font-medium text-zinc-700">
             Email
           </label>
           <Input
+            id="email"
+            name="email"
             type="email"
+            autoComplete="email"
+            spellCheck={false}
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="you@example.com"
@@ -100,10 +107,13 @@ export function StepConfirm() {
         </div>
 
         <div>
-          <label className="mb-1 block text-sm font-medium text-zinc-700">
+          <label htmlFor="theme" className="mb-1 block text-sm font-medium text-zinc-700">
             Тема <span className="text-red-500">*</span>
           </label>
           <Input
+            id="theme"
+            name="theme"
+            autoComplete="off"
             value={theme}
             onChange={(e) => setTheme(e.target.value)}
             placeholder="Например: Консультация по проекту"
