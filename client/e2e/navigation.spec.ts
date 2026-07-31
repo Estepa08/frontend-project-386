@@ -18,7 +18,7 @@ test.describe("Navigation", () => {
   test("booking page is public and wrapped in main layout", async ({ page }) => {
     await page.goto("/booking");
     await expect(page.locator('[data-container="layout--root"]')).toBeVisible();
-    await expect(page.locator('[data-container="booking-wizard"]')).toBeVisible();
+    await expect(page.locator('[data-container="page--booking-types"]')).toBeVisible();
   });
 
   test("admin dashboard requires owner role", async ({ page }) => {

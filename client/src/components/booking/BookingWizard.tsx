@@ -9,6 +9,10 @@ const STEPS = [
   { num: 2, label: "Подтверждение" },
 ];
 
+function formatDuration(durationMinutes: number): string {
+  return `${durationMinutes} мин`;
+}
+
 function StepIndicator({ step }: { step: number }) {
   return (
     <div className="mb-8 flex items-center justify-center gap-0" data-container="step-indicator">
@@ -53,10 +57,38 @@ function StepIndicator({ step }: { step: number }) {
 }
 
 export function BookingWizard() {
-  const { step } = useBooking();
+  const eventType = useBooking((state) => state.eventType);
+  const step = useBooking((state) => state.step);
+  const reset = useBooking((state) => state.reset);
+
+  if (!eventType) return null;
 
   return (
     <div className="mx-auto max-w-3xl" data-container="booking-wizard">
+      <div
+        className="mb-6 flex items-center justify-between rounded-lg border border-zinc-200 bg-white px-5 py-4"
+        data-container="card--event-type-summary"
+      >
+        <div>
+          <p className="text-lg font-semibold text-zinc-900">{eventType.title}</p>
+          {eventType.description && (
+            <p className="mt-0.5 text-sm text-zinc-500">{eventType.description}</p>
+          )}
+        </div>
+        <div className="flex items-center gap-3">
+          <span className="rounded-md bg-zinc-100 px-2.5 py-1 text-sm font-medium text-zinc-700">
+            {formatDuration(eventType.durationMinutes)}
+          </span>
+          <button
+            type="button"
+            onClick={reset}
+            className="text-sm font-medium text-zinc-500 transition-colors hover:text-zinc-900"
+          >
+            Сменить тип
+          </button>
+        </div>
+      </div>
+
       {step < 3 && <StepIndicator step={step} />}
 
       {step === 1 && <StepDateTime />}

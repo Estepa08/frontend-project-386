@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { useMeets } from "@/hooks/meets";
+import { useEventTypes } from "@/hooks/event-types";
 import { ErrorMessage, StatusBadge, PageSkeleton } from "@/components/ui";
 import { formatDate } from "@/lib/utils";
 import { CalendarX } from "lucide-react";
@@ -27,6 +28,15 @@ export function MeetsList({ title }: MeetsListProps) {
     status: statusFilter === "all" ? undefined : statusFilter,
     date: dateFilter || undefined,
   });
+
+  const { data: eventTypes } = useEventTypes();
+  const eventTypeTitles = useMemo(() => {
+    const map = new Map<number, string>();
+    for (const eventType of eventTypes ?? []) {
+      map.set(eventType.id, eventType.title);
+    }
+    return map;
+  }, [eventTypes]);
 
   const items: Meet[] = Array.isArray(meets) ? meets : [];
 
@@ -96,6 +106,7 @@ export function MeetsList({ title }: MeetsListProps) {
               <thead className="bg-zinc-50">
                 <tr>
                   <th className="px-4 py-3 text-left font-medium text-zinc-500">Дата / время</th>
+                  <th className="px-4 py-3 text-left font-medium text-zinc-500">Тип события</th>
                   <th className="px-4 py-3 text-left font-medium text-zinc-500">Клиент</th>
                   <th className="px-4 py-3 text-left font-medium text-zinc-500">Тема</th>
                   <th className="px-4 py-3 text-left font-medium text-zinc-500">Статус</th>
@@ -106,6 +117,9 @@ export function MeetsList({ title }: MeetsListProps) {
                 {pageItems.map((meet) => (
                   <tr key={meet.id} className="border-t border-zinc-100">
                     <td className="px-4 py-3 text-zinc-900">{formatDate(meet.startTime)}</td>
+                    <td className="px-4 py-3 text-zinc-600">
+                      {eventTypeTitles.get(meet.eventTypeId) ?? `#${meet.eventTypeId}`}
+                    </td>
                     <td className="px-4 py-3 text-zinc-600">{meet.name}</td>
                     <td className="px-4 py-3 text-zinc-600">{meet.theme}</td>
                     <td className="px-4 py-3">
@@ -132,6 +146,9 @@ export function MeetsList({ title }: MeetsListProps) {
                   <span className="font-medium text-zinc-900">{formatDate(meet.startTime)}</span>
                   <StatusBadge status={meet.status} />
                 </div>
+                <p className="text-sm font-medium text-zinc-700">
+                  {eventTypeTitles.get(meet.eventTypeId) ?? `#${meet.eventTypeId}`}
+                </p>
                 <p className="text-sm text-zinc-600">{meet.name}</p>
                 <p className="text-sm text-zinc-600">{meet.theme}</p>
                 <Link

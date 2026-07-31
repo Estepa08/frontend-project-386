@@ -20,20 +20,68 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/available-dates": {
+    "/event-types": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        get: operations["AvailableDatesApi_get"];
+        get: operations["EventTypes_list"];
+        put?: never;
+        post: operations["EventTypes_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/event-types/{eventTypeId}/available-dates": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["EventTypeAvailableDates_get"];
         put?: never;
         post?: never;
         delete?: never;
         options?: never;
         head?: never;
         patch?: never;
+        trace?: never;
+    };
+    "/event-types/{eventTypeId}/slots": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["EventTypeSlots_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/event-types/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["EventTypes_get"];
+        put?: never;
+        post?: never;
+        delete: operations["EventTypes_delete"];
+        options?: never;
+        head?: never;
+        patch: operations["EventTypes_update"];
         trace?: never;
     };
     "/meets": {
@@ -68,22 +116,6 @@ export interface paths {
         patch: operations["Meets_update"];
         trace?: never;
     };
-    "/slots": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["SlotsApi_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -96,14 +128,29 @@ export interface components {
         };
         Availability: {
             workingHours: components["schemas"]["WorkingHour"][];
-            slotDurations: ("15" | "30")[];
         };
         AvailableDates: {
             dates: string[];
         };
+        EventType: {
+            /** Format: int32 */
+            id: number;
+            title: string;
+            description: string;
+            /** Format: int32 */
+            durationMinutes: number;
+        };
+        EventTypeInput: {
+            title: string;
+            description: string;
+            /** Format: int32 */
+            durationMinutes: number;
+        };
         Meet: {
             /** Format: int32 */
             id: number;
+            /** Format: date-time */
+            endTime: string;
             inviteLink: string;
             /** @enum {string} */
             status: "confirmed" | "cancelled";
@@ -113,13 +160,13 @@ export interface components {
             updatedAt: string;
         } & components["schemas"]["MeetInput"];
         MeetInput: {
+            /** Format: int32 */
+            eventTypeId: number;
             name: string;
             email?: string;
             theme: string;
             /** Format: date-time */
             startTime: string;
-            /** Format: date-time */
-            endTime: string;
         };
         MeetPatch: {
             name?: string;
@@ -203,12 +250,9 @@ export interface operations {
             };
         };
     };
-    AvailableDatesApi_get: {
+    EventTypes_list: {
         parameters: {
-            query: {
-                month: string;
-                duration: "15" | "30";
-            };
+            query?: never;
             header?: never;
             path?: never;
             cookie?: never;
@@ -221,7 +265,199 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    "application/json": components["schemas"]["EventType"][];
+                };
+            };
+        };
+    };
+    EventTypes_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["EventTypeInput"];
+            };
+        };
+        responses: {
+            /** @description The request has succeeded and a new resource has been created as a result. */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EventType"];
+                };
+            };
+            /** @description An unexpected error response. */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiError"];
+                };
+            };
+        };
+    };
+    EventTypeAvailableDates_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                eventTypeId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The request has succeeded. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
                     "application/json": components["schemas"]["AvailableDates"];
+                };
+            };
+            /** @description An unexpected error response. */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiError"];
+                };
+            };
+        };
+    };
+    EventTypeSlots_get: {
+        parameters: {
+            query: {
+                date: string;
+            };
+            header?: never;
+            path: {
+                eventTypeId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The request has succeeded. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Slots"];
+                };
+            };
+            /** @description An unexpected error response. */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiError"];
+                };
+            };
+        };
+    };
+    EventTypes_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The request has succeeded. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EventType"];
+                };
+            };
+            /** @description An unexpected error response. */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiError"];
+                };
+            };
+        };
+    };
+    EventTypes_delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description There is no content to send for this request, but the headers may be useful. */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description An unexpected error response. */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiError"];
+                };
+            };
+        };
+    };
+    EventTypes_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["EventTypeInput"];
+            };
+        };
+        responses: {
+            /** @description The request has succeeded. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EventType"];
+                };
+            };
+            /** @description An unexpected error response. */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiError"];
                 };
             };
         };
@@ -262,8 +498,8 @@ export interface operations {
             };
         };
         responses: {
-            /** @description The request has succeeded. */
-            200: {
+            /** @description The request has succeeded and a new resource has been created as a result. */
+            201: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -344,29 +580,6 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ApiError"];
-                };
-            };
-        };
-    };
-    SlotsApi_get: {
-        parameters: {
-            query: {
-                date: string;
-                duration: "15" | "30";
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description The request has succeeded. */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Slots"];
                 };
             };
         };

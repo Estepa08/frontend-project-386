@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { format, isToday, startOfWeek, endOfWeek, isWithinInterval, parseISO } from "date-fns";
 import { Clock, Calendar } from "lucide-react";
 import { useMeets } from "@/hooks/meets";
+import { useEventTypes } from "@/hooks/event-types";
 import { Button, ErrorMessage, StatusBadge, PageSkeleton } from "@/components/ui";
 import type { components } from "@/api/generated/schema";
 import { MEET_STATUS } from "@/lib/constants";
@@ -20,6 +21,15 @@ export function AdminDashboard() {
     isError,
     error: allErrorObj,
   } = useMeets();
+
+  const { data: eventTypes } = useEventTypes();
+  const eventTypeTitles = useMemo(() => {
+    const map = new Map<number, string>();
+    for (const eventType of eventTypes ?? []) {
+      map.set(eventType.id, eventType.title);
+    }
+    return map;
+  }, [eventTypes]);
 
   const items: Meet[] = Array.isArray(allMeets) ? allMeets : [];
 
@@ -122,19 +132,23 @@ export function AdminDashboard() {
         {!isLoading && todayItems.length > 0 && (
           <div className="space-y-2" data-container="list--today-meets">
             {todayItems.map((meet) => (
-              <div
+              <Link
                 key={meet.id}
-                className="flex items-center gap-4 rounded-lg border border-zinc-100 bg-zinc-50 px-4 py-3"
+                to={`/meets/${meet.id}`}
+                className="flex items-center gap-4 rounded-lg border border-zinc-100 bg-zinc-50 px-4 py-3 transition-colors hover:bg-zinc-100"
               >
                 <span className="shrink-0 text-sm font-medium text-zinc-900">
                   {formatTime(meet.startTime)} — {formatTime(meet.endTime)}
                 </span>
-                <span className="text-sm text-zinc-600">{meet.theme}</span>
-                <span className="text-sm text-zinc-400">{meet.name}</span>
+                <span className="shrink-0 text-sm text-zinc-600">
+                  {eventTypeTitles.get(meet.eventTypeId) ?? `#${meet.eventTypeId}`}
+                </span>
+                <span className="truncate text-sm text-zinc-600">{meet.theme}</span>
+                <span className="shrink-0 text-sm text-zinc-400">{meet.name}</span>
                 <span className="ml-auto">
                   <StatusBadge status={meet.status} />
                 </span>
-              </div>
+              </Link>
             ))}
           </div>
         )}

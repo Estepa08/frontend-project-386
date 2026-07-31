@@ -1,7 +1,7 @@
 export { Button } from "./button";
 export { Checkbox } from "./checkbox";
 export { ConfirmDialog } from "./confirm-dialog";
-export { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogClose } from "./dialog";
+export { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogClose } from "./dialog";
 export { ErrorMessage } from "./error-message";
 export { Input } from "./input";
 export { Label } from "./label";

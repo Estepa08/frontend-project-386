@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { selectRole } from "./helpers";
+import { selectRole, selectCalendarDate } from "./helpers";
 
 test.describe.serial("Booking — full user flow", () => {
   test("Owner sets availability", async ({ page }) => {
@@ -20,16 +20,21 @@ test.describe.serial("Booking — full user flow", () => {
 
   test("Guest books a meeting", async ({ page }) => {
     await page.goto("/booking");
+    await expect(page.locator('[data-container="page--booking-types"]')).toBeVisible();
+
+    // A list of event types (название, описание, длительность) is shown
+    await expect(page.locator('[data-container="grid--event-types"] button').first()).toBeVisible();
+
+    // Select the first event type — the wizard opens with date and time step
+    await page.locator('[data-container="grid--event-types"] button').first().click();
     await expect(page.locator('[data-container="booking-wizard"]')).toBeVisible();
     await expect(page.locator('[data-container="step--date-time"]')).toBeVisible();
+    await expect(page.locator('[data-container="card--event-type-summary"]')).toBeVisible();
 
-    // Duration picker is visible with both 15 and 30 minutes enabled by default
-    await expect(page.locator('[data-container="card--duration-picker"]')).toBeVisible();
-
-    // Select a duration: calendar slides left, today's date is auto-selected,
-    // and the slots panel appears with slots for today
-    await page.locator('[data-container="duration-card--30"]').click();
-    await expect(page.locator('[data-container="panel--slots"]')).toBeVisible();
+    // Pick a future date so there are always bookable slots regardless of the time of day
+    const targetDate = new Date();
+    targetDate.setDate(targetDate.getDate() + 2);
+    await selectCalendarDate(page, targetDate);
 
     await expect(page.locator('[data-container="grid--slots"] button').first()).toBeVisible({ timeout: 10000 });
     await page.locator('[data-container="grid--slots"] button').first().click();

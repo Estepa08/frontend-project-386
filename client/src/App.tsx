@@ -4,6 +4,7 @@ import { Toaster } from "@/components/ui";
 import {
   AdminDashboard,
   AdminAvailabilityPage,
+  AdminEventTypesPage,
   AdminMeetsPage,
   BookingPage,
   LandingPage,
@@ -23,6 +24,7 @@ export default function App() {
           <Route element={<RoleGuard />}>
             <Route path="admin" element={<AdminDashboard />} />
             <Route path="admin/availability" element={<AdminAvailabilityPage />} />
+            <Route path="admin/event-types" element={<AdminEventTypesPage />} />
             <Route path="admin/meets" element={<AdminMeetsPage />} />
             <Route path="meets/:id" element={<MeetDetailPage />} />
           </Route>

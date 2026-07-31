@@ -3,6 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { Check, Copy, ArrowLeft, AlertCircle, Pencil } from "lucide-react";
 import { useMeet, useCancelMeet } from "@/hooks/meets";
+import { useEventType } from "@/hooks/event-types";
 import { ApiRequestError } from "@/api/client";
 import { formatLocalDate, formatLocalTime, CLIPBOARD_FEEDBACK_DURATION } from "@/lib/utils";
 import { Button, StatusBadge, ErrorMessage, ConfirmDialog, PageSkeleton } from "@/components/ui";
@@ -17,6 +18,7 @@ export function MeetDetailPage() {
 
   const meetId = id ? Number(id) : undefined;
   const { data: meet, isLoading, isError, error } = useMeet(meetId);
+  const { data: eventType } = useEventType(meet?.eventTypeId);
   const cancelMutation = useCancelMeet();
 
   useEffect(() => {
@@ -73,7 +75,7 @@ export function MeetDetailPage() {
   const endDate = new Date(meet.endTime);
 
   return (
-    <div className="max-w-xl" data-container="page--meet-detail">
+    <div className="mx-auto max-w-xl" data-container="page--meet-detail">
       <Button variant="ghost" size="sm" onClick={() => navigate(-1)} className="mb-4">
         <ArrowLeft className="mr-1 h-4 w-4" />
         Назад
@@ -115,6 +117,16 @@ export function MeetDetailPage() {
         <div className="h-px bg-zinc-100" />
 
         <div>
+          <p className="text-xs font-medium uppercase tracking-wide text-zinc-400">Тип события</p>
+          <p className="mt-0.5 text-sm text-zinc-900">
+            {eventType?.title ?? `#${meet.eventTypeId}`}
+            {eventType ? ` · ${eventType.durationMinutes} мин` : ""}
+          </p>
+        </div>
+
+        <div className="h-px bg-zinc-100" />
+
+        <div>
           <p className="text-xs font-medium uppercase tracking-wide text-zinc-400">Клиент</p>
           <p className="mt-0.5 text-sm text-zinc-900">{meet.name}</p>
           {meet.email && (
@@ -127,14 +139,12 @@ export function MeetDetailPage() {
         <div>
           <p className="text-xs font-medium uppercase tracking-wide text-zinc-400">Ссылка-приглашение</p>
           <div className="mt-1 flex items-center gap-2">
-            <a
-              href={meet.inviteLink}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex-1 truncate rounded bg-zinc-100 px-2 py-1 text-sm text-zinc-700 hover:bg-zinc-200"
+            <span
+              className="flex-1 truncate rounded bg-zinc-100 px-2 py-1 font-mono text-sm text-zinc-700"
+              title={meet.inviteLink}
             >
               {meet.inviteLink}
-            </a>
+            </span>
             <Button variant="outline" size="sm" onClick={handleCopyLink}>
               {copied ? (
                 <Check className="h-4 w-4 text-green-600" />

@@ -15,12 +15,7 @@ export const DAY_LABELS: Record<Day, string> = {
 export const DEFAULT_START = "09:00";
 export const DEFAULT_END = "18:00";
 
-export const SLOT_DURATIONS = ["15", "30"] as const;
-export type SlotDuration = (typeof SLOT_DURATIONS)[number];
-export const SLOT_DURATION_LABELS: Record<SlotDuration, string> = {
-  "15": "15 минут",
-  "30": "30 минут",
-};
+export const BOOKING_WINDOW_DAYS = 14;
 
 export const START_HOUR = 9;
 export const SLOT_COUNT = 19;
@@ -35,6 +30,7 @@ export const PAGE_SIZE = 20;
 const OWNER_NAV: readonly { to: string; label: string; end?: boolean }[] = [
   { to: "/booking", label: "Забронировать" },
   { to: "/admin", label: "Обзор", end: true },
+  { to: "/admin/event-types", label: "Типы событий" },
   { to: "/admin/meets", label: "Встречи" },
   { to: "/admin/availability", label: "График" },
 ];
