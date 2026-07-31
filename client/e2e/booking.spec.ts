@@ -56,7 +56,7 @@ test.describe.serial("Booking — full user flow", () => {
     await selectRole(page, "owner");
     await page.goto("/admin/meets");
     await expect(page.locator('[data-container="page--meets"]')).toBeVisible({ timeout: 10000 });
-    await expect(page.getByRole("cell", { name: "E2E Test Booking" })).toBeVisible();
-    await expect(page.getByRole("cell", { name: "E2E Guest" })).toBeVisible();
+    await expect(page.getByRole("cell", { name: "E2E Test Booking" }).first()).toBeVisible();
+    await expect(page.getByRole("cell", { name: "E2E Guest" }).first()).toBeVisible();
   });
 });
