@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
-import { useAuth } from "@/store/auth";
 import { useAvailability, useUpdateAvailability } from "@/hooks/availability";
 import { useSchedule } from "@/hooks/useSchedule";
 import { Button, ErrorMessage, ConfirmDialog, PageSkeleton } from "@/components/ui";
@@ -8,11 +7,8 @@ import { ScheduleItemRow } from "@/components/availability";
 import { DAY_LABELS } from "@/lib/constants";
 
 export function AdminAvailabilityPage() {
-  const { user } = useAuth();
-  const adminId = user?.id ?? "";
-
-  const { data, isLoading, isError, error } = useAvailability(adminId);
-  const mutation = useUpdateAvailability(adminId);
+  const { data, isLoading, isError, error } = useAvailability();
+  const mutation = useUpdateAvailability();
 
   useEffect(() => {
     if (mutation.isSuccess) {

@@ -10,7 +10,6 @@ WORKDIR /build/server
 COPY server/package*.json ./
 RUN npm ci
 COPY server/ .
-RUN npx prisma generate
 RUN npm run build
 
 FROM node:20-alpine
@@ -18,11 +17,11 @@ WORKDIR /app
 
 COPY --from=server-build /build/server/dist ./dist
 COPY --from=server-build /build/server/node_modules ./node_modules
-COPY --from=server-build /build/server/prisma ./prisma
 COPY --from=client-build /build/client/dist ./public
 
 ENV NODE_ENV=production
+ENV PORT=3001
 
-EXPOSE ${PORT}
+EXPOSE 3001
 
 CMD ["node", "dist/index.js"]

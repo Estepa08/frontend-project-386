@@ -7,23 +7,19 @@ test.describe("Navigation", () => {
     await expect(page.getByText("Страница не найдена")).toBeVisible();
   });
 
-  test("login page is not wrapped in main layout", async ({ page }) => {
-    await page.goto("/login");
-    await expect(page.locator('[data-container="layout--root"]')).not.toBeVisible();
-  });
-
-  test("redirects /admin to /login for guest", async ({ page }) => {
-    await page.goto("/admin");
-    await expect(page).toHaveURL(/\/login/);
-  });
-
-  test("redirects /booking to /login for guest", async ({ page }) => {
+  test("booking page is public and wrapped in main layout", async ({ page }) => {
     await page.goto("/booking");
-    await expect(page).toHaveURL(/\/login/);
+    await expect(page.locator('[data-container="layout--root"]')).toBeVisible();
+    await expect(page.locator('[data-container="booking-wizard"]')).toBeVisible();
   });
 
-  test("redirects /user to /login for guest", async ({ page }) => {
-    await page.goto("/user");
-    await expect(page).toHaveURL(/\/login/);
+  test("admin dashboard is accessible without login", async ({ page }) => {
+    await page.goto("/admin");
+    await expect(page.locator('[data-container="page--dashboard"]')).toBeVisible();
+  });
+
+  test("root redirects to booking", async ({ page }) => {
+    await page.goto("/");
+    await expect(page).toHaveURL(/\/booking/);
   });
 });

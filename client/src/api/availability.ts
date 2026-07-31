@@ -11,15 +11,12 @@ export interface Availability {
   workingHours: WorkingHour[];
 }
 
-export function fetchAvailability(adminId: string): Promise<Availability> {
-  return request<Availability>(`/api/admins/${adminId}/availability`);
+export function fetchAvailability(): Promise<Availability> {
+  return request<Availability>("/api/availability");
 }
 
-export function updateAvailability(
-  adminId: string,
-  body: Availability,
-): Promise<Availability> {
-  return request<Availability>(`/api/admins/${adminId}/availability`, {
+export function updateAvailability(body: Availability): Promise<Availability> {
+  return request<Availability>("/api/availability", {
     method: "PUT",
     body: JSON.stringify(body),
   });

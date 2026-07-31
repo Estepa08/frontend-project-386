@@ -1,4 +1,6 @@
-import { prisma } from "../lib/prisma.js";
+import { memoryStore } from "../lib/memory-store.js";
+
+const SLOT_DURATION_MIN = 30;
 
 interface Slot {
   startTime: string;
@@ -34,29 +36,30 @@ function toTimeStr(date: Date): string {
   return `${h}:${m}`;
 }
 
-export async function getAvailableDates(
-  adminId: string,
-  month: string,
-  meetingTypeId?: number,
-): Promise<string[]> {
+async function getOccupied(dayStart: Date, dayEnd: Date): Promise<Array<{ start: number; end: number }>> {
+  const meets = await memoryStore.meet.findMany({
+    where: {
+      status: "confirmed",
+      startTime: { gte: dayStart },
+      endTime: { lte: dayEnd },
+    },
+    select: { startTime: true, endTime: true },
+  });
+  return meets.map((m) => ({
+    start: (m.startTime as Date).getTime(),
+    end: (m.endTime as Date).getTime(),
+  }));
+}
+
+export async function getAvailableDates(month: string): Promise<string[]> {
   const [yearStr, monthStr] = month.split("-");
   const year = Number(yearStr);
   const mon = Number(monthStr);
 
-  const workingHours = await prisma.workingHour.findMany({ where: { adminId } });
+  const workingHours = await memoryStore.workingHour.findMany({});
   if (workingHours.length === 0) return [];
 
   const workingDays = new Set(workingHours.map((wh) => wh.dayOfWeek));
-
-  const meetingTypes = meetingTypeId
-    ? await prisma.meetingType.findMany({
-        where: { adminId, id: meetingTypeId },
-      })
-    : await prisma.meetingType.findMany({ where: { adminId } });
-
-  if (meetingTypes.length === 0) return [];
-
-  const durations = meetingTypes.map((mt) => mt.duration);
 
   const daysInMonth = new Date(year, mon, 0).getDate();
   const today = new Date();
@@ -71,7 +74,6 @@ export async function getAvailableDates(
     const dow = getDayOfWeek(date);
     if (!workingDays.has(dow)) continue;
 
-    const dateStr = toDateStr(date);
     const dayWorkingHours = workingHours.filter((wh) => wh.dayOfWeek === dow);
     if (dayWorkingHours.length === 0) continue;
 
@@ -80,20 +82,7 @@ export async function getAvailableDates(
     const dayEnd = new Date(date);
     dayEnd.setHours(23, 59, 59, 999);
 
-    const meets = await prisma.meet.findMany({
-      where: {
-        adminId,
-        status: "confirmed",
-        startTime: { gte: dayStart },
-        endTime: { lte: dayEnd },
-      },
-      select: { startTime: true, endTime: true },
-    });
-
-    const occupied: Array<{ start: number; end: number }> = meets.map((m: Record<string, unknown>) => ({
-      start: (m.startTime as Date).getTime(),
-      end: (m.endTime as Date).getTime(),
-    }));
+    const occupied = await getOccupied(dayStart, dayEnd);
 
     let hasSlot = false;
 
@@ -101,77 +90,47 @@ export async function getAvailableDates(
       const whStart = parseTime(wh.startTime);
       const whEnd = parseTime(wh.endTime);
 
-      for (const duration of durations) {
-        for (let m = whStart; m + duration <= whEnd; m += duration) {
-          const slotStart = new Date(date);
-          slotStart.setHours(Math.floor(m / 60), m % 60, 0, 0);
-          const slotEnd = addMinutes(slotStart, duration);
+      for (let m = whStart; m + SLOT_DURATION_MIN <= whEnd; m += SLOT_DURATION_MIN) {
+        const slotStart = new Date(date);
+        slotStart.setHours(Math.floor(m / 60), m % 60, 0, 0);
+        const slotEnd = addMinutes(slotStart, SLOT_DURATION_MIN);
 
-          const conflict = occupied.some(
-            (o) => slotStart.getTime() < o.end && slotEnd.getTime() > o.start,
-          );
+        const conflict = occupied.some(
+          (o) => slotStart.getTime() < o.end && slotEnd.getTime() > o.start,
+        );
 
-          if (!conflict) {
-            hasSlot = true;
-            break;
-          }
+        if (!conflict) {
+          hasSlot = true;
+          break;
         }
-        if (hasSlot) break;
       }
       if (hasSlot) break;
     }
 
     if (hasSlot) {
-      available.push(dateStr);
+      available.push(toDateStr(date));
     }
   }
 
   return available;
 }
 
-export async function getSlots(
-  adminId: string,
-  date: string,
-  meetingTypeId?: number,
-): Promise<Slot[]> {
+export async function getSlots(date: string): Promise<Slot[]> {
   const dateObj = new Date(date + "T00:00:00Z");
   const dow = getDayOfWeek(dateObj);
 
-  const dayWorkingHours = await prisma.workingHour.findMany({
-    where: { adminId, dayOfWeek: dow },
+  const dayWorkingHours = await memoryStore.workingHour.findMany({
+    where: { dayOfWeek: dow },
   });
 
   if (dayWorkingHours.length === 0) return [];
-
-  const meetingTypes = meetingTypeId
-    ? await prisma.meetingType.findMany({
-        where: { adminId, id: meetingTypeId },
-      })
-    : await prisma.meetingType.findMany({ where: { adminId } });
-
-  if (meetingTypes.length === 0) return [];
-
-  const duration = meetingTypeId ? meetingTypes[0].duration : 15;
 
   const dayStart = new Date(dateObj);
   dayStart.setHours(0, 0, 0, 0);
   const dayEnd = new Date(dateObj);
   dayEnd.setHours(23, 59, 59, 999);
 
-  const meets = await prisma.meet.findMany({
-    where: {
-      adminId,
-      status: "confirmed",
-      startTime: { gte: dayStart },
-      endTime: { lte: dayEnd },
-    },
-    select: { startTime: true, endTime: true },
-  });
-
-  const occupied: Array<{ start: number; end: number }> = meets.map((m: Record<string, unknown>) => ({
-    start: (m.startTime as Date).getTime(),
-    end: (m.endTime as Date).getTime(),
-  }));
+  const occupied = await getOccupied(dayStart, dayEnd);
 
   const slots: Slot[] = [];
 
@@ -179,10 +138,10 @@ export async function getSlots(
     const whStartMinutes = parseTime(wh.startTime);
     const whEndMinutes = parseTime(wh.endTime);
 
-    for (let m = whStartMinutes; m + duration <= whEndMinutes; m += duration) {
+    for (let m = whStartMinutes; m + SLOT_DURATION_MIN <= whEndMinutes; m += SLOT_DURATION_MIN) {
       const slotStart = new Date(dateObj);
       slotStart.setHours(Math.floor(m / 60), m % 60, 0, 0);
-      const slotEnd = addMinutes(slotStart, duration);
+      const slotEnd = addMinutes(slotStart, SLOT_DURATION_MIN);
 
       const conflict = occupied.some(
         (o) => slotStart.getTime() < o.end && slotEnd.getTime() > o.start,

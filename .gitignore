@@ -12,3 +12,6 @@ dev-dist
 test-results/
 playwright-report/
 playwright/.cache/
+
+# TypeSpec emitter output
+server/@typespec

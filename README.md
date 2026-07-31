@@ -9,8 +9,6 @@
 ![TypeScript](https://img.shields.io/badge/-TypeScript-3178C6?style=flat-square&logo=typescript&logoColor=white)
 ![Node.js](https://img.shields.io/badge/-Node.js-339933?style=flat-square&logo=node.js&logoColor=white)
 ![Express](https://img.shields.io/badge/-Express-000000?style=flat-square&logo=express&logoColor=white)
-![PostgreSQL](https://img.shields.io/badge/-PostgreSQL-4169E1?style=flat-square&logo=postgresql&logoColor=white)
-![Prisma](https://img.shields.io/badge/-Prisma-2D3748?style=flat-square&logo=prisma&logoColor=white)
 ![Tailwind](https://img.shields.io/badge/-Tailwind_CSS-06B6D4?style=flat-square&logo=tailwindcss&logoColor=white)
 ![Docker](https://img.shields.io/badge/-Docker-2496ED?style=flat-square&logo=docker&logoColor=white)
 ![Playwright](https://img.shields.io/badge/-Playwright-2EAD33?style=flat-square&logo=playwright&logoColor=white)
@@ -20,7 +18,18 @@
 
 ---
 
-SPA для бронирования видеовстреч. Две роли — организатор и клиент. Организатор настраивает график и типы встреч, клиент выбирает свободный слот и бронирует.
+Упрощённый сервис бронирования времени по мотивам Cal.com. Владелец публикует свободное время, гость выбирает слот по 30 минут и записывается на звонок.
+
+---
+
+## 🚀 Возможности
+
+- **Публичное бронирование** — без регистрации и авторизации
+- Слоты **по 30 минут** с защитой от пересечений
+- Календарь со свободными датами и слотами
+- Настройка рабочего графика по дням недели
+- Список предстоящих встреч для владельца
+- Отмена и редактирование встреч
 
 ---
 
@@ -31,25 +40,11 @@ SPA для бронирования видеовстреч. Две роли — 
 | **Frontend** | React 19, TypeScript, Vite, Tailwind CSS v4, shadcn/ui, React Router v7 |
 | **State** | TanStack Query v5 (серверное), Zustand v5 (клиентское) |
 | **Формы** | React Hook Form + Zod |
-| **Backend** | Node.js, Express, TypeScript, Prisma ORM |
-| **БД** | PostgreSQL |
+| **Backend** | Node.js, Express, TypeScript |
 | **Контракт** | TypeSpec → OpenAPI → openapi-typescript (design-first) |
-| **Тесты** | Vitest (39 integration), Playwright (15 e2e) |
+| **Тесты** | Vitest (интеграционные), Playwright (e2e) |
 | **CI/CD** | GitHub Actions (typecheck → lint → test → e2e → release) |
 | **Инфраструктура** | Docker (multi-stage), Railway |
-
----
-
-## 🚀 Возможности
-
-- Регистрация и аутентификация (JWT, httpOnly cookies, bcrypt)
-- Настройка рабочего графика по дням недели
-- Типы встреч: 15 или 30 минут, категории single/group/private
-- Календарь со свободными датами и слотами — защита от пересечений
-- Пошаговый визард бронирования (4 шага)
-- Гостевые инвайты по email
-- Дашборд со статистикой для админа
-- Фильтрация встреч по статусу и дате
 
 ---
 
@@ -58,7 +53,7 @@ SPA для бронирования видеовстреч. Две роли — 
 Этот проект — демонстрация осознанной работы с AI-инструментами.
 
 **Что делал я:**
-- Спроектировал архитектуру: design-first (TypeSpec), разделение на роли, структуру БД, стек
+- Спроектировал архитектуру: design-first (TypeSpec), структуру API, стек
 - Написал AGENTS.md — регламент для AI-агента: код-стайл, правила безопасности, конвенции коммитов, процессы
 - Ставил задачи, ревьюил код, уточнял требования на каждом этапе
 - Использовал скиллы агента под конкретные задачи: TDD, code review, shadcn, writing plans
@@ -67,16 +62,14 @@ SPA для бронирования видеовстреч. Две роли — 
 **Что делал AI-агент:**
 - Генерацию кода в рамках заданных правил
 
-Результат: production-ready fullstack-приложение за ~24 часа.
-
 ---
 
 ## 🏗️ Архитектура
 
 - **Design-first:** TypeSpec → OpenAPI → автогенерация типов — контракт как единый источник правды
 - **Layered architecture:** API-слой → хуки → UI, однонаправленный поток данных
-- **Security:** httpOnly cookies, rate limiting, Helmet CSP, bcrypt, Zod-валидация
-- **Оптимистичные обновления:** отмена и изменение встреч без ожидания ответа сервера
+- **Без авторизации:** приложение не хранит аккаунты — бронирование публичное
+- **In-memory storage:** данные живут в памяти процесса (переживают только период жизни контейнера)
 - **CI/CD:** typecheck → lint → unit/integration → e2e → Release Please (автоверсионирование)
 
 ---
@@ -86,16 +79,10 @@ SPA для бронирования видеовстреч. Две роли — 
 **Локально**
 
 ```bash
-cp .env.example .env
-```
-
-Открой `.env` и впиши свои значения:
-- `DATABASE_URL` — подключение к твоему PostgreSQL
-- `JWT_SECRET` — любая строка
-
-```bash
 make dev   # сервер + клиент параллельно
 ```
+
+Открой `http://localhost:5173` — клиент проксирует запросы `/api` на `http://localhost:3001`.
 
 **Docker**
 
@@ -103,17 +90,17 @@ make dev   # сервер + клиент параллельно
 docker compose up --build
 ```
 
-**Деплой на Railway**
+Открой `http://localhost:3001`.
 
-Переменные `DATABASE_URL`, `JWT_SECRET`, `PORT` задаются в дашборде Railway (раздел Variables). `.env` не нужен.
+> Приложение хранит данные в памяти. После перезапуска контейнера данные сбрасываются — это осознанное ограничение для демо-сервиса.
 
 ---
 
 ## 🧪 Тесты
 
 ```bash
-make test       # юнит + интеграционные (39)
-make test-e2e   # Playwright (15 сценариев)
+make test       # интеграционные тесты сервера + юнит клиента
+make test-e2e   # Playwright (7 сценариев)
 make test-all   # всё вместе
 ```
 
@@ -123,10 +110,17 @@ make test-all   # всё вместе
 
 ```
 client/          — React SPA
-server/          — Express API + Prisma
+server/          — Express API
   main.tsp       — TypeSpec-контракт
-  prisma/        — схема БД + миграции
+  openapi.json   — сгенерированный OpenAPI
 .github/         — CI/CD + Release Please
 Dockerfile       — multi-stage сборка
 AGENTS.md        — регламент для AI-агента
+```
+
+## 🔄 Обновление контракта
+
+```bash
+npm run generate --prefix server        # main.tsp → openapi.json
+make generate-api                        # openapi.json → типы клиента
 ```

@@ -1,5 +1,3 @@
-import { useAuth } from "@/store/auth";
-
 export class ApiRequestError extends Error {
   code: string;
 
@@ -32,13 +30,7 @@ export async function request<T>(url: string, options?: RequestInit): Promise<T>
     headers["Content-Type"] ??= "application/json";
   }
 
-  const { role, user } = useAuth.getState();
-  if (role && user) {
-    headers["X-User-Id"] = user.id;
-    headers["X-User-Role"] = role;
-  }
-
-  const res = await fetch(url, { ...options, headers, credentials: "include" });
+  const res = await fetch(url, { ...options, headers });
 
   if (!res.ok) {
     let code = "UNKNOWN";

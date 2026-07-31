@@ -1,10 +1,8 @@
 import { useState, useCallback, useEffect } from "react";
-import { NavLink, useNavigate, useLocation } from "react-router-dom";
-import { useAuth } from "@/store/auth";
-import { Button } from "@/components/ui";
+import { NavLink, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { Menu, X } from "lucide-react";
-import { ROLES, ADMIN_NAV, USER_NAV } from "@/lib/constants";
+import { NAV } from "@/lib/constants";
 
 function NavItem({ to, end, children, onClick }: { to: string; end?: boolean; children: React.ReactNode; onClick?: () => void }) {
   return (
@@ -28,19 +26,12 @@ function NavItem({ to, end, children, onClick }: { to: string; end?: boolean; ch
 }
 
 export function Header() {
-  const { role, user, logout } = useAuth();
-  const navigate = useNavigate();
   const location = useLocation();
   const [mobileOpen, setMobileOpen] = useState(false);
 
   useEffect(() => {
     setMobileOpen(false);
   }, [location.pathname]);
-
-  const handleLogout = () => {
-    logout();
-    navigate("/login");
-  };
 
   const closeMobile = useCallback(() => setMobileOpen(false), []);
 
@@ -61,51 +52,20 @@ export function Header() {
           </NavLink>
         </div>
 
-        {role === ROLES.ADMIN && (
-          <nav className="hidden md:flex items-center gap-4 text-sm">
-            {ADMIN_NAV.map((item) => (
-              <NavItem key={item.to} to={item.to} end={item.end}>{item.label}</NavItem>
-            ))}
-          </nav>
-        )}
-
-        {role === ROLES.USER && (
-          <nav className="hidden md:flex items-center gap-4 text-sm">
-            {USER_NAV.map((item) => (
-              <NavItem key={item.to} to={item.to}>{item.label}</NavItem>
-            ))}
-          </nav>
-        )}
-
-        <div className="flex items-center gap-3">
-          {user && (
-            <span className="text-sm text-zinc-500">{user.name}</span>
-          )}
-          {role && (
-            <Button variant="ghost" size="sm" onClick={handleLogout}>
-              Выйти
-            </Button>
-          )}
-        </div>
+        <nav className="hidden md:flex items-center gap-4 text-sm">
+          {NAV.map((item) => (
+            <NavItem key={item.to} to={item.to} end={item.end}>{item.label}</NavItem>
+          ))}
+        </nav>
       </div>
 
       {mobileOpen && (
         <div className="md:hidden absolute left-0 right-0 top-14 z-50 border-b border-zinc-200 bg-white px-4 py-4 shadow-lg" data-container="header--mobile-menu">
-          {role === ROLES.ADMIN && (
-            <nav className="flex flex-col gap-3 text-sm">
-              {ADMIN_NAV.map((item) => (
-                <NavItem key={item.to} to={item.to} end={item.end} onClick={closeMobile}>{item.label}</NavItem>
-              ))}
-            </nav>
-          )}
-
-          {role === ROLES.USER && (
-            <nav className="flex flex-col gap-3 text-sm">
-              {USER_NAV.map((item) => (
-                <NavItem key={item.to} to={item.to} onClick={closeMobile}>{item.label}</NavItem>
-              ))}
-            </nav>
-          )}
+          <nav className="flex flex-col gap-3 text-sm">
+            {NAV.map((item) => (
+              <NavItem key={item.to} to={item.to} end={item.end} onClick={closeMobile}>{item.label}</NavItem>
+            ))}
+          </nav>
         </div>
       )}
     </header>

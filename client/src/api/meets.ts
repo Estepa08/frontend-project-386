@@ -1,25 +1,18 @@
 import { request } from "./client";
 import type { components } from "@/api/generated/schema";
-import { MEET_STATUS, type Role, type MeetStatus } from "@/lib/constants";
+import { MEET_STATUS, type MeetStatus } from "@/lib/constants";
 
 export type Meet = components["schemas"]["Meet"];
 export type MeetPatch = components["schemas"]["MeetPatch"];
 
-export interface MeetResult extends Meet {
-  admin?: { id: string; name: string; email: string };
-  user?: { id: string; name: string; email: string };
-}
+export type MeetResult = Meet;
 
 export interface MeetFilters {
   status?: MeetStatus;
   date?: string;
 }
 
-export function fetchMeets(
-  role: Role,
-  userId: string,
-  filters?: MeetFilters,
-): Promise<MeetResult[]> {
+export function fetchMeets(filters?: MeetFilters): Promise<MeetResult[]> {
   const params = new URLSearchParams();
   if (filters?.status) {
     params.set("status", filters.status);
@@ -28,8 +21,7 @@ export function fetchMeets(
     params.set("date", filters.date);
   }
   const queryString = params.toString();
-  const endpoint = `/api/${role}s/${userId}/meets${queryString ? `?${queryString}` : ""}`;
-  return request<MeetResult[]>(endpoint);
+  return request<MeetResult[]>(`/api/meets${queryString ? `?${queryString}` : ""}`);
 }
 
 export function fetchMeetById(id: number): Promise<MeetResult> {

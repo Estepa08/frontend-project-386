@@ -1,19 +1,21 @@
 import { z } from "zod";
 
-export const meetInputSchema = z.object({
-  adminId: z.string().uuid(),
-  userId: z.string().uuid(),
-  meetingTypeId: z.number().int(),
-  startTime: z.string().datetime(),
-  endTime: z.string().datetime(),
-  theme: z.string().min(1),
-  comment: z.string().optional(),
-  guestEmails: z.array(z.string().email()).optional(),
-});
+export const meetInputSchema = z
+  .object({
+    name: z.string().min(1, "Укажите ваше имя"),
+    email: z.string().email("Некорректный email").optional().or(z.literal("")),
+    theme: z.string().min(1, "Укажите тему встречи"),
+    startTime: z.string().datetime(),
+    endTime: z.string().datetime(),
+  })
+  .refine((input) => new Date(input.endTime) > new Date(input.startTime), {
+    message: "endTime must be after startTime",
+    path: ["endTime"],
+  });
 
 export const meetPatchSchema = z.object({
+  name: z.string().min(1).optional(),
+  email: z.string().email().optional(),
   theme: z.string().min(1).optional(),
-  comment: z.string().optional(),
-  guestEmails: z.array(z.string().email()).optional(),
   status: z.enum(["confirmed", "cancelled"]).optional(),
 });

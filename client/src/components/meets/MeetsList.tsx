@@ -1,24 +1,13 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { useAuth } from "@/store/auth";
 import { useMeets } from "@/hooks/meets";
 import { ErrorMessage, StatusBadge, PageSkeleton } from "@/components/ui";
 import { formatDate } from "@/lib/utils";
 import { CalendarX } from "lucide-react";
 import type { components } from "@/api/generated/schema";
-import { MEET_STATUS, PAGE_SIZE, STATUS_LABELS, type Role, type MeetStatus } from "@/lib/constants";
+import { MEET_STATUS, PAGE_SIZE, STATUS_LABELS, type MeetStatus } from "@/lib/constants";
 
-type Meet = components["schemas"]["Meet"] & {
-  admin?: { id: string; name: string; email: string };
-  user?: { id: string; name: string; email: string };
-};
-
-interface MeetsListProps {
-  title: string;
-  role: Role;
-  nameField: "user" | "admin";
-  nameColumnLabel: string;
-}
+type Meet = components["schemas"]["Meet"];
 
 const STATUS_OPTIONS = [
   { value: "all" as const, label: "Все" },
@@ -26,12 +15,15 @@ const STATUS_OPTIONS = [
   { value: MEET_STATUS.CANCELLED, label: STATUS_LABELS.cancelled },
 ];
 
-export function MeetsList({ title, role, nameField, nameColumnLabel }: MeetsListProps) {
-  const { user } = useAuth();
+interface MeetsListProps {
+  title: string;
+}
+
+export function MeetsList({ title }: MeetsListProps) {
   const [statusFilter, setStatusFilter] = useState<MeetStatus | "all">("all");
   const [dateFilter, setDateFilter] = useState("");
 
-  const { data: meets, isLoading, isError, error } = useMeets(role, user?.id ?? "", {
+  const { data: meets, isLoading, isError, error } = useMeets({
     status: statusFilter === "all" ? undefined : statusFilter,
     date: dateFilter || undefined,
   });
@@ -104,7 +96,7 @@ export function MeetsList({ title, role, nameField, nameColumnLabel }: MeetsList
               <thead className="bg-zinc-50">
                 <tr>
                   <th className="px-4 py-3 text-left font-medium text-zinc-500">Дата / время</th>
-                  <th className="px-4 py-3 text-left font-medium text-zinc-500">{nameColumnLabel}</th>
+                  <th className="px-4 py-3 text-left font-medium text-zinc-500">Клиент</th>
                   <th className="px-4 py-3 text-left font-medium text-zinc-500">Тема</th>
                   <th className="px-4 py-3 text-left font-medium text-zinc-500">Статус</th>
                   <th className="px-4 py-3" />
@@ -114,7 +106,7 @@ export function MeetsList({ title, role, nameField, nameColumnLabel }: MeetsList
                 {pageItems.map((meet) => (
                   <tr key={meet.id} className="border-t border-zinc-100">
                     <td className="px-4 py-3 text-zinc-900">{formatDate(meet.startTime)}</td>
-                    <td className="px-4 py-3 text-zinc-600">{meet[nameField]?.name}</td>
+                    <td className="px-4 py-3 text-zinc-600">{meet.name}</td>
                     <td className="px-4 py-3 text-zinc-600">{meet.theme}</td>
                     <td className="px-4 py-3">
                       <StatusBadge status={meet.status} />
@@ -140,7 +132,7 @@ export function MeetsList({ title, role, nameField, nameColumnLabel }: MeetsList
                   <span className="font-medium text-zinc-900">{formatDate(meet.startTime)}</span>
                   <StatusBadge status={meet.status} />
                 </div>
-                <p className="text-sm text-zinc-600">{meet[nameField]?.name}</p>
+                <p className="text-sm text-zinc-600">{meet.name}</p>
                 <p className="text-sm text-zinc-600">{meet.theme}</p>
                 <Link
                   to={`/meets/${meet.id}`}

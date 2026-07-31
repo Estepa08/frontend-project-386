@@ -1,30 +1,25 @@
 import { useMemo } from "react";
 import { Link } from "react-router-dom";
 import { format, isToday, startOfWeek, endOfWeek, isWithinInterval, parseISO } from "date-fns";
-import { Plus, Clock, Calendar } from "lucide-react";
-import { useAuth } from "@/store/auth";
+import { Clock, Calendar } from "lucide-react";
 import { useMeets } from "@/hooks/meets";
 import { Button, ErrorMessage, StatusBadge, PageSkeleton } from "@/components/ui";
 import type { components } from "@/api/generated/schema";
 import { MEET_STATUS } from "@/lib/constants";
 
-type Meet = components["schemas"]["Meet"] & {
-  user?: { id: string; name: string; email: string };
-};
+type Meet = components["schemas"]["Meet"];
 
 function formatTime(iso: string) {
   return format(parseISO(iso), "HH:mm");
 }
 
 export function AdminDashboard() {
-  const { user } = useAuth();
-
   const {
     data: allMeets,
     isLoading,
     isError,
     error: allErrorObj,
-  } = useMeets("admin", user?.id ?? "");
+  } = useMeets();
 
   const items: Meet[] = Array.isArray(allMeets) ? allMeets : [];
 
@@ -60,12 +55,6 @@ export function AdminDashboard() {
       <h1 className="text-2xl font-bold text-zinc-900">Обзор</h1>
 
       <div className="flex flex-wrap gap-3" data-container="actions--dashboard">
-        <Button variant="outline" asChild>
-          <Link to="/admin/meeting-types">
-            <Plus className="mr-2 h-4 w-4" />
-            Новый тип встречи
-          </Link>
-        </Button>
         <Button variant="outline" asChild>
           <Link to="/admin/availability">
             <Clock className="mr-2 h-4 w-4" />
@@ -141,7 +130,7 @@ export function AdminDashboard() {
                   {formatTime(meet.startTime)} — {formatTime(meet.endTime)}
                 </span>
                 <span className="text-sm text-zinc-600">{meet.theme}</span>
-                <span className="text-sm text-zinc-400">{meet.user?.name}</span>
+                <span className="text-sm text-zinc-400">{meet.name}</span>
                 <span className="ml-auto">
                   <StatusBadge status={meet.status} />
                 </span>

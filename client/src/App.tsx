@@ -1,13 +1,10 @@
 import { Routes, Route, Navigate } from "react-router-dom";
-import { AuthGuard, RootLayout } from "@/components/layout";
+import { RootLayout } from "@/components/layout";
 import { Toaster } from "@/components/ui";
 import {
-  LoginPage,
   AdminDashboard,
   AdminAvailabilityPage,
-  AdminMeetingTypesPage,
   AdminMeetsPage,
-  UserMeetsPage,
   BookingPage,
   MeetDetailPage,
   NotFoundPage,
@@ -17,24 +14,17 @@ export default function App() {
   return (
     <>
       <Routes>
-        <Route path="/login" element={<LoginPage />} />
+        <Route element={<RootLayout />}>
+          <Route index element={<Navigate to="/booking" replace />} />
 
-        <Route element={<AuthGuard />}>
-          <Route element={<RootLayout />}>
-            <Route index element={<Navigate to="/admin" replace />} />
-            <Route path="admin" element={<AdminDashboard />} />
-            <Route path="admin/availability" element={<AdminAvailabilityPage />} />
-            <Route path="admin/meeting-types" element={<AdminMeetingTypesPage />} />
-            <Route path="admin/meets" element={<AdminMeetsPage />} />
-            <Route path="user" element={<Navigate to="/user/meets" replace />} />
-            <Route path="user/meets" element={<UserMeetsPage />} />
+          <Route path="booking" element={<BookingPage />} />
+          <Route path="admin" element={<AdminDashboard />} />
+          <Route path="admin/availability" element={<AdminAvailabilityPage />} />
+          <Route path="admin/meets" element={<AdminMeetsPage />} />
+          <Route path="meets/:id" element={<MeetDetailPage />} />
 
-            <Route path="booking" element={<BookingPage />} />
-            <Route path="meets/:id" element={<MeetDetailPage />} />
-          </Route>
+          <Route path="*" element={<NotFoundPage />} />
         </Route>
-
-        <Route path="*" element={<NotFoundPage />} />
       </Routes>
       <Toaster />
     </>

@@ -17,6 +17,7 @@ format:
 
 typecheck:
 	npm run typecheck --prefix client
+	npm run typecheck --prefix server
 
 test: test-client test-server
 

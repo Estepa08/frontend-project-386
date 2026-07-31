@@ -1,14 +1,12 @@
 import { useBooking } from "@/store/booking";
 import { cn } from "@/lib/utils";
-import { StepSelectAdmin } from "./StepSelectAdmin";
 import { StepDateTime } from "./StepDateTime";
 import { StepConfirm } from "./StepConfirm";
 import { StepSuccess } from "./StepSuccess";
 
 const STEPS = [
-  { num: 1, label: "Выбор организатора" },
-  { num: 2, label: "Дата и время" },
-  { num: 3, label: "Подтверждение" },
+  { num: 1, label: "Дата и время" },
+  { num: 2, label: "Подтверждение" },
 ];
 
 function StepIndicator({ step }: { step: number }) {
@@ -59,12 +57,11 @@ export function BookingWizard() {
 
   return (
     <div className="mx-auto max-w-3xl" data-container="booking-wizard">
-      <StepIndicator step={step} />
+      {step < 3 && <StepIndicator step={step} />}
 
-      {step === 1 && <StepSelectAdmin />}
-      {step === 2 && <StepDateTime />}
-      {step === 3 && <StepConfirm />}
-      {step === 4 && <StepSuccess />}
+      {step === 1 && <StepDateTime />}
+      {step === 2 && <StepConfirm />}
+      {step === 3 && <StepSuccess />}
     </div>
   );
 }

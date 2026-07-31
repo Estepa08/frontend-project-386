@@ -10,17 +10,14 @@ import {
 } from "@/api/meets";
 import type { UseQueryResult, UseMutationResult } from "@tanstack/react-query";
 import { REFETCH_INTERVAL } from "@/lib/utils";
-import { MEET_STATUS, type Role } from "@/lib/constants";
+import { MEET_STATUS } from "@/lib/constants";
 
 export function useMeets(
-  role: Role,
-  userId: string,
   filters?: MeetFilters,
 ): UseQueryResult<MeetResult[]> {
   return useQuery({
-    queryKey: ["meets", role, userId, filters],
-    queryFn: () => fetchMeets(role, userId, filters),
-    enabled: !!role && !!userId,
+    queryKey: ["meets", filters],
+    queryFn: () => fetchMeets(filters),
     refetchInterval: REFETCH_INTERVAL,
   });
 }

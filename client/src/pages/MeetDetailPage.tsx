@@ -115,38 +115,12 @@ export function MeetDetailPage() {
         <div className="h-px bg-zinc-100" />
 
         <div>
-          <p className="text-xs font-medium uppercase tracking-wide text-zinc-400">Администратор</p>
-          <p className="mt-0.5 text-sm text-zinc-900">{meet.admin?.name ?? `ID ${meet.adminId}`}</p>
-        </div>
-
-        <div>
           <p className="text-xs font-medium uppercase tracking-wide text-zinc-400">Клиент</p>
-          <p className="mt-0.5 text-sm text-zinc-900">{meet.user?.name ?? `ID ${meet.userId}`}</p>
+          <p className="mt-0.5 text-sm text-zinc-900">{meet.name}</p>
+          {meet.email && (
+            <p className="mt-0.5 text-sm text-zinc-600">{meet.email}</p>
+          )}
         </div>
-
-        {meet.comment && (
-          <>
-            <div className="h-px bg-zinc-100" />
-            <div>
-              <p className="text-xs font-medium uppercase tracking-wide text-zinc-400">Комментарий</p>
-              <p className="mt-0.5 text-sm text-zinc-600">{meet.comment}</p>
-            </div>
-          </>
-        )}
-
-        {meet.guestEmails && meet.guestEmails.length > 0 && (
-          <>
-            <div className="h-px bg-zinc-100" />
-            <div>
-              <p className="text-xs font-medium uppercase tracking-wide text-zinc-400">Гости</p>
-              <ul className="mt-0.5 space-y-0.5">
-                {meet.guestEmails.map((email) => (
-                  <li key={email} className="text-sm text-zinc-600">{email}</li>
-                ))}
-              </ul>
-            </div>
-          </>
-        )}
 
         <div className="h-px bg-zinc-100" />
 

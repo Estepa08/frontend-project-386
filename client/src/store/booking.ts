@@ -1,49 +1,34 @@
 import { create } from "zustand";
 import type { components } from "@/api/generated/schema";
 
-type Admin = components["schemas"]["Admin"];
 type Slot = components["schemas"]["Slot"];
 
-interface MeetingType {
-  id: number;
-  duration: 15 | 30;
-  category: string;
-}
-
 interface BookingState {
-  step: 1 | 2 | 3 | 4;
-  admin: Admin | null;
-  meetingType: MeetingType | null;
+  step: 1 | 2 | 3;
   date: Date | null;
   slot: Slot | null;
+  name: string;
+  email: string;
   theme: string;
-  comment: string;
-  guests: string[];
-  confirmedMeet: { inviteLink: string; startTime: string; theme: string; adminName: string } | null;
+  confirmedMeet: { inviteLink: string; startTime: string; theme: string } | null;
 
-  setStep: (step: 1 | 2 | 3 | 4) => void;
-  setAdmin: (admin: Admin) => void;
-  setMeetingType: (meetingType: MeetingType) => void;
+  setStep: (step: 1 | 2 | 3) => void;
   setDate: (date: Date | null) => void;
   setSlot: (slot: Slot | null) => void;
+  setName: (name: string) => void;
+  setEmail: (email: string) => void;
   setTheme: (theme: string) => void;
-  setComment: (comment: string) => void;
-  addGuest: () => void;
-  removeGuest: (index: number) => void;
-  updateGuest: (index: number, value: string) => void;
-  setConfirmedMeet: (meet: { inviteLink: string; startTime: string; theme: string; adminName: string }) => void;
+  setConfirmedMeet: (meet: { inviteLink: string; startTime: string; theme: string }) => void;
   reset: () => void;
 }
 
 const initialState = {
   step: 1 as const,
-  admin: null,
-  meetingType: null,
   date: null,
   slot: null,
+  name: "",
+  email: "",
   theme: "",
-  comment: "",
-  guests: [""],
   confirmedMeet: null,
 };
 
@@ -51,20 +36,11 @@ export const useBooking = create<BookingState>((set) => ({
   ...initialState,
 
   setStep: (step) => set({ step }),
-  setAdmin: (admin) => set({ admin, step: 2 }),
-  setMeetingType: (meetingType) => set({ meetingType, date: null, slot: null }),
   setDate: (date) => set({ date, slot: null }),
   setSlot: (slot) => set({ slot }),
+  setName: (name) => set({ name }),
+  setEmail: (email) => set({ email }),
   setTheme: (theme) => set({ theme }),
-  setComment: (comment) => set({ comment }),
-  addGuest: () => set((state) => ({ guests: [...state.guests, ""] })),
-  removeGuest: (index) => set((state) => ({ guests: state.guests.filter((_, idx) => idx !== index) })),
-  updateGuest: (index, value) =>
-    set((state) => {
-      const updated = [...state.guests];
-      updated[index] = value;
-      return { guests: updated };
-    }),
-  setConfirmedMeet: (confirmedMeet) => set({ confirmedMeet, step: 4 }),
+  setConfirmedMeet: (confirmedMeet) => set({ confirmedMeet, step: 3 }),
   reset: () => set({ ...initialState }),
 }));

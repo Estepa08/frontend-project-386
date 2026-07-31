@@ -4,47 +4,15 @@
  */
 
 export interface paths {
-    "/admins": {
+    "/availability": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        get: operations["Admins_list"];
-        put?: never;
-        post: operations["Admins_create"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/admins/{id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["Admins_get"];
-        put?: never;
-        post?: never;
-        delete: operations["Admins_delete"];
-        options?: never;
-        head?: never;
-        patch: operations["Admins_update"];
-        trace?: never;
-    };
-    "/admins/{id}/availability": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["Admins_getAvailability"];
-        put: operations["Admins_setAvailability"];
+        get: operations["AvailabilityApi_get"];
+        put: operations["AvailabilityApi_set"];
         post?: never;
         delete?: never;
         options?: never;
@@ -52,100 +20,20 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/admins/{id}/available-dates": {
+    "/available-dates": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        get: operations["Admins_getAvailableDates"];
+        get: operations["AvailableDatesApi_get"];
         put?: never;
         post?: never;
         delete?: never;
         options?: never;
         head?: never;
         patch?: never;
-        trace?: never;
-    };
-    "/admins/{id}/meeting-types": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["Admins_listMeetingTypes"];
-        put?: never;
-        post: operations["Admins_createMeetingType"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/admins/{id}/meets": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["Admins_listMeets"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/admins/{id}/slots": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["Admins_getSlots"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/auth/login": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post: operations["Auth_login"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/meeting-types/{id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        delete: operations["MeetingTypes_delete"];
-        options?: never;
-        head?: never;
-        patch: operations["MeetingTypes_update"];
         trace?: never;
     };
     "/meets": {
@@ -155,7 +43,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get?: never;
+        get: operations["Meets_list"];
         put?: never;
         post: operations["Meets_create"];
         delete?: never;
@@ -180,46 +68,14 @@ export interface paths {
         patch: operations["Meets_update"];
         trace?: never;
     };
-    "/users": {
+    "/slots": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        get: operations["Users_list"];
-        put?: never;
-        post: operations["Users_create"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/users/{id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["Users_get"];
-        put?: never;
-        post?: never;
-        delete: operations["Users_delete"];
-        options?: never;
-        head?: never;
-        patch: operations["Users_update"];
-        trace?: never;
-    };
-    "/users/{id}/meets": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["Users_listMeets"];
+        get: operations["SlotsApi_get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -232,23 +88,6 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
-        Admin: {
-            id: string;
-            name: string;
-            email: string;
-            /** Format: date-time */
-            createdAt: string;
-        };
-        AdminCreate: {
-            name: string;
-            email: string;
-            password: string;
-        };
-        AdminPatch: {
-            name?: string;
-            email?: string;
-            password?: string;
-        };
         ApiError: {
             error: {
                 code: string;
@@ -273,71 +112,27 @@ export interface components {
             updatedAt: string;
         } & components["schemas"]["MeetInput"];
         MeetInput: {
-            adminId: string;
-            userId: string;
-            /** Format: int32 */
-            meetingTypeId: number;
+            name: string;
+            email?: string;
+            theme: string;
             /** Format: date-time */
             startTime: string;
             /** Format: date-time */
             endTime: string;
-            theme: string;
-            comment?: string;
-            guestEmails?: string[];
         };
         MeetPatch: {
+            name?: string;
+            email?: string;
             theme?: string;
-            comment?: string;
-            guestEmails?: string[];
             /** @enum {string} */
             status?: "confirmed" | "cancelled";
         };
-        MeetingType: {
-            /** Format: int32 */
-            id: number;
-            adminId: string;
-            visible: boolean;
-            allowGuestInvite: boolean;
-        } & components["schemas"]["MeetingTypeInput"];
-        MeetingTypeInput: {
-            /** @enum {number} */
-            duration: 15 | 30;
-            /** @enum {string} */
-            category: "single" | "group" | "private";
-        };
-        MeetingTypePatch: {
-            /** @enum {number} */
-            duration?: 15 | 30;
-            /** @enum {string} */
-            category?: "single" | "group" | "private";
-            visible?: boolean;
-            allowGuestInvite?: boolean;
-        };
         Slot: {
-            /** Format: date-time */
             startTime: string;
-            /** Format: date-time */
             endTime: string;
         };
         Slots: {
             slots: components["schemas"]["Slot"][];
-        };
-        User: {
-            id: string;
-            name: string;
-            email: string;
-            /** Format: date-time */
-            createdAt: string;
-        };
-        UserCreate: {
-            name: string;
-            email: string;
-            password: string;
-        };
-        UserPatch: {
-            name?: string;
-            email?: string;
-            password?: string;
         };
         WorkingHour: {
             /** @enum {string} */
@@ -354,161 +149,11 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
-    Admins_list: {
+    AvailabilityApi_get: {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description The request has succeeded. */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Admin"][];
-                };
-            };
-        };
-    };
-    Admins_create: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["AdminCreate"];
-            };
-        };
-        responses: {
-            /** @description The request has succeeded. */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Admin"];
-                };
-            };
-            /** @description An unexpected error response. */
-            default: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ApiError"];
-                };
-            };
-        };
-    };
-    Admins_get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description The request has succeeded. */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Admin"];
-                };
-            };
-            /** @description An unexpected error response. */
-            default: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ApiError"];
-                };
-            };
-        };
-    };
-    Admins_delete: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description There is no content to send for this request, but the headers may be useful. */
-            204: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description An unexpected error response. */
-            default: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ApiError"];
-                };
-            };
-        };
-    };
-    Admins_update: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["AdminPatch"];
-            };
-        };
-        responses: {
-            /** @description The request has succeeded. */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Admin"];
-                };
-            };
-            /** @description An unexpected error response. */
-            default: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ApiError"];
-                };
-            };
-        };
-    };
-    Admins_getAvailability: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-            };
             cookie?: never;
         };
         requestBody?: never;
@@ -522,24 +167,13 @@ export interface operations {
                     "application/json": components["schemas"]["Availability"];
                 };
             };
-            /** @description An unexpected error response. */
-            default: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ApiError"];
-                };
-            };
         };
     };
-    Admins_setAvailability: {
+    AvailabilityApi_set: {
         parameters: {
             query?: never;
             header?: never;
-            path: {
-                id: string;
-            };
+            path?: never;
             cookie?: never;
         };
         requestBody: {
@@ -568,16 +202,13 @@ export interface operations {
             };
         };
     };
-    Admins_getAvailableDates: {
+    AvailableDatesApi_get: {
         parameters: {
             query: {
                 month: string;
-                meetingTypeId?: number;
             };
             header?: never;
-            path: {
-                id: string;
-            };
+            path?: never;
             cookie?: never;
         };
         requestBody?: never;
@@ -593,73 +224,14 @@ export interface operations {
             };
         };
     };
-    Admins_listMeetingTypes: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description The request has succeeded. */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["MeetingType"][];
-                };
-            };
-        };
-    };
-    Admins_createMeetingType: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["MeetingTypeInput"];
-            };
-        };
-        responses: {
-            /** @description The request has succeeded. */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["MeetingType"];
-                };
-            };
-            /** @description An unexpected error response. */
-            default: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ApiError"];
-                };
-            };
-        };
-    };
-    Admins_listMeets: {
+    Meets_list: {
         parameters: {
             query?: {
                 status?: "confirmed" | "cancelled";
                 date?: string;
             };
             header?: never;
-            path: {
-                id: string;
-            };
+            path?: never;
             cookie?: never;
         };
         requestBody?: never;
@@ -671,136 +243,6 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["Meet"][];
-                };
-            };
-        };
-    };
-    Admins_getSlots: {
-        parameters: {
-            query: {
-                date: string;
-                meetingTypeId?: number;
-            };
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description The request has succeeded. */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Slots"];
-                };
-            };
-        };
-    };
-    Auth_login: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": {
-                    email: string;
-                    password: string;
-                };
-            };
-        };
-        responses: {
-            /** @description The request has succeeded. */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        token: string;
-                        /** @enum {string} */
-                        role: "admin" | "user";
-                        user: components["schemas"]["Admin"] | components["schemas"]["User"];
-                    };
-                };
-            };
-            /** @description An unexpected error response. */
-            default: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ApiError"];
-                };
-            };
-        };
-    };
-    MeetingTypes_delete: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description There is no content to send for this request, but the headers may be useful. */
-            204: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description An unexpected error response. */
-            default: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ApiError"];
-                };
-            };
-        };
-    };
-    MeetingTypes_update: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: number;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["MeetingTypePatch"];
-            };
-        };
-        responses: {
-            /** @description The request has succeeded. */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["MeetingType"];
-                };
-            };
-            /** @description An unexpected error response. */
-            default: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ApiError"];
                 };
             };
         };
@@ -904,9 +346,11 @@ export interface operations {
             };
         };
     };
-    Users_list: {
+    SlotsApi_get: {
         parameters: {
-            query?: never;
+            query: {
+                date: string;
+            };
             header?: never;
             path?: never;
             cookie?: never;
@@ -919,160 +363,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["User"][];
-                };
-            };
-        };
-    };
-    Users_create: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["UserCreate"];
-            };
-        };
-        responses: {
-            /** @description The request has succeeded. */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["User"];
-                };
-            };
-            /** @description An unexpected error response. */
-            default: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ApiError"];
-                };
-            };
-        };
-    };
-    Users_get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description The request has succeeded. */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["User"];
-                };
-            };
-            /** @description An unexpected error response. */
-            default: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ApiError"];
-                };
-            };
-        };
-    };
-    Users_delete: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description There is no content to send for this request, but the headers may be useful. */
-            204: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description An unexpected error response. */
-            default: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ApiError"];
-                };
-            };
-        };
-    };
-    Users_update: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["UserPatch"];
-            };
-        };
-        responses: {
-            /** @description The request has succeeded. */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["User"];
-                };
-            };
-            /** @description An unexpected error response. */
-            default: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ApiError"];
-                };
-            };
-        };
-    };
-    Users_listMeets: {
-        parameters: {
-            query?: {
-                status?: "confirmed" | "cancelled";
-                date?: string;
-            };
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description The request has succeeded. */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Meet"][];
+                    "application/json": components["schemas"]["Slots"];
                 };
             };
         };

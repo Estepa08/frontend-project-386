@@ -1,4 +1,4 @@
-import { Copy, ArrowRight } from "lucide-react";
+import { Copy } from "lucide-react";
 import { useBooking } from "@/store/booking";
 
 export function StepSuccess() {
@@ -42,9 +42,6 @@ export function StepSuccess() {
             })}
           </p>
           <p className="text-zinc-700">
-            <span className="font-medium">Организатор:</span> {confirmedMeet.adminName}
-          </p>
-          <p className="text-zinc-700">
             <span className="font-medium">Тема:</span> {confirmedMeet.theme}
           </p>
           <p className="mt-3 rounded bg-zinc-50 p-2 font-mono text-xs text-zinc-600">
@@ -65,8 +62,7 @@ export function StepSuccess() {
           onClick={reset}
           className="inline-flex items-center gap-1.5 rounded-lg border border-zinc-200 px-4 py-2 text-sm text-zinc-600 hover:bg-zinc-50"
         >
-          Мои бронирования
-          <ArrowRight className="h-4 w-4" />
+          Новое бронирование
         </button>
       </div>
     </div>

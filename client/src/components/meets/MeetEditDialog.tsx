@@ -5,17 +5,6 @@ import { useUpdateMeet } from "@/hooks/meets";
 import { Button, Input, Label } from "@/components/ui";
 import type { Meet, MeetPatch } from "@/api/meets";
 
-function joinEmails(emails: string[]): string {
-  return emails.join(", ");
-}
-
-function splitEmails(raw: string): string[] {
-  return raw
-    .split(",")
-    .map((e) => e.trim())
-    .filter(Boolean);
-}
-
 interface MeetEditDialogProps {
   meet: Meet;
   open: boolean;
@@ -26,28 +15,16 @@ export function MeetEditDialog({ meet, open, onClose }: MeetEditDialogProps) {
   const updateMutation = useUpdateMeet();
 
   const [editTheme, setEditTheme] = useState(meet.theme);
-  const [editComment, setEditComment] = useState(meet.comment ?? "");
-  const [guestEmailInput, setGuestEmailInput] = useState(
-    joinEmails(meet.guestEmails ?? []),
-  );
 
   useEffect(() => {
     setEditTheme(meet.theme);
-    setEditComment(meet.comment ?? "");
-    setGuestEmailInput(joinEmails(meet.guestEmails ?? []));
   }, [meet]);
 
   if (!open) return null;
 
   const handleSave = async () => {
-    const guestEmails = splitEmails(guestEmailInput);
-
     const body: MeetPatch = {};
     if (editTheme !== meet.theme) body.theme = editTheme;
-    if (editComment !== (meet.comment ?? "")) body.comment = editComment || undefined;
-    if (joinEmails(guestEmails) !== joinEmails(meet.guestEmails ?? [])) {
-      body.guestEmails = guestEmails;
-    }
 
     if (Object.keys(body).length === 0) {
       onClose();
@@ -91,24 +68,6 @@ export function MeetEditDialog({ meet, open, onClose }: MeetEditDialogProps) {
               type="text"
               value={editTheme}
               onChange={(e) => setEditTheme(e.target.value)}
-            />
-          </div>
-          <div>
-            <Label className="mb-1 block">Комментарий</Label>
-            <Input
-              type="text"
-              value={editComment}
-              onChange={(e) => setEditComment(e.target.value)}
-              placeholder="Необязательно"
-            />
-          </div>
-          <div>
-            <Label className="mb-1 block">Гости (email через запятую)</Label>
-            <Input
-              type="text"
-              value={guestEmailInput}
-              onChange={(e) => setGuestEmailInput(e.target.value)}
-              placeholder="guest@example.com, friend@example.com"
             />
           </div>
           <div className="flex justify-end gap-2 pt-2">
