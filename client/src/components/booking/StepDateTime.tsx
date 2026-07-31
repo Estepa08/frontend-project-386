@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { DayPicker, getDefaultClassNames } from "react-day-picker";
 import { ru } from "date-fns/locale";
 import { format, addMonths } from "date-fns";
@@ -39,6 +39,14 @@ export function StepDateTime() {
     () => new Set(availableDates),
     [availableDates],
   );
+
+  useEffect(() => {
+    if (!duration || date) return;
+    const todayStr = format(new Date(), "yyyy-MM-dd");
+    if (availableDatesSet.has(todayStr)) {
+      setDate(new Date(new Date().toDateString()));
+    }
+  }, [duration, date, availableDatesSet, setDate]);
 
   return (
     <div data-container="step--date-time">

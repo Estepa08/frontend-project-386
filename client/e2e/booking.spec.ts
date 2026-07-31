@@ -26,20 +26,11 @@ test.describe.serial("Booking — full user flow", () => {
     // Duration picker is visible with both 15 and 30 minutes enabled by default
     await expect(page.locator('[data-container="card--duration-picker"]')).toBeVisible();
 
-    // Select a duration: calendar slides left and the slots panel appears
+    // Select a duration: calendar slides left, today's date is auto-selected,
+    // and the slots panel appears with slots for today
     await page.locator('[data-container="duration-card--30"]').click();
     await expect(page.locator('[data-container="panel--slots"]')).toBeVisible();
 
-    // Wait for calendar to load, then click the first available day
-    await expect(page.locator('[data-container="card--calendar"]')).toBeVisible();
-    await page.waitForLoadState("networkidle");
-
-    const availableDay = page.locator('[data-container="card--calendar"] td.font-semibold:not(.line-through) button').first();
-    await availableDay.waitFor({ state: "visible", timeout: 15000 });
-    await availableDay.click();
-    await page.waitForLoadState("networkidle");
-
-    // Click first slot, then "Далее"
     await expect(page.locator('[data-container="grid--slots"] button').first()).toBeVisible({ timeout: 10000 });
     await page.locator('[data-container="grid--slots"] button').first().click();
 
